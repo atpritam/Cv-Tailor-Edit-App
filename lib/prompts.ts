@@ -618,7 +618,7 @@ export const generateChatPrompt = (
   1.  **Source of Truth:** The resume to be edited is provided below under "CURRENT RESUME".
   2.  **User's Request:** The user's desired change is provided under "USER'S REQUEST".
   3.  **Apply the change:** Modify the "CURRENT RESUME" based *only* on the "USER'S REQUEST".
-  4.  **Maintain format and structure:** The output must be a complete, updated HTML of the resume. Maintain all CSS classes and structure. But you can modify the css stylings if requested by user.
+  4.  **Maintain format and structure:** The output must be a complete, updated HTML of the resume. Maintain all CSS classes and structure. If the user explicitly asks for styling changes, you may generate CSS in the resumeCss field.
   5.  **No new analysis:** Do not regenerate the analysis (ATS score, etc.). Only provide the updated 'tailoredResumeHtml'.
   6.  **Conversational response:** Provide a brief, friendly response (1-2 sentences) explaining what you changed. Be specific about the changes made.
   7.  **Restoration requests:** If the user asks to restore, add back, or undo a removal, use the ORIGINAL TAILORED RESUME as reference for the exact content and formatting.
@@ -638,9 +638,9 @@ export const generateChatPrompt = (
   ${userRequest}
   
   RESPONSE FORMAT (JSON) - REQUIRED FIELDS:
-  {
-    "tailoredResumeHtml": "<The complete, updated HTML of the resume with proper CSS classes>",
-    "chatResponse": "<Brief 1-2 sentence explanation of what was changed, e.g., 'I've removed the last experience entry from your resume. The updated version now shows your two most recent positions.''>"
+  - "tailoredResumeHtml": "<The complete, updated HTML of the resume with proper CSS classes>"
+  - "resumeCss": "<Optional: CSS styles as a string, if requested. E.g., .resume-container h1 { color: green; }> Note: This should be a <style> block containing only the CSS rules that have been added or modified."
+  - "chatResponse": "<Brief 1-2 sentence explanation of what was changed, e.g., 'I've removed the last experience entry from your resume. The updated version now shows your two most recent positions.''>"
   }
   `;
 };

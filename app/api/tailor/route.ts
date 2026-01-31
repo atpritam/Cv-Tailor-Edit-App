@@ -55,9 +55,30 @@ export async function POST(request: NextRequest) {
         parsed.tailoredResumeHtml &&
         typeof parsed.tailoredResumeHtml === "string"
       ) {
-        parsed.tailoredResumeHtml = processHtmlResponse(
-          parsed.tailoredResumeHtml,
-        );
+        let finalHtml = processHtmlResponse(parsed.tailoredResumeHtml);
+
+        if (parsed.resumeCss && typeof parsed.resumeCss === "string") {
+          const styleTag = `<style>${parsed.resumeCss}</style>`;
+          const headCloseTagIndex = finalHtml.indexOf("</head>");
+          if (headCloseTagIndex !== -1) {
+            finalHtml =
+              finalHtml.substring(0, headCloseTagIndex) +
+              styleTag +
+              finalHtml.substring(headCloseTagIndex);
+          } else {
+            const bodyOpenTagIndex = finalHtml.indexOf("<body");
+            if (bodyOpenTagIndex !== -1) {
+              const insertIndex = finalHtml.indexOf(">", bodyOpenTagIndex) + 1;
+              finalHtml =
+                finalHtml.substring(0, insertIndex) +
+                styleTag +
+                finalHtml.substring(insertIndex);
+            } else {
+              finalHtml = styleTag + finalHtml;
+            }
+          }
+        }
+        parsed.tailoredResumeHtml = finalHtml;
       }
 
       return NextResponse.json({

@@ -39,7 +39,7 @@ Follow these instructions to set up and run the project locally.
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/cv-tailor-app.git
+    git clone git@github.com:atpritam/Cv-Tailor-Edit-App.git
     cd cv-tailor-app
     ```
 
@@ -115,4 +115,4 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-For any questions or inquiries, please contact [your-email@example.com](mailto:your-email@example.com).
+For any questions or inquiries, please contact [atpritam@outlook.com](mailto:atpritam@outlook.com).
