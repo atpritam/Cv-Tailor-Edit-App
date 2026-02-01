@@ -44,14 +44,14 @@ export const HTML_TEMPLATE = `
   <h2>EXPERIENCE</h2>
 
   <!-- FOR WORK EXPERIENCE: [Role] | [Company Name] -->
-  <!-- FOR PROJECTS ONLY RESUME: [Predicted Role] | [Project Name] (Project) – [2 to 3 words on primary descriptive project focus] -->
+  <!-- FOR PROJECTS ONLY RESUME: [Predicted Role] | [Short Project Name] (Project) – [2 to 3 words on primary descriptive project focus] -->
   <!-- example (FOR PROJECTS ONLY RESUME): Core AI Engineer | Ollama Bridge (Project) – LLM Orchestration System-->
   <!-- TOTAL PROJECT TITLE div SHOULD NOT EXCEED 8 WORDS. -->
   
   <div class="project">
     <div class="project-header">
       <div class="project-title">
-        <p>[Role/Position] | [Company/Project Name]</p>
+        <p>[Role/Position] | [Company/Short Project Name]</p>
         <p class="project-time">[Date Range if available otherwise leave blank] • [Location for this role (City, Country) | For Projects, use primary location from Contact Info]</p>
       </div>
       <div class="project-sub">
@@ -59,11 +59,11 @@ export const HTML_TEMPLATE = `
       </div>
     </div>
     <p class="project-description">
-      [~30-46 words. REWRITE description. Use <strong> for achievements. PRESERVE metrics.]
+      [~38-54 words. REWRITE description. Use <strong> for achievements. PRESERVE metrics.]
     </p>
   </div>
 
-  <!-- Include maximum 3 experiences total from resume, do not makr up experiences -->
+  <!-- Include maximum 3 experiences total from resume, do not make up experiences -->
 </section>
 
 <section>
@@ -75,397 +75,11 @@ export const HTML_TEMPLATE = `
     </div>
     <div class="education-details">
       <div class="education-degree">[Degree]</div>
-      <div class="education-gpa">[GPA or omit]: [X.X/X.X or omit]</div>
+      <div class="education-gpa">[GPA: X.X/X.X or omit]</div>
     </div>
     [Relevant Coursework - Max 8 words or leave blank]
   </div>
 </section>
-`;
-
-export const RESUME_STYLES = `
-.resume-container * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.resume-container {
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
-  line-height: 1.5;
-  color: #1f2937;
-  background-color: #ffffff;
-  max-width: 850px;
-  margin: 0 auto;
-  padding: 40px 60px;
-  position: relative;
-}
-
-@media print {
-  .resume-container {
-    padding: 12px 12px;
-    padding-bottom: 0;
-    margin-bottom: 0;
-    max-width: 100%;
-    font-size: 10.5pt;
-    line-height: 1.25;
-  }
-
-  @page {
-    margin: 0.3in 0.4in;
-    size: letter;
-  }
-}
-
-.resume-container .resume-header {
-  margin-bottom: 18px;
-}
-
-@media print {
-  .resume-container .resume-header {
-    margin-bottom: 16px;
-  }
-}
-
-.resume-container .profile-container {
-  display: flex;
-  align-items: flex-start;
-  gap: 30px;
-}
-
-@media print {
-  .resume-container .profile-container {
-    gap: 24px;
-  }
-}
-
-.resume-container .profile-picture {
-  width: 180px;
-  height: 180px;
-  border-radius: 14px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-@media print {
-  .resume-container .profile-picture {
-    width: 135px;
-    height: 135px;
-    border-radius: 14px;
-  }
-}
-
-.resume-container .contact-info {
-  flex: 1;
-}
-
-.resume-container h1 {
-  font-size: 36px;
-  font-weight: 700;
-  color: #2563eb;
-  margin-bottom: 4px;
-  letter-spacing: 0.5px;
-}
-
-.resume-container .title-line {
-  font-size: 16px;
-  font-weight: 500;
-  color: #4b5563;
-  margin-bottom: 8px;
-  display: block;
-}
-
-@media print {
-  .resume-container h1 {
-    font-size: 16pt;
-    margin-bottom: -1px;
-  }
-  .resume-container .title-line {
-    font-size: 12pt;
-    margin-bottom: 8px;
-  }
-}
-
-.resume-container .contact {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #374151;
-}
-
-@media print {
-  .resume-container .contact {
-    font-size: 11.5pt;
-    line-height: 1.25;
-  }
-}
-
-.resume-container .contact a {
-  color: #2563eb;
-  text-decoration: none;
-}
-
-.resume-container .contact a:hover {
-  text-decoration: underline;
-}
-
-.resume-container section {
-  margin-bottom: 26px;
-}
-
-@media print {
-  .resume-container section {
-    margin-bottom: 14px;
-  }
-}
-
-.resume-container h2 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #2563eb;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 10px;
-  padding-bottom: 4px;
-  border-bottom: 2px solid #2563eb;
-}
-
-@media print {
-  .resume-container h2 {
-    font-size: 11.5pt;
-    margin-bottom: 8px;
-    padding-bottom: 2px;
-    border-bottom: 2px solid #2563eb;
-  }
-}
-
-.resume-container .summary {
-  text-align: justify;
-  line-height: 1.6;
-  color: #374151;
-}
-
-@media print {
-  .resume-container .summary {
-    line-height: 1.5;
-  }
-}
-
-.resume-container .skills {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-@media print {
-  .resume-container .skills {
-    gap: 4px;
-  }
-}
-
-.resume-container .skill-level {
-  display: flex;
-  gap: 8px;
-  line-height: 1.6;
-}
-
-@media print {
-  .resume-container .skill-level {
-    line-height: 1.4;
-  }
-}
-
-.resume-container .skill-level-title {
-  font-weight: 700;
-  color: #1f2937;
-  min-width: 110px;
-  flex-shrink: 0;
-}
-
-.resume-container .skill-items {
-  color: #374151;
-  flex: 1;
-}
-
-.resume-container .project {
-  margin-bottom: 18px;
-}
-
-@media print {
-  .resume-container .project {
-    margin-bottom: 16px;
-  }
-}
-
-.resume-container .project:last-child {
-  margin-bottom: 0;
-}
-
-.resume-container .project-header {
-  margin-bottom: 4px;
-}
-
-@media print {
-  .resume-container .project-header {
-    margin-bottom: 3px;
-  }
-}
-
-.resume-container .project-title {
-  font-weight: 700;
-  color: #1f2937;
-  font-size: 16px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-.resume-container .project-time {
-  font-weight: 700;
-  color: #1f2937;
-  font-size: 12px;
-}
-
-@media print {
-  .resume-container .project-title {
-    font-size: 11pt;
-  }
-  .resume-container .project-time {
-    font-size: 10pt;
-  }
-}
-
-.resume-container .project-link {
-  color: #2563eb;
-  font-weight: 500;
-}
-
-.resume-container a {
-  text-decoration: none;
-}
-
-.resume-container a:hover {
-  text-decoration: underline;
-}
-
-.resume-container .project-sub {
-  display: flex;
-  justify-content: space-between;
-}
-
-.resume-container .project-tech {
-  font-style: italic;
-  color: #2563eb;
-  font-size: 14px;
-  margin-top: 2px;
-}
-
-@media print {
-  .resume-container .project-tech {
-    font-size: 10pt;
-    margin-top: 2px;
-    margin-bottom: 4px;
-  }
-}
-
-.resume-container .project-description {
-  text-align: justify;
-  line-height: 1.6;
-  color: #374151;
-  margin-top: 4px;
-}
-
-@media print {
-  .resume-container .project-description {
-    line-height: 1.45;
-    margin-top: 0px;
-  }
-}
-
-.resume-container .education {
-  line-height: 1.6;
-  color: #374151;
-}
-
-@media print {
-  .resume-container .education {
-    line-height: 1.5;
-  }
-}
-
-.resume-container .education-date {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 4px;
-}
-
-.resume-container .education-details {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 0;
-}
-
-@media print {
-  .resume-container .education-date {
-    margin-bottom: 2px;
-  }
-}
-
-.resume-container .education-title {
-  font-weight: 700;
-  color: #1f2937;
-}
-
-@media print {
-  .resume-container * {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .resume-container a {
-    color: #2563eb !important;
-    text-decoration: none;
-  }
-
-  .resume-container section {
-    page-break-inside: avoid;
-  }
-
-  .resume-container .project {
-    page-break-inside: avoid;
-  }
-
-  .resume-container h2 {
-    page-break-after: avoid;
-  }
-}
-
-.resume-container .consent {
-  display: none;
-  font-size: 10.5px;
-  color: #6b7280;
-  text-align: center;
-}
-
-@media print {
-  .resume-container .consent {
-    display: block;
-    position: fixed;
-    bottom: 20px;
-    left: 0;
-    right: 0;
-    width: 100%;
-    text-align: center;
-    z-index: 9999;
-  }
-}
-
-.resume-container strong {
-  font-weight: 700;
-  color: #1f2937;
-}
 `;
 
 type PromptData = {
@@ -515,10 +129,10 @@ CRITICAL RULES:
   - Projects only: "[Predicted Role] | [Project Name] (Project) – [Max 3 words]" - Always include the "(Project)" suffix to be not misleading
 
 5. WORD LIMITS:
-  - About: 56 words max
+  - About: 50 words min - 56 words max
   - Skills: 9 words max per category (3 categories)
   - Experience: 3 items
-  - Experience descriptions: MINIMUM 30 words each (150 max total)
+  - Experience descriptions: MINIMUM 38 words each (158 max total across all experiences)
   - Coursework: 8 words max IN TOTAL
 
 SCORING RULES (MANDATORY - produce numeric evidence):
@@ -594,6 +208,7 @@ RESPONSE FORMAT (JSON):
 export const generateChatPrompt = (
   chatHistory: { role: string; parts: { text: string }[] }[],
   resumeHtml: string,
+  resumeStyles: string,
   originalResumeHtml?: string,
 ): string => {
   const userRequest =
@@ -631,7 +246,7 @@ export const generateChatPrompt = (
   
   RESUME STYLES (for reference - maintain these classes and structure):
   \`\`\`css
-  ${RESUME_STYLES}
+  ${resumeStyles}
   \`\`\`
 
   USER'S REQUEST:

@@ -66,7 +66,11 @@ export function useCVTailor() {
         // This is a chat refinement request - use real LLM response
         setResults((prev) =>
           prev
-            ? { ...prev, tailoredResumeHtml: data.tailoredResumeHtml }
+            ? {
+                ...prev,
+                tailoredResumeHtml: data.tailoredResumeHtml,
+                resumeCss: data.resumeCss,
+              }
             : data,
         );
         if (data.chatResponse) {

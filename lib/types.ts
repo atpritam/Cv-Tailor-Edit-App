@@ -12,4 +12,5 @@ export interface TailorResult {
   analysis: AnalysisResult;
   tailoredResumeHtml: string;
   originalProvided: boolean;
+  resumeCss?: string;
 }

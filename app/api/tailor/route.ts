@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { generatePrompt, generateChatPrompt } from "@/lib/prompts";
 import { generateContentWithRetry } from "@/services/gen-ai";
 import { processHtmlResponse } from "@/lib/response-processor";
+import fs from "fs";
+import path from "path";
 
 export async function POST(request: NextRequest) {
   console.log("API route hit:", request.method, request.url);
@@ -29,8 +31,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const resumeStyles = fs.readFileSync(
+      path.join(process.cwd(), "public", "resume-styles.css"),
+      "utf-8",
+    );
+
     const prompt = chatHistory
-      ? generateChatPrompt(chatHistory, resumeText, originalResumeHtml)
+      ? generateChatPrompt(
+          chatHistory,
+          resumeText,
+          resumeStyles,
+          originalResumeHtml,
+        )
       : generatePrompt({
           jobDescription,
           resumeText,
@@ -83,6 +95,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         ...parsed,
+        resumeCss: parsed.resumeCss,
         originalProvided: resumeText?.trim(),
         chatResponse: parsed.chatResponse || undefined,
       });
