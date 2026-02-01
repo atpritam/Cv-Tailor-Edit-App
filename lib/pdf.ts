@@ -1,4 +1,4 @@
-type ColorTheme = {
+export type ColorTheme = {
   name: string;
   primary: string;
   h2: string;
@@ -7,11 +7,52 @@ type ColorTheme = {
   tech: string;
 };
 
-const generatePDFContent = (
-  htmlContent: string,
+export const downloadPDF = async (
+  element: HTMLElement,
   profilePhotoDataUrl: string | null,
   theme: ColorTheme,
-): string => {
+) => {
+  const htmlContent = element.innerHTML;
+
+  try {
+    const response = await fetch("/api/generate-pdf", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        html: htmlContent,
+        profilePhotoDataUrl,
+        theme,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to generate PDF");
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "resume.pdf";
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (error) {
+    console.error("Error downloading PDF:", error);
+    alert("Failed to generate PDF. Please try the print option instead.");
+  }
+};
+
+export const printPDF = (
+  element: HTMLElement,
+  profilePhotoDataUrl: string | null,
+  theme: ColorTheme,
+) => {
+  const htmlContent = element.innerHTML;
+
   let modifiedHtml = htmlContent.replace(
     /<img[^>]*class="profile-picture"[^>]*>/gi,
     "",
@@ -160,86 +201,6 @@ const generatePDFContent = (
     </html>
   `;
 
-  return printContent;
-};
-
-export const downloadPDF = async (
-  element: HTMLElement,
-  profilePhotoDataUrl: string | null,
-  theme: ColorTheme,
-) => {
-  const htmlContent = element.innerHTML;
-  const printContent = generatePDFContent(
-    htmlContent,
-    profilePhotoDataUrl,
-    theme,
-  );
-
-  // Use html2canvas and jsPDF for actual PDF download
-  const html2canvas = (await import("html2canvas")).default;
-  const jsPDF = (await import("jspdf")).default;
-
-  // Create a temporary container
-  const tempContainer = document.createElement("div");
-  tempContainer.innerHTML = printContent;
-  tempContainer.style.position = "absolute";
-  tempContainer.style.left = "-9999px";
-  tempContainer.style.width = "850px";
-  document.body.appendChild(tempContainer);
-
-  try {
-    const canvas = await html2canvas(tempContainer.querySelector("body")!, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: "#ffffff",
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
-
-    const imgWidth = 210; // A4 width in mm
-    const pageHeight = 297; // A4 height in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
-
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-    }
-
-    pdf.save("resume.pdf");
-  } catch (error) {
-    console.error("Error generating PDF:", error);
-    alert("Failed to generate PDF. Please try printing instead.");
-  } finally {
-    document.body.removeChild(tempContainer);
-  }
-};
-
-export const printPDF = (
-  element: HTMLElement,
-  profilePhotoDataUrl: string | null,
-  theme: ColorTheme,
-) => {
-  const htmlContent = element.innerHTML;
-  const printContent = generatePDFContent(
-    htmlContent,
-    profilePhotoDataUrl,
-    theme,
-  );
-
-  // Add auto-print script
   const printContentWithScript = printContent.replace(
     "</body>",
     `<script>
@@ -249,13 +210,11 @@ export const printPDF = (
     </script></body>`,
   );
 
-  // Create blob and open in new tab with proper UTF-8 encoding
   const blob = new Blob([printContentWithScript], {
     type: "text/html; charset=utf-8",
   });
   const url = URL.createObjectURL(blob);
 
-  // Open in new tab
   const printTab = window.open(url, "_blank");
 
   if (!printTab) {
