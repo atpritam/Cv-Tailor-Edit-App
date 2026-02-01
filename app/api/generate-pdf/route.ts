@@ -17,10 +17,19 @@ export async function POST(request: NextRequest) {
     // Generate print-ready HTML with all styles inline
     const printHtml = generatePrintHtml(html, profilePhotoDataUrl, theme);
 
+    // - CHROMIUM_PACK_URL=https://my-bucket/chromium-pack.tar
+    // - CHROMIUM_PACK_DIR=/opt/chromium
+    const chromiumPackLocation =
+      process.env.CHROMIUM_PACK_URL || process.env.CHROMIUM_PACK_DIR;
+
+    const executablePath = chromiumPackLocation
+      ? await chromium.executablePath(chromiumPackLocation)
+      : await chromium.executablePath();
+
     // Launch headless browser
     const browser = await puppeteer.launch({
       args: chromium.args,
-      executablePath: await chromium.executablePath(),
+      executablePath,
       headless: "shell",
       defaultViewport: { width: 1920, height: 1080 },
     });
