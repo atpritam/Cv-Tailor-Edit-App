@@ -31,6 +31,17 @@ export const downloadPDF = (
   const consentHtml =
     '<p class="consent">I consent to the processing of my personal data for the purpose of recruitment.</p>';
 
+  // Extract dynamic CSS from any <style> tags in the resume HTML
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(element.innerHTML, "text/html");
+  const styleElements = doc.querySelectorAll("style");
+  let dynamicStyles = "";
+  styleElements.forEach((styleEl) => {
+    if (styleEl.textContent) {
+      dynamicStyles += styleEl.textContent + "\n";
+    }
+  });
+
   const extractDynamicStyles = () => {
     const styles: { [key: string]: string } = {};
 
@@ -59,12 +70,12 @@ export const downloadPDF = (
     return styles;
   };
 
-  const dynamicStyles = extractDynamicStyles();
-  const primaryColor = dynamicStyles.primaryColor || "#2563eb";
-  const h2Color = dynamicStyles.h2Color || "#2563eb";
-  const h2BorderColor = dynamicStyles.h2BorderColor || "#2563eb";
-  const linkColor = dynamicStyles.linkColor || "#2563eb";
-  const projectTechColor = dynamicStyles.projectTechColor || "#2563eb";
+  const dynamicStylesObj = extractDynamicStyles();
+  const primaryColor = dynamicStylesObj.primaryColor || "#2563eb";
+  const h2Color = dynamicStylesObj.h2Color || "#2563eb";
+  const h2BorderColor = dynamicStylesObj.h2BorderColor || "#2563eb";
+  const linkColor = dynamicStylesObj.linkColor || "#2563eb";
+  const projectTechColor = dynamicStylesObj.projectTechColor || "#2563eb";
 
   const printContent = `
     <!DOCTYPE html>
@@ -171,6 +182,9 @@ export const downloadPDF = (
             }
           }
           strong { font-weight: 700; color: #1f2937; }
+          
+          /* Dynamic styles from AI */
+          ${dynamicStyles}
         </style>
       </head>
       <body>

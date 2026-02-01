@@ -1,17 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateTailorPrompt } from "@/lib/prompts";
+import { generateRefinePrompt } from "@/lib/prompts";
 import { generateContentWithRetry } from "@/services/gen-ai";
 import { processHtmlResponse } from "@/lib/response-processor";
 
 export async function POST(request: NextRequest) {
-  console.log("Tailor API route hit:", request.method, request.url);
+  console.log("Refine API route hit:", request.method, request.url);
   try {
-    const { jobDescription, resumeText, linkedin, github } =
-      await request.json();
+    const {
+      userMessage,
+      currentResumeHtml,
+      originalTailoredHtml,
+      jobDescription,
+    } = await request.json();
 
-    if (!jobDescription?.trim()) {
+    if (!userMessage?.trim()) {
       return NextResponse.json(
-        { error: "Job description is required" },
+        { error: "User message is required" },
+        { status: 400 },
+      );
+    }
+
+    if (!currentResumeHtml?.trim()) {
+      return NextResponse.json(
+        { error: "Current resume HTML is required" },
         { status: 400 },
       );
     }
@@ -23,11 +34,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const prompt = generateTailorPrompt({
+    const prompt = generateRefinePrompt({
+      userMessage,
+      currentResumeHtml,
+      originalTailoredHtml,
       jobDescription,
-      resumeText,
-      linkedin,
-      github,
     });
 
     const text = await generateContentWithRetry(prompt, 3);
@@ -43,19 +54,14 @@ export async function POST(request: NextRequest) {
     try {
       const parsed = JSON.parse(jsonStr);
 
-      if (
-        parsed.tailoredResumeHtml &&
-        typeof parsed.tailoredResumeHtml === "string"
-      ) {
-        const finalHtml = processHtmlResponse(parsed.tailoredResumeHtml);
-        parsed.tailoredResumeHtml = finalHtml;
+      if (parsed.updatedHtml && typeof parsed.updatedHtml === "string") {
+        const finalHtml = processHtmlResponse(parsed.updatedHtml);
+        parsed.updatedHtml = finalHtml;
       }
 
       return NextResponse.json({
-        ...parsed,
-        originalProvided: resumeText?.trim(),
-        // Store job description for refine to use later
-        jobDescription,
+        updatedHtml: parsed.updatedHtml,
+        chatResponse: parsed.chatResponse || "Changes applied successfully.",
       });
     } catch (parseError) {
       console.error("Failed to parse JSON response:", text);
@@ -66,7 +72,7 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error: any) {
-    console.error("Tailor API Error:", error);
+    console.error("Refine API Error:", error);
     const status = error?.status || error?.response?.status;
     const isRateLimit =
       status === 429 ||

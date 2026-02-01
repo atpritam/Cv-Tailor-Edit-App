@@ -15,6 +15,10 @@ type ResumePreviewProps = {
   chatHistory: ChatMessage[];
   sendChatMessage: (message: string) => void;
   profilePhotoDataUrl: string | null;
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
 };
 
 export function ResumePreview({
@@ -25,6 +29,10 @@ export function ResumePreview({
   chatHistory,
   sendChatMessage,
   profilePhotoDataUrl,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
 }: ResumePreviewProps) {
   const resumeRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +74,10 @@ export function ResumePreview({
         chatHistory={chatHistory}
         sendChatMessage={sendChatMessage}
         isLoading={loading}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={onUndo}
+        onRedo={onRedo}
       />
 
       {/* Tailored Resume Preview */}

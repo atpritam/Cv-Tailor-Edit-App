@@ -82,14 +82,14 @@ export const HTML_TEMPLATE = `
 </section>
 `;
 
-type PromptData = {
+type TailorPromptData = {
   jobDescription: string;
   resumeText?: string;
   linkedin?: string;
   github?: string;
 };
 
-export const generatePrompt = (data: PromptData): string => {
+export const generateTailorPrompt = (data: TailorPromptData): string => {
   const { jobDescription, resumeText, linkedin, github } = data;
   const hasResume = resumeText?.trim();
 
@@ -205,57 +205,55 @@ RESPONSE FORMAT (JSON):
   }
 };
 
-export const generateChatPrompt = (
-  chatHistory: { role: string; parts: { text: string }[] }[],
-  resumeHtml: string,
-  resumeStyles: string,
-  originalResumeHtml?: string,
-): string => {
-  const userRequest =
-    chatHistory
-      .filter((entry) => entry.role === "user")
-      .pop()
-      ?.parts.map((part) => part.text)
-      .join("\n") || "";
+type RefinePromptData = {
+  userMessage: string;
+  currentResumeHtml: string;
+  originalTailoredHtml?: string;
+  jobDescription?: string;
+};
 
-  const originalResumeContext = originalResumeHtml
+export const generateRefinePrompt = (data: RefinePromptData): string => {
+  const {
+    userMessage,
+    currentResumeHtml,
+    originalTailoredHtml,
+    jobDescription,
+  } = data;
+
+  // Token-optimized context blocks - only include if available
+  const originalResumeContext = originalTailoredHtml
     ? `
-  ORIGINAL TAILORED RESUME (for reference when user asks to restore content):
-  \`\`\`html
-  ${originalResumeHtml}
-  \`\`\`
-  `
+ORIGINAL VERSION (for restoration requests):
+${originalTailoredHtml}
+`
     : "";
 
-  return `You are an expert resume editor. Your task is to update the provided resume HTML based on the user's request, and provide a friendly conversational response.
+  const jobContext = jobDescription
+    ? `
+JOB REQUIREMENTS (for job-related refinements):
+${jobDescription}
+`
+    : "";
 
-  CRITICAL RULES:
-  1.  **Source of Truth:** The resume to be edited is provided below under "CURRENT RESUME".
-  2.  **User's Request:** The user's desired change is provided under "USER'S REQUEST".
-  3.  **Apply the change:** Modify the "CURRENT RESUME" based *only* on the "USER'S REQUEST".
-  4.  **Maintain format and structure:** The output must be a complete, updated HTML of the resume. Maintain all CSS classes and structure. If the user explicitly asks for styling changes, you may generate CSS in the resumeCss field.
-  5.  **No new analysis:** Do not regenerate the analysis (ATS score, etc.). Only provide the updated 'tailoredResumeHtml'.
-  6.  **Conversational response:** Provide a brief, friendly response (1-2 sentences) explaining what you changed. Be specific about the changes made.
-  7.  **Restoration requests:** If the user asks to restore, add back, or undo a removal, use the ORIGINAL TAILORED RESUME as reference for the exact content and formatting.
-  
-  CURRENT RESUME:
-  \`\`\`html
-  ${resumeHtml}
-  \`\`\`
-  ${originalResumeContext}
-  
-  RESUME STYLES (for reference - maintain these classes and structure):
-  \`\`\`css
-  ${resumeStyles}
-  \`\`\`
+  return `You are a resume editor. Apply the user's requested change to the resume HTML.
 
-  USER'S REQUEST:
-  ${userRequest}
-  
-  RESPONSE FORMAT (JSON) - REQUIRED FIELDS:
-  - "tailoredResumeHtml": "<The complete, updated HTML of the resume with proper CSS classes>"
-  - "resumeCss": "<Optional: CSS styles as a string, if requested. E.g., .resume-container h1 { color: green; }> Note: This should be a <style> block containing only the CSS rules that have been added or modified."
-  - "chatResponse": "<Brief 1-2 sentence explanation of what was changed, e.g., 'I've removed the last experience entry from your resume. The updated version now shows your two most recent positions.''>"
-  }
-  `;
+RULES:
+1. Modify ONLY what the user requests
+2. Maintain ALL CSS classes and HTML structure
+3. Return COMPLETE updated HTML
+4. NO style changes - structure only
+5. If user asks to restore/undo, use ORIGINAL VERSION
+6. If user references job requirements, use JOB REQUIREMENTS context
+
+CURRENT RESUME:
+${currentResumeHtml}
+${originalResumeContext}${jobContext}
+USER REQUEST:
+${userMessage}
+
+RESPONSE (JSON):
+{
+  "updatedHtml": "<complete updated resume HTML>",
+  "chatResponse": "<1-2 sentence explanation of changes>"
+}`;
 };

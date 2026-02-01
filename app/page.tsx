@@ -27,6 +27,10 @@ export default function CVTailorApp() {
     setError,
     chatHistory,
     sendChatMessage,
+    undoLastChange,
+    redoChange,
+    canUndo,
+    canRedo,
   } = useCVTailor();
 
   const { profilePhotoDataUrl, handleProfilePhotoUpload, resetProfilePhoto } =
@@ -164,6 +168,10 @@ export default function CVTailorApp() {
                 chatHistory={chatHistory}
                 sendChatMessage={sendChatMessage}
                 profilePhotoDataUrl={profilePhotoDataUrl}
+                canUndo={canUndo}
+                canRedo={canRedo}
+                onUndo={undoLastChange}
+                onRedo={redoChange}
               />
             </div>
           </div>

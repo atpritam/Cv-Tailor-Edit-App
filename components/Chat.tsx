@@ -1,16 +1,28 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
-import { Bot } from "lucide-react";
+import { Bot, Undo2, Redo2 } from "lucide-react";
 import type { ChatMessage } from "@/hooks/useCVTailor";
 
 type ChatProps = {
   chatHistory: ChatMessage[];
   sendChatMessage: (message: string) => void;
   isLoading: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
 };
 
-export function Chat({ chatHistory, sendChatMessage, isLoading }: ChatProps) {
+export function Chat({
+  chatHistory,
+  sendChatMessage,
+  isLoading,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
+}: ChatProps) {
   const [message, setMessage] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -30,11 +42,35 @@ export function Chat({ chatHistory, sendChatMessage, isLoading }: ChatProps) {
 
   return (
     <div className="mb-6 md:mb-8 overflow-hidden rounded-lg border border-border">
-      <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-3 md:px-6 md:py-4">
-        <Bot size={16} className="shrink-0" />
-        <h3 className="text-xs font-semibold uppercase tracking-wider">
-          Refine with Gemini
-        </h3>
+      <div className="flex items-center justify-between gap-2 border-b border-border bg-muted/50 px-4 py-3 md:px-6 md:py-4">
+        <div className="flex items-center gap-2">
+          <Bot size={16} className="shrink-0" />
+          <h3 className="text-xs font-semibold uppercase tracking-wider">
+            Refine with Gemini
+          </h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onUndo}
+            disabled={!canUndo || isLoading}
+            className="h-8 px-2"
+            title="Undo last change"
+          >
+            <Undo2 size={14} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRedo}
+            disabled={!canRedo || isLoading}
+            className="h-8 px-2"
+            title="Redo change"
+          >
+            <Redo2 size={14} />
+          </Button>
+        </div>
       </div>
       <div className="flex flex-col h-full px-3 md:px-6 py-4">
         <div
@@ -81,7 +117,7 @@ export function Chat({ chatHistory, sendChatMessage, isLoading }: ChatProps) {
         </div>
         <div className="mt-3 md:mt-4 flex space-x-2">
           <Input
-            placeholder="Type your message..."
+            placeholder="Type your message (e.g., 'make the summary shorter' or 'add more details to first project')..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !isLoading && handleSend()}
@@ -90,7 +126,7 @@ export function Chat({ chatHistory, sendChatMessage, isLoading }: ChatProps) {
           />
           <Button
             onClick={handleSend}
-            disabled={isLoading}
+            disabled={isLoading || !message.trim()}
             className="shrink-0 cursor-pointer"
           >
             Send

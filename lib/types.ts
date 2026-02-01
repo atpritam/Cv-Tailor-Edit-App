@@ -12,5 +12,17 @@ export interface TailorResult {
   analysis: AnalysisResult;
   tailoredResumeHtml: string;
   originalProvided: boolean;
-  resumeCss?: string;
+  jobDescription?: string;
+}
+
+export interface ResumeVersion {
+  id: string;
+  html: string;
+  timestamp: number;
+  changeDescription: string;
+}
+
+export interface RefineResponse {
+  updatedHtml: string;
+  chatResponse: string;
 }
