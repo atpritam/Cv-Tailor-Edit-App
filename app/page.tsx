@@ -172,6 +172,7 @@ export default function CVTailorApp() {
                 chatHistory={chatHistory}
                 sendChatMessage={sendChatMessage}
                 profilePhotoDataUrl={profilePhotoDataUrl}
+                handleProfilePhotoUpload={handleProfilePhotoUpload}
                 canUndo={canUndo}
                 canRedo={canRedo}
                 onUndo={undoLastChange}

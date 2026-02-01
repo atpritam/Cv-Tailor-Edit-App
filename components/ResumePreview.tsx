@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
-import { Download, FileText, Loader2, RefreshCw, Printer } from "lucide-react";
+import { Download, FileText, Loader2, RefreshCw, Printer, Upload } from "lucide-react";
 import type { TailorResult } from "@/lib/types";
 import { Chat } from "./Chat";
 import type { ChatMessage } from "@/hooks/useCVTailor";
@@ -15,6 +15,7 @@ type ResumePreviewProps = {
   chatHistory: ChatMessage[];
   sendChatMessage: (message: string) => void;
   profilePhotoDataUrl: string | null;
+  handleProfilePhotoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void; // Added for new feature
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
@@ -97,12 +98,14 @@ export function ResumePreview({
   chatHistory,
   sendChatMessage,
   profilePhotoDataUrl,
+  handleProfilePhotoUpload, // Destructure new prop
   canUndo,
   canRedo,
   onUndo,
   onRedo,
 }: ResumePreviewProps) {
   const resumeRef = useRef<HTMLDivElement>(null);
+  const profilePhotoInputRef = useRef<HTMLInputElement>(null); // New ref for hidden input
   const [selectedTheme, setSelectedTheme] = useState(0); // Default to Classic Blue
   const [showProfilePhoto, setShowProfilePhoto] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
@@ -155,7 +158,7 @@ export function ResumePreview({
         (link as HTMLElement).style.color = theme.link;
       });
     }
-  }, [selectedTheme, results.tailoredResumeHtml]);
+  }, [selectedTheme, results.tailoredResumeHtml, showProfilePhoto]);
 
   // Inject profile photo whenever resume HTML or photo changes
   useEffect(() => {
@@ -191,6 +194,7 @@ export function ResumePreview({
     profilePhotoDataUrl,
     showProfilePhoto,
     loading,
+    selectedTheme,
   ]);
 
   const handleDownload = async () => {
@@ -239,8 +243,8 @@ export function ResumePreview({
           </div>
 
           <div className="flex items-center gap-3 md:gap-4 flex-wrap md:flex-nowrap">
-            {/* Profile Photo Toggle */}
-            {profilePhotoDataUrl && (
+            {profilePhotoDataUrl ? (
+              // Existing Profile Photo Toggle
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium whitespace-nowrap">
                   Profile Pic
@@ -257,6 +261,28 @@ export function ResumePreview({
                       showProfilePhoto ? "translate-x-5" : "translate-x-0.5"
                     }`}
                   />
+                </button>
+              </div>
+            ) : (
+              // New Profile Photo Upload Button
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium whitespace-nowrap">
+                  Add Profile Pic
+                </span>
+                <input
+                  ref={profilePhotoInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePhotoUpload}
+                  className="hidden"
+                  aria-hidden
+                />
+                <button
+                  onClick={() => profilePhotoInputRef.current?.click()}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20 transition-colors"
+                  aria-label="Upload profile photo"
+                >
+                  <Upload size={16} />
                 </button>
               </div>
             )}
