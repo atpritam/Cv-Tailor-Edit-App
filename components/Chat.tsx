@@ -91,7 +91,7 @@ export function Chat({ chatHistory, sendChatMessage, isLoading }: ChatProps) {
           <Button
             onClick={handleSend}
             disabled={isLoading}
-            className="shrink-0"
+            className="shrink-0 cursor-pointer"
           >
             Send
           </Button>

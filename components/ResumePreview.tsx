@@ -92,9 +92,9 @@ export function ResumePreview({
       {/* Action Buttons */}
       <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-3">
         <button
-          onClick={() => {
+          onClick={async () => {
             if (resumeRef.current) {
-              downloadPDF(resumeRef.current, profilePhotoDataUrl);
+              await downloadPDF(resumeRef.current, profilePhotoDataUrl);
             }
           }}
           className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 md:py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"

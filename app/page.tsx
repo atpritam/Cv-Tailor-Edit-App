@@ -7,7 +7,6 @@ import { useProfilePhoto } from "@/hooks/useProfilePhoto";
 import { CVTailorForm } from "@/components/CVTailorForm";
 import { Analysis } from "@/components/Analysis";
 import { ResumePreview } from "@/components/ResumePreview";
-import "./resume-styles.css";
 
 export default function CVTailorApp() {
   const {

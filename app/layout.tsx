@@ -31,7 +31,7 @@ export default function RootLayout({
       <body className={`font-sans antialiased`}>
         {children}
         <Analytics />
-        <link rel="stylesheet" href="/resume-print-styles.css" media="print" />
+        <link rel="stylesheet" href="/resume-styles.css" />
       </body>
     </html>
   );
