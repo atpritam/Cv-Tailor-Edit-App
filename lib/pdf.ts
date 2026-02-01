@@ -1,9 +1,17 @@
-export const downloadPDF = (
-  element: HTMLElement,
-  profilePhotoDataUrl: string | null,
-) => {
-  const htmlContent = element.innerHTML;
+type ColorTheme = {
+  name: string;
+  primary: string;
+  h2: string;
+  border: string;
+  link: string;
+  tech: string;
+};
 
+const generatePDFContent = (
+  htmlContent: string,
+  profilePhotoDataUrl: string | null,
+  theme: ColorTheme,
+): string => {
   let modifiedHtml = htmlContent.replace(
     /<img[^>]*class="profile-picture"[^>]*>/gi,
     "",
@@ -28,54 +36,9 @@ export const downloadPDF = (
         modifiedHtml.slice(insertPosition);
     }
   }
+
   const consentHtml =
     '<p class="consent">I consent to the processing of my personal data for the purpose of recruitment.</p>';
-
-  // Extract dynamic CSS from any <style> tags in the resume HTML
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(element.innerHTML, "text/html");
-  const styleElements = doc.querySelectorAll("style");
-  let dynamicStyles = "";
-  styleElements.forEach((styleEl) => {
-    if (styleEl.textContent) {
-      dynamicStyles += styleEl.textContent + "\n";
-    }
-  });
-
-  const extractDynamicStyles = () => {
-    const styles: { [key: string]: string } = {};
-
-    const h1 = element.querySelector("h1");
-    if (h1) {
-      styles.primaryColor = window.getComputedStyle(h1).color;
-    }
-
-    const h2 = element.querySelector("h2");
-    if (h2) {
-      const h2Style = window.getComputedStyle(h2);
-      styles.h2Color = h2Style.color;
-      styles.h2BorderColor = h2Style.borderBottomColor;
-    }
-
-    const link = element.querySelector("a");
-    if (link) {
-      styles.linkColor = window.getComputedStyle(link).color;
-    }
-
-    const projectTech = element.querySelector(".project-tech");
-    if (projectTech) {
-      styles.projectTechColor = window.getComputedStyle(projectTech).color;
-    }
-
-    return styles;
-  };
-
-  const dynamicStylesObj = extractDynamicStyles();
-  const primaryColor = dynamicStylesObj.primaryColor || "#2563eb";
-  const h2Color = dynamicStylesObj.h2Color || "#2563eb";
-  const h2BorderColor = dynamicStylesObj.h2BorderColor || "#2563eb";
-  const linkColor = dynamicStylesObj.linkColor || "#2563eb";
-  const projectTechColor = dynamicStylesObj.projectTechColor || "#2563eb";
 
   const printContent = `
     <!DOCTYPE html>
@@ -123,17 +86,17 @@ export const downloadPDF = (
           .profile-picture { width: 180px; height: 180px; border-radius: 14px; object-fit: cover; flex-shrink: 0; }
           @media print { .profile-picture { width: 135px; height: 135px; border-radius: 14px; } }
           .contact-info { flex: 1; }
-          h1 { font-size: 36px; font-weight: 700; color: ${primaryColor}; margin-bottom: 4px; letter-spacing: 0.5px; }
+          h1 { font-size: 36px; font-weight: 700; color: ${theme.primary}; margin-bottom: 4px; letter-spacing: 0.5px; }
           .title-line { font-size: 16px; font-weight: 500; color: #4b5563; margin-bottom: 8px; display: block; }
           @media print { h1 { font-size: 16pt; margin-bottom: -1px; } .title-line { font-size: 12pt; margin-bottom: 8px; } }
           .contact { font-size: 14px; line-height: 1.6; color: #374151; }
           @media print { .contact { font-size: 11.5pt; line-height: 1.25; } }
-          .contact a { color: ${linkColor}; text-decoration: none; }
+          .contact a { color: ${theme.link}; text-decoration: none; }
           .contact a:hover { text-decoration: underline; }
           section { margin-bottom: 26px; }
           @media print { section { margin-bottom: 14px; } }
-          h2 { font-size: 16px; font-weight: 700; color: ${h2Color}; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; padding-bottom: 4px; border-bottom: 2px solid ${h2BorderColor}; }
-          @media print { h2 { font-size: 11.5pt; margin-bottom: 8px; padding-bottom: 2px; border-bottom: 2px solid ${h2BorderColor}; } }
+          h2 { font-size: 16px; font-weight: 700; color: ${theme.h2}; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; padding-bottom: 4px; border-bottom: 2px solid ${theme.border}; }
+          @media print { h2 { font-size: 11.5pt; margin-bottom: 8px; padding-bottom: 2px; border-bottom: 2px solid ${theme.border}; } }
           .summary { text-align: justify; line-height: 1.6; color: #374151; }
           @media print { .summary { line-height: 1.5; } }
           .skills { display: flex; flex-direction: column; gap: 10px; }
@@ -150,11 +113,11 @@ export const downloadPDF = (
           .project-title { font-weight: 700; color: #1f2937; font-size: 16px; display: flex; flex-direction: row; justify-content: space-between; }
           .project-time { font-weight: 700; color: #1f2937; font-size: 12px; }
           @media print { .project-title { font-size: 11pt; } .project-time { font-size: 10pt; } }
-          .project-link { color: ${linkColor}; font-weight: 500; }
+          .project-link { color: ${theme.link}; font-weight: 500; }
           a { text-decoration: none; }
           a:hover { text-decoration: underline; }
           .project-sub { display: flex; justify-content: space-between; }
-          .project-tech { font-style: italic; color: ${projectTechColor}; font-size: 14px; margin-top: 2px; }
+          .project-tech { font-style: italic; color: ${theme.tech}; font-size: 14px; margin-top: 2px; }
           @media print { .project-tech { font-size: 10pt; margin-top: 2px; margin-bottom: 4px; } }
           .project-description { text-align: justify; line-height: 1.6; color: #374151; margin-top: 4px; }
           @media print { .project-description { line-height: 1.45; margin-top: 0px; } }
@@ -164,7 +127,13 @@ export const downloadPDF = (
           .education-details { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0; }
           @media print { .education-date { margin-bottom: 2px; } }
           .education-title { font-weight: 700; color: #1f2937; }
-          @media print { * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } a { color: ${linkColor} !important; text-decoration: none; } section { page-break-inside: avoid; } .project { page-break-inside: avoid; } h2 { page-break-after: avoid; } }
+          @media print {
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            a { color: ${theme.link} !important; text-decoration: none; }
+            section { page-break-inside: avoid; }
+            .project { page-break-inside: avoid; }
+            h2 { page-break-after: avoid; }
+          }
           .consent {
             font-size: 10.5px;
             color: #6b7280;
@@ -182,33 +151,115 @@ export const downloadPDF = (
             }
           }
           strong { font-weight: 700; color: #1f2937; }
-          
-          /* Dynamic styles from AI */
-          ${dynamicStyles}
         </style>
       </head>
       <body>
         ${modifiedHtml}
         ${consentHtml}
-        <script>
-          // Auto-trigger print dialog
-          window.onload = function() {
-            window.print();
-          };
-        </script>
       </body>
     </html>
   `;
 
+  return printContent;
+};
+
+export const downloadPDF = async (
+  element: HTMLElement,
+  profilePhotoDataUrl: string | null,
+  theme: ColorTheme,
+) => {
+  const htmlContent = element.innerHTML;
+  const printContent = generatePDFContent(
+    htmlContent,
+    profilePhotoDataUrl,
+    theme,
+  );
+
+  // Use html2canvas and jsPDF for actual PDF download
+  const html2canvas = (await import("html2canvas")).default;
+  const jsPDF = (await import("jspdf")).default;
+
+  // Create a temporary container
+  const tempContainer = document.createElement("div");
+  tempContainer.innerHTML = printContent;
+  tempContainer.style.position = "absolute";
+  tempContainer.style.left = "-9999px";
+  tempContainer.style.width = "850px";
+  document.body.appendChild(tempContainer);
+
+  try {
+    const canvas = await html2canvas(tempContainer.querySelector("body")!, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+
+    const imgWidth = 210; // A4 width in mm
+    const pageHeight = 297; // A4 height in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save("resume.pdf");
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    alert("Failed to generate PDF. Please try printing instead.");
+  } finally {
+    document.body.removeChild(tempContainer);
+  }
+};
+
+export const printPDF = (
+  element: HTMLElement,
+  profilePhotoDataUrl: string | null,
+  theme: ColorTheme,
+) => {
+  const htmlContent = element.innerHTML;
+  const printContent = generatePDFContent(
+    htmlContent,
+    profilePhotoDataUrl,
+    theme,
+  );
+
+  // Add auto-print script
+  const printContentWithScript = printContent.replace(
+    "</body>",
+    `<script>
+      window.onload = function() {
+        window.print();
+      };
+    </script></body>`,
+  );
+
   // Create blob and open in new tab with proper UTF-8 encoding
-  const blob = new Blob([printContent], { type: "text/html; charset=utf-8" });
+  const blob = new Blob([printContentWithScript], {
+    type: "text/html; charset=utf-8",
+  });
   const url = URL.createObjectURL(blob);
 
   // Open in new tab
   const printTab = window.open(url, "_blank");
 
   if (!printTab) {
-    alert("Please allow popups to download the PDF");
+    alert("Please allow popups to print the PDF");
     URL.revokeObjectURL(url);
     return;
   }

@@ -1,15 +1,36 @@
 "use client";
 import React from "react";
-import { Check } from "lucide-react";
+import { Check, RefreshCw, Loader2 } from "lucide-react";
 import type { TailorResult } from "@/lib/types";
 
 type AnalysisProps = {
   results: TailorResult;
+  regenerate: () => void;
+  loading: boolean;
 };
 
-export function Analysis({ results }: AnalysisProps) {
+export function Analysis({ results, regenerate, loading }: AnalysisProps) {
   return (
     <div className="space-y-6 md:space-y-8 w-full">
+      {/* Regenerate Button */}
+      <button
+        onClick={regenerate}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-primary/20 bg-background px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted hover:border-primary/40 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+      >
+        {loading ? (
+          <>
+            <Loader2 size={16} className="animate-spin" />
+            Regenerating ...
+          </>
+        ) : (
+          <>
+            <RefreshCw size={16} />
+            Regenerate Analysis
+          </>
+        )}
+      </button>
+
       {/* ATS Score */}
       <div className="rounded-lg border border-border bg-card p-4 md:p-6 text-center w-full">
         <div

@@ -157,7 +157,11 @@ export default function CVTailorApp() {
         ) : (
           <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 w-full">
             <div className="w-full lg:col-span-3 order-2 lg:order-1">
-              <Analysis results={results} />
+              <Analysis
+                results={results}
+                regenerate={handleRegenerate}
+                loading={loading}
+              />
             </div>
             <div className="w-full lg:col-span-9 order-1 lg:order-2 min-w-0">
               <ResumePreview
