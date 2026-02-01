@@ -81,6 +81,10 @@ export function ResumePreview({
         <div
           ref={resumeRef}
           className="resume-container max-h-[50vh] md:max-h-[calc(100vh-400px)] overflow-auto"
+          style={{
+            WebkitOverflowScrolling: "touch",
+            transform: "translateZ(0)",
+          }}
           dangerouslySetInnerHTML={{ __html: results.tailoredResumeHtml }}
         />
       </div>
