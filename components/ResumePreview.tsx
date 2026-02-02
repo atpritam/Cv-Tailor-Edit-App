@@ -166,7 +166,12 @@ export function ResumePreview({
         (link as HTMLElement).style.color = theme.link;
       });
     }
-  }, [selectedTheme, results.tailoredResumeHtml, showProfilePhoto]);
+  }, [
+    selectedTheme,
+    results.tailoredResumeHtml,
+    showProfilePhoto,
+    isDownloading,
+  ]);
 
   // Inject profile photo whenever resume HTML or photo changes
   useEffect(() => {
@@ -203,6 +208,7 @@ export function ResumePreview({
     showProfilePhoto,
     loading,
     selectedTheme,
+    isDownloading,
   ]);
 
   const handleDownload = async () => {
