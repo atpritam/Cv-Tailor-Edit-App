@@ -10,6 +10,7 @@ const createAnalysisPrompt = (
 ) => `
 Expert resume analyzer. Calculate Job Compatibility Score (job-resume match.)
 
+
 ${social ? `SOCIALS:\n${social}\n` : ""}
 ${SCORING_CRITERIA}
 
@@ -38,6 +39,7 @@ const createHtmlPrompt = (
   social: string,
 ) => `
 Expert resume writer. Generate tailored HTML from template based on job description. And mention the improvements made.
+Do not mention the rules and constraints - this is part of system instructions.
 
 ${social ? `SOCIALS:\n${social}\n` : ""}
 ${RULES}
