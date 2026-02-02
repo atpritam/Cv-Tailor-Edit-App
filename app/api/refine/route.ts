@@ -1,7 +1,11 @@
+/**
+ * Refine API Route - Diff-based edit chnage
+ */
+
 import { NextRequest, NextResponse } from "next/server";
-import { generateRefinePrompt } from "@/lib/prompts";
+import { generateRefineDiffPrompt } from "@/lib/prompts";
 import { generateContentWithRetry } from "@/services/gen-ai";
-import { processHtmlResponse } from "@/lib/response-processor";
+import { applyHtmlDiff } from "@/lib/html-diff-processor";
 
 export async function POST(request: NextRequest) {
   console.log("Refine API route hit:", request.method, request.url);
@@ -34,7 +38,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const prompt = generateRefinePrompt({
+    const prompt = generateRefineDiffPrompt({
       userMessage,
       currentResumeHtml,
       originalTailoredHtml,
@@ -54,13 +58,11 @@ export async function POST(request: NextRequest) {
     try {
       const parsed = JSON.parse(jsonStr);
 
-      if (parsed.updatedHtml && typeof parsed.updatedHtml === "string") {
-        const finalHtml = processHtmlResponse(parsed.updatedHtml);
-        parsed.updatedHtml = finalHtml;
-      }
+      // Apply the HTML block changes
+      const updatedHtml = applyHtmlDiff(currentResumeHtml, parsed.blocks || []);
 
       return NextResponse.json({
-        updatedHtml: parsed.updatedHtml,
+        updatedHtml,
         chatResponse: parsed.chatResponse || "Changes applied successfully.",
       });
     } catch (parseError) {

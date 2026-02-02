@@ -146,27 +146,35 @@ export function ResumePreview({
 
       // Apply to elements
       const h1 = container.querySelector("h1");
-      if (h1) h1.style.color = theme.primary;
+      if (h1) {
+        const h1El = h1 as HTMLElement;
+        if (!h1El.style.color) h1El.style.color = theme.primary;
+      }
 
       const h2s = container.querySelectorAll("h2");
       h2s.forEach((h2) => {
-        (h2 as HTMLElement).style.color = theme.h2;
-        (h2 as HTMLElement).style.borderBottomColor = theme.border;
+        const el = h2 as HTMLElement;
+        if (!el.style.color) el.style.color = theme.h2;
+        if (!el.style.borderBottomColor)
+          el.style.borderBottomColor = theme.border;
       });
 
       const links = container.querySelectorAll("a");
       links.forEach((link) => {
-        (link as HTMLElement).style.color = theme.link;
+        const el = link as HTMLElement;
+        if (!el.style.color) el.style.color = theme.link;
       });
 
       const techs = container.querySelectorAll(".project-tech");
       techs.forEach((tech) => {
-        (tech as HTMLElement).style.color = theme.tech;
+        const el = tech as HTMLElement;
+        if (!el.style.color) el.style.color = theme.tech;
       });
 
       const projectLinks = container.querySelectorAll(".project-link");
       projectLinks.forEach((link) => {
-        (link as HTMLElement).style.color = theme.link;
+        const el = link as HTMLElement;
+        if (!el.style.color) el.style.color = theme.link;
       });
     }
   }, [

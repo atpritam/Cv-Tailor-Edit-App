@@ -71,31 +71,78 @@ Return JSON:
 }`;
 
 export async function POST(request: NextRequest) {
+  const extractFirstJson = (text: string): string | null => {
+    if (!text) return null;
+    text = text.replace(/```\w*\n?|```/g, "");
+
+    const start = text.indexOf("{");
+    if (start === -1) return null;
+
+    let inString = false;
+    let escape = false;
+    let depth = 0;
+    for (let i = start; i < text.length; i++) {
+      const ch = text[i];
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (ch === "\\") {
+        escape = true;
+        continue;
+      }
+      if (ch === '"') {
+        inString = !inString;
+        continue;
+      }
+      if (inString) continue;
+      if (ch === "{") depth++;
+      else if (ch === "}") {
+        depth--;
+        if (depth === 0) {
+          return text.substring(start, i + 1);
+        }
+      }
+    }
+    return null;
+  };
+
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
     async start(controller) {
+      let isControllerClosed = false;
+
+      const safeEnqueue = (data: string) => {
+        if (!isControllerClosed) {
+          controller.enqueue(encoder.encode(data));
+        }
+      };
+
+      const safeClose = () => {
+        if (!isControllerClosed) {
+          controller.close();
+          isControllerClosed = true;
+        }
+      };
+
       try {
         const { jobDescription, resumeText, linkedin, github } =
           await request.json();
 
         if (!jobDescription?.trim()) {
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({ error: "Job description required" })}\n\n`,
-            ),
+          safeEnqueue(
+            `data: ${JSON.stringify({ error: "Job description required" })}\n\n`,
           );
-          controller.close();
+          safeClose();
           return;
         }
 
         if (!resumeText?.trim()) {
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({ error: "Resume required" })}\n\n`,
-            ),
+          safeEnqueue(
+            `data: ${JSON.stringify({ error: "Resume required" })}\n\n`,
           );
-          controller.close();
+          safeClose();
           return;
         }
 
@@ -106,10 +153,8 @@ export async function POST(request: NextRequest) {
           .filter(Boolean)
           .join("\n");
 
-        controller.enqueue(
-          encoder.encode(
-            `data: ${JSON.stringify({ type: "started", message: "Analysis started" })}\n\n`,
-          ),
+        safeEnqueue(
+          `data: ${JSON.stringify({ type: "started", message: "Analysis started" })}\n\n`,
         );
 
         let analysisAccumulated = "";
@@ -127,34 +172,40 @@ export async function POST(request: NextRequest) {
               const now = Date.now();
               if (now - lastAnalysisSent > 120) {
                 try {
-                  const jsonMatch = accumulated.match(/\{[\s\S]*\}/);
-                  if (jsonMatch) {
-                    const parsed = JSON.parse(jsonMatch[0]);
-                    controller.enqueue(
-                      encoder.encode(
-                        `data: ${JSON.stringify({ type: "analysis_partial", data: parsed })}\n\n`,
-                      ),
+                  const jsonStr = extractFirstJson(accumulated);
+                  if (jsonStr) {
+                    const parsed = JSON.parse(jsonStr);
+                    safeEnqueue(
+                      `data: ${JSON.stringify({ type: "analysis_partial", data: parsed })}\n\n`,
                     );
                     lastAnalysisSent = now;
                   }
-                } catch {
-                  // Not valid yet
+                } catch (error: any) {
+                  console.warn(
+                    "Partial Analysis JSON parsing failed:",
+                    error?.message || String(error),
+                    "String:",
+                    accumulated.slice(0, 1000),
+                  );
                 }
               }
             },
             onComplete: (fullText) => {
               try {
-                const jsonMatch = fullText.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                  const parsed = JSON.parse(jsonMatch[0]);
-                  controller.enqueue(
-                    encoder.encode(
-                      `data: ${JSON.stringify({ type: "analysis_complete", data: parsed })}\n\n`,
-                    ),
+                const jsonStr = extractFirstJson(fullText);
+                if (jsonStr) {
+                  const parsed = JSON.parse(jsonStr);
+                  safeEnqueue(
+                    `data: ${JSON.stringify({ type: "analysis_complete", data: parsed })}\n\n`,
                   );
                 }
-              } catch (err) {
-                console.error("Analysis parse error:", err);
+              } catch (err: any) {
+                console.error(
+                  "Analysis parse error:",
+                  err?.message || String(err),
+                  "String:",
+                  fullText.slice(0, 2000),
+                );
               }
             },
           },
@@ -165,79 +216,80 @@ export async function POST(request: NextRequest) {
 
               const now = Date.now();
               if (now - lastHtmlSent > 200) {
-                // Send partial HTML
                 try {
-                  const jsonMatch = accumulated.match(/\{[\s\S]*\}/);
-                  if (jsonMatch) {
-                    const parsed = JSON.parse(jsonMatch[0]);
+                  const jsonStr = extractFirstJson(accumulated);
+                  if (jsonStr) {
+                    const parsed = JSON.parse(jsonStr);
                     if (parsed.tailoredResumeHtml) {
-                      controller.enqueue(
-                        encoder.encode(
-                          `data: ${JSON.stringify({
-                            type: "html_partial",
-                            data: {
-                              tailoredResumeHtml: parsed.tailoredResumeHtml,
-                              improvements: parsed.improvements,
-                            },
-                          })}\n\n`,
-                        ),
+                      safeEnqueue(
+                        `data: ${JSON.stringify({
+                          type: "html_partial",
+                          data: {
+                            tailoredResumeHtml: parsed.tailoredResumeHtml,
+                            improvements: parsed.improvements,
+                          },
+                        })}\n\n`,
                       );
                       lastHtmlSent = now;
                     }
                   }
-                } catch {
-                  // Not valid yet
+                } catch (error: any) {
+                  console.warn(
+                    "Partial HTML JSON parsing failed:",
+                    error?.message || String(error),
+                    "String:",
+                    accumulated.slice(0, 1000),
+                  );
                 }
               }
             },
             onComplete: (fullText) => {
               try {
-                const jsonMatch = fullText.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                  const parsed = JSON.parse(jsonMatch[0]);
-                  controller.enqueue(
-                    encoder.encode(
-                      `data: ${JSON.stringify({
-                        type: "html_complete",
-                        data: {
-                          tailoredResumeHtml: processHtmlResponse(
-                            parsed.tailoredResumeHtml,
-                          ),
-                          improvements: parsed.improvements,
-                        },
-                      })}\n\n`,
-                    ),
+                const jsonStr = extractFirstJson(fullText);
+                if (jsonStr) {
+                  const parsed = JSON.parse(jsonStr);
+                  safeEnqueue(
+                    `data: ${JSON.stringify({
+                      type: "html_complete",
+                      data: {
+                        tailoredResumeHtml: processHtmlResponse(
+                          parsed.tailoredResumeHtml,
+                        ),
+                        improvements: parsed.improvements,
+                      },
+                    })}\n\n`,
                   );
                 }
-              } catch (err) {
-                console.error("HTML parse error:", err);
+              } catch (err: any) {
+                console.error(
+                  "HTML parse error:",
+                  err?.message || String(err),
+                  "String:",
+                  fullText.slice(0, 2000),
+                );
               }
             },
           },
         ]);
 
         // Send final completion signal
-        controller.enqueue(
-          encoder.encode(
-            `data: ${JSON.stringify({
-              type: "complete",
-              data: { jobDescription, originalProvided: true },
-            })}\n\n`,
-          ),
+        safeEnqueue(
+          `data: ${JSON.stringify({
+            type: "complete",
+            data: { jobDescription, originalProvided: true },
+          })}\n\n`,
         );
 
-        controller.close();
+        safeClose();
       } catch (error: any) {
         console.error("Stream error:", error);
-        controller.enqueue(
-          encoder.encode(
-            `data: ${JSON.stringify({
-              type: "error",
-              error: error.message || "Processing failed",
-            })}\n\n`,
-          ),
+        safeEnqueue(
+          `data: ${JSON.stringify({
+            type: "error",
+            error: error.message || "Processing failed",
+          })}\n\n`,
         );
-        controller.close();
+        safeClose();
       }
     },
   });

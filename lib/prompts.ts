@@ -4,7 +4,7 @@ export const HTML_TEMPLATE = `
 <header class="resume-header">
   <div class="profile-container">
     <div class="contact-info">
-      <h1>[FULL NAME CAPS]</h1>
+      <h1 class="name">[FULL NAME CAPS]</h1>
       <span class="title-line">[Title | Specializations]</span>
       <div class="contact">
         [City, Country]<br />
@@ -16,38 +16,38 @@ export const HTML_TEMPLATE = `
   </div>
 </header>
 
-<section>
-  <h2>ABOUT</h2>
+<section class="about-section">
+  <h2 class="about-header">ABOUT</h2>
   <p class="summary">[50-56 words, highlight AI tools use for accelerated development, tailor to role and company (if company details available)]</p>
 </section>
 
-<section>
-  <h2>SKILLS</h2>
+<section class="skills-section">
+  <h2 class="skills-header">SKILLS</h2>
   <div class="skills">
-    <div class="skill-level"><div class="skill-level-title">[Category]:</div><div class="skill-items">[Max 9 words from resume]</div></div>
-    <div class="skill-level"><div class="skill-level-title">[Category]:</div><div class="skill-items">[Max 9 words]</div></div>
-    <div class="skill-level"><div class="skill-level-title">[Category]:</div><div class="skill-items">[Max 9 words]</div></div>
+    <div class="skill-level" id="1"><div class="skill-level-title">[Category]:</div><div class="skill-items">[Max 9 words from resume]</div></div>
+    <div class="skill-level" id="2"><div class="skill-level-title">[Category]:</div><div class="skill-items">[Max 9 words]</div></div>
+    <div class="skill-level" id="3"><div class="skill-level-title">[Category]:</div><div class="skill-items">[Max 9 words]</div></div>
   </div>
 </section>
 
-<section>
-  <h2>EXPERIENCE</h2>
-    <!-- FOR WORK EXPERIENCE: [Role |]  [Company Name] -->
-    <!-- FOR PROJECTS ONLY RESUME: [Predicted Role |]  [Short Project Name] (Project) – [2 to 3 words on primary descriptive project focus] -->
-    <!-- example (FOR PROJECTS ONLY RESUME): Core AI Engineer | Ollama Bridge (Project) – LLM Orchestration System -->
-   <!-- TOTAL PROJECT TITLE div SHOULD NOT EXCEED 8 WORDS. -->
-  <div class="project">
+<section class="experience-section">
+  <h2 class="experience-header">EXPERIENCE</h2>
+      <!-- FOR WORK EXPERIENCE: [Role |]  [Company Name] -->
+      <!-- FOR PROJECTS ONLY RESUME: [Predicted Role |]  [Short Project Name] (Project) – [2 to 3 words on primary descriptive project focus] -->
+      <!-- example (FOR PROJECTS ONLY RESUME): Core AI Engineer | Ollama Bridge (Project) – LLM Orchestration System -->
+      <!-- TOTAL PROJECT TITLE div SHOULD NOT EXCEED 8 WORDS. -->
+  <div class="project" id="[unique numbered id]">
     <div class="project-header">
-      <div class="project-title"><p>[Role |]  [Company/Project Name]</p><p class="project-time">[Dates ][• Location]</p></div>
+      <div class="project-title" id="[unique numbered id]"><p>[Role |]  [Company/Project Name]</p><p class="project-time">[Dates ][• Location]</p></div>
       <div class="project-sub"><p class="project-tech">[Technologies/Prominent skills]</p></div>
     </div>
-    <p class="project-description">[38-54 words, <strong> for achievements/optimizations done/specific important info relevent to job skill needed]</p>
+    <p class="project-description" id="[unique numbered id]">[38-54 words, <strong> for achievements/optimizations done/specific important info relevent to job skill needed]</p>
   </div>
   <!-- Max 3 experiences / Never Invent Experience -->
 </section>
 
-<section>
-  <h2>EDUCATION</h2>
+<section class="education-section">
+  <h2 class="education-header">EDUCATION</h2>
   <div class="education">
     <div class="education-date"><div class="education-title">[University, Location]</div><div>[Date]</div></div>
     <div class="education-details"><div class="education-degree">[Degree]</div><div class="education-gpa">[GPA or omit]</div></div>
@@ -167,7 +167,7 @@ type RefinePromptData = {
   jobDescription?: string;
 };
 
-export const generateRefinePrompt = (data: RefinePromptData): string => {
+export const generateRefineDiffPrompt = (data: RefinePromptData): string => {
   const {
     userMessage,
     currentResumeHtml,
@@ -176,31 +176,49 @@ export const generateRefinePrompt = (data: RefinePromptData): string => {
   } = data;
 
   const ctx = [
-    originalTailoredHtml && `ORIGINAL:\n${originalTailoredHtml}`,
-    jobDescription && `JOB:\n${jobDescription}`,
+    originalTailoredHtml &&
+      `ORIGINAL TAILORED VERSION:\n${originalTailoredHtml}`,
+    jobDescription && `JOB DESCRIPTION:\n${jobDescription}`,
   ]
     .filter(Boolean)
     .join("\n\n");
 
-  return `Resume editor. Apply user request. Keep structure. Return complete HTML.
+  return `You are an expert resume HTML editor.
 
-RULES:
-1. Change only what requested
-2. Maintain all CSS classes
-3. No style changes
-4. If "restore/undo" use ORIGINAL
+TASK
+Apply the user’s requested change to the resume.
 
-CURRENT:
+CURRENT_RESUME_HTML:
 ${currentResumeHtml}
 
 ${ctx}
 
-REQUEST:
-${userMessage}
+USER_REQUEST:
+"${userMessage}"
 
-JSON:
+RULES
+- Return ONLY modified blocks (never the full document)
+- Each block must be COMPLETE (opening tag → closing tag)
+- Preserve all class names and structure
+- Edit the SMALLEST uniquely identifiable block only
+- For entire div/block removal requests, return the nearest parent block with the target content removed
+- You can insert inline styles if specific style changes are requested
+
+EXAMPLES OF VALID CHANGES: 
+
+User: "Make the summary shorter"
+Return: <p class="summary">Concise new summary text here</p>
+
+User: "Remove the second skill category"
+Return: The immediate entire outer block with removal changes; <div class="skills">...</div>
+
+OUTPUT (STRICT)
+Return ONLY valid JSON:
 {
-  "updatedHtml": "<complete HTML>",
-  "chatResponse": "<1-2 friendly user directed sentence>"
-}`;
+  "blocks": [
+    { "newHtml": "<complete unique HTML block>" }
+  ],
+  "chatResponse": "short friendly confirmation"
+}
+`;
 };
