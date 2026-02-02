@@ -126,7 +126,7 @@ export function Chat({
           />
           <Button
             onClick={handleSend}
-            disabled={isLoading || !message.trim()}
+            disabled={isLoading}
             className="shrink-0 cursor-pointer"
           >
             Send

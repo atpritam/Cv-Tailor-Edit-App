@@ -36,10 +36,10 @@ export function Analysis({ results, regenerate, loading }: AnalysisProps) {
         <div
           className={`text-4xl md:text-5xl lg:text-6xl font-bold leading-none ${
             results.analysis.atsScore >= 85
-              ? "text-green-600"
-              : results.analysis.atsScore >= 70
-                ? "text-amber-600"
-                : "text-red-600"
+              ? "bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-700"
+              : results.analysis.atsScore > 65
+                ? "bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-700"
+                : "bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-red-700"
           }`}
         >
           {results.analysis.atsScore}
@@ -51,10 +51,10 @@ export function Analysis({ results, regenerate, loading }: AnalysisProps) {
           <div
             className={`h-full transition-all ${
               results.analysis.atsScore >= 85
-                ? "bg-green-500"
-                : results.analysis.atsScore >= 70
-                  ? "bg-amber-500"
-                  : "bg-red-500"
+                ? "bg-gradient-to-r from-green-400 to-green-700"
+                : results.analysis.atsScore > 65
+                  ? "bg-gradient-to-r from-amber-400 to-amber-700"
+                  : "bg-gradient-to-r from-red-400 to-red-700"
             }`}
             style={{ width: `${results.analysis.atsScore}%` }}
           />
@@ -120,7 +120,7 @@ export function Analysis({ results, regenerate, loading }: AnalysisProps) {
           <div className="flex flex-col gap-2">
             {results.analysis.gaps.map((gap, i) => (
               <div key={i} className="flex gap-2 text-xs md:text-sm">
-                <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gradient-to-br from-amber-400 to-amber-700 shadow-sm" />
                 <span className="break-words">{gap}</span>
               </div>
             ))}

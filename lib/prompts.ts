@@ -103,7 +103,7 @@ export const generateTailorPrompt = (data: TailorPromptData): string => {
     : "";
 
   if (hasResume) {
-    return `You are an expert resume writer and ATS specialist. Analyze the user's resume and job description, then either recommend applying as-is (only if a computed, transparent ATS score ≥ 85) or generate a tailored version.
+    return `You are an expert resume writer and ATS specialist. Analyze the user's resume and job description, then either recommend applying as-is (only if a computed, transparent ATS score ≥ 75) or generate a tailored version.
 
 ${providedInfoBlock}
 CRITICAL RULES:
@@ -136,14 +136,15 @@ CRITICAL RULES:
   - Coursework: 8 words max IN TOTAL
 
 SCORING RULES (MANDATORY - produce numeric evidence):
-  - Compute these four sub-scores (integers 0-100) based ONLY on explicit matches between the JOB DESCRIPTION and the USER'S RESUME. For each sub-score, list matched keywords/phrases and counts.
-    * SkillMatch (%): overlap of explicit technical and domain skills (weight 40%).
-    * ExperienceMatch (%): relevance of past roles and project experience (weight 30%).
-    * TitleMatch (%): similarity of candidate's titles/levels to role (weight 15%).
-    * SoftSkillMatch (%): evidence of soft skills and cultural fit items (weight 15%).
-  - Compute atsScore = Math.round(0.4*SkillMatch + 0.3*ExperienceMatch + 0.15*TitleMatch + 0.15*SoftSkillMatch) and include the arithmetic and intermediate values in the response.
-  - Do NOT use vague language to justify scores; always include explicit matched tokens/phrases and simple counts for each sub-score.
-  - Only recommend apply_as_is when the computed atsScore is >= 85. Otherwise tailor_resume.
+  - Compute these four sub-scores (integers 0-100) based on BOTH explicit matches and generous semantic matches between the JOB DESCRIPTION and the USER'S RESUME. For each sub-score, list matched keywords/phrases, whether the match is 'explicit' or 'semantic', and counts. For semantic matches include a similarity/confidence value (0.0-1.0) and count semantic matches with similarity >= 0.55. For scoring, treat an explicit match as full credit (100) and a semantic match as partial credit equal to Math.round(similarity * 100).
+    * SkillMatch (%): overlap of explicit technical and domain skills (weight 40%). Count exact token matches and semantic matches (synonyms, paraphrases, related technologies like React/Vue or AWS/GCP) using similarity-weighted credit. Be generous with related tech stacks.
+    * ExperienceMatch (%): relevance of past roles and project experience (weight 30%). Consider years of experience heavily - 2+ years in relevant domain should baseline at 70+. Each relevant project/role adds 5-10 points.
+    * TitleMatch (%): similarity of candidate's titles/levels to role (weight 15%). Exact title = 100, similar level = 70-90, career change with relevant skills = 50-70.
+    * SoftSkillMatch (%): evidence of soft skills and cultural fit items (weight 20%). Leadership, communication, collaboration are often overlooked but critical.
+  - Compute atsScore = Math.round(0.40*SkillMatch + 0.30*ExperienceMatch + 0.15*TitleMatch + 0.20*SoftSkillMatch) and include the arithmetic and intermediate values in the response. If the resume contains multiple clear production/deployment signals (examples: explicit claims of production deployments, model latency or cost improvements, or strong quantitative results), add a documented bonus of +8 to +15 points to the final atsScore and include justification in the evidence block.
+  - Apply a ceiling of 97 to the final atsScore (rarely is anyone a 100% perfect match).
+  - Do NOT use vague language to justify scores; always include explicit matched tokens/phrases, counts, match types ('explicit'/'semantic'), and semantic similarity values where applicable.
+  - Only recommend apply_as_is when the computed atsScore is >= 75. Otherwise tailor_resume.
 
 JOB DESCRIPTION:
 ${jobDescription}

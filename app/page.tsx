@@ -67,9 +67,12 @@ export default function CVTailorApp() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="border-b border-border px-4 py-6 md:px-6 md:py-8">
+      <header className="border-b border-border px-4 py-4 md:px-6 md:py-5 sticky top-0 bg-background z-100">
         <div className="mx-auto max-w-7xl flex items-center justify-between">
-          <div>
+          <div
+            onClick={() => window.location.reload()}
+            className="cursor-pointer"
+          >
             <h1 className="text-xl font-semibold tracking-tight md:text-2xl lg:text-3xl flex items-center gap-2 md:gap-3">
               <svg
                 aria-hidden="true"
@@ -91,7 +94,7 @@ export default function CVTailorApp() {
               CV Tailor
             </h1>
             <p className="mt-1 text-xs md:text-sm text-muted-foreground">
-              AI-powered resume optimization & editing for job applications
+              AI-powered Resume Optimization & Editing
             </p>
           </div>
 

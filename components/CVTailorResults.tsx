@@ -46,10 +46,10 @@ export function CVTailorResults({
           <div
             className={`rounded-full p-2 ${
               results.recommendation === "apply_as_is"
-                ? "bg-green-100 text-green-600"
+                ? "bg-gradient-to-br from-green-400 to-green-700 text-white shadow-sm"
                 : results.recommendation === "needs_resume"
-                  ? "bg-amber-100 text-amber-600"
-                  : "bg-blue-100 text-blue-600"
+                  ? "bg-gradient-to-br from-amber-400 to-amber-700 text-white shadow-sm"
+                  : "bg-gradient-to-br from-blue-400 to-blue-700 text-white shadow-sm"
             }`}
           >
             {results.recommendation === "apply_as_is" ? (
@@ -94,10 +94,10 @@ export function CVTailorResults({
         <div
           className={`text-6xl font-bold leading-none md:text-7xl ${
             results.analysis.atsScore >= 85
-              ? "text-green-600"
-              : results.analysis.atsScore >= 70
-                ? "text-amber-600"
-                : "text-red-600"
+              ? "bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-700"
+              : results.analysis.atsScore > 65
+                ? "bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-700"
+                : "bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-red-700"
           }`}
         >
           {results.analysis.atsScore}
@@ -109,10 +109,10 @@ export function CVTailorResults({
           <div
             className={`h-full transition-all ${
               results.analysis.atsScore >= 85
-                ? "bg-green-500"
-                : results.analysis.atsScore >= 70
-                  ? "bg-amber-500"
-                  : "bg-red-500"
+                ? "bg-gradient-to-r from-green-400 to-green-700"
+                : results.analysis.atsScore > 65
+                  ? "bg-gradient-to-r from-amber-400 to-amber-700"
+                  : "bg-gradient-to-r from-red-400 to-red-700"
             }`}
             style={{ width: `${results.analysis.atsScore}%` }}
           />
@@ -189,7 +189,7 @@ export function CVTailorResults({
                 <div className="flex flex-col gap-2">
                   {results.analysis.gaps.map((gap, i) => (
                     <div key={i} className="flex gap-2 text-sm">
-                      <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                      <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gradient-to-br from-amber-400 to-amber-700 shadow-sm" />
                       <span>{gap}</span>
                     </div>
                   ))}

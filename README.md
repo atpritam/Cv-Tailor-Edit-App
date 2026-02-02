@@ -2,14 +2,18 @@
 
 The CV Tailor App is an AI-powered application designed to help users tailor their CVs to specific job descriptions. By leveraging advanced generative AI models, the application parses resumes, analyzes job requirements, and provides intelligent suggestions to optimize a CV for a higher chance of success.
 
+![Tailor View](Screenshots/Tailor-View.png)
+
 ## Features
 
 - **AI-Powered CV Tailoring:** Utilize Google's Generative AI to analyze job descriptions and provide targeted CV adjustments.
+- **Interactive AI Refinement with Undo/Redo:** Engage in a chat-based experience with the AI to continuously refine your CV, with the ability to undo and redo changes.
 - **Resume Parsing:** Upload and process your existing CVs in PDF format.
 - **Job Description Analysis:** Input job descriptions for comprehensive analysis against your CV.
 - **Intelligent Suggestions:** Receive AI-driven recommendations for improving your CV content.
-- **Interactive Chat:** Engage with the AI to refine your CV and get real-time feedback.
-- **Resume Preview:** Visualize your CV changes and download the tailored version.
+- **Customizable Resume Themes & Profile Photo:** Personalize your tailored resume with various color themes and an option to upload a profile photo.
+- **Resume Preview:** Visualize your CV changes in real-time.
+- **PDF Generation & Printing:** Download your tailored CV as a PDF or print it directly, with robust fallback mechanisms for PDF generation.
 
 ## Technologies Used
 
@@ -21,7 +25,6 @@ This project is built using modern web technologies and a robust component libra
 - **Tailwind CSS:** A utility-first CSS framework for rapidly building custom designs.
 - **Shadcn/ui:** A collection of re-usable components built using Radix UI and Tailwind CSS.
 - **Google Generative AI:** For intelligent content generation and analysis.
-- **PDF.js & JSPDF:** For handling PDF parsing and generation.
 - **Zod & React Hook Form:** For robust form validation and management.
 - **pnpm:** A fast, disk space efficient package manager.
 
@@ -55,9 +58,12 @@ Create a `.env` file in the root of the project and add your Google Generative A
 
 ```
 GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+BROWSERLESS_API_TOKEN=YOUR_BROWSERLESS_API_TOKEN (OFor PDF generation)
+CUSTOMJS_API_KEY=YOUR_CUSTOMJS_API_KEY (For PDF generation fallback - Optional)
 ```
 
 Replace `YOUR_GEMINI_API_KEY` with your actual API key obtained from Google AI Studio.
+If you plan to use the PDF generation feature, you'll also need to obtain API keys for either Browserless.io or CustomJS (or both for fallback).
 
 ### Running the Development Server
 
@@ -87,11 +93,12 @@ pnpm start
 
 ## Usage
 
-1.  Upload your resume (PDF format) to the application.
-2.  Input the job description you want to tailor your CV for.
-3.  Receive AI-powered suggestions and insights to improve your CV.
-4.  Utilize the interactive chat for further refinement.
-5.  Preview and download your tailored CV.
+1.  **Upload your resume:** Begin by uploading your existing CV in PDF format.
+2.  **Provide a job description:** Paste the job description you're targeting.
+3.  **Receive tailored suggestions:** The AI will process your resume and the job description, then generate an optimized CV.
+4.  **Refine with chat (optional):** Use the interactive chat with the AI, requesting further changes to your tailored CV. Utilize the undo/redo functionality to manage revisions.
+5.  **Customize appearance:** Choose from various color themes and upload a profile photo to personalize your resume's look.
+6.  **Preview and export:** Review the real-time preview of your tailored and customized CV, then download it as a PDF or print it directly.
 
 ## Project Structure
 
