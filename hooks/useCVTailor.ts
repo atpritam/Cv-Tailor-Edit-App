@@ -19,7 +19,6 @@ export function useCVTailor() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-  const [lastRequestTime, setLastRequestTime] = useState<number>(0);
 
   // Version history for undo functionality
   const [versionHistory, setVersionHistory] = useState<ResumeVersion[]>([]);
@@ -70,20 +69,6 @@ export function useCVTailor() {
       return;
     }
 
-    const now = Date.now();
-    const timeSinceLastRequest = now - lastRequestTime;
-    const minDelay = 3000;
-
-    if (timeSinceLastRequest < minDelay && lastRequestTime > 0) {
-      const waitTime = minDelay - timeSinceLastRequest;
-      setError(
-        `Please wait ${Math.ceil(waitTime / 1000)} seconds before making another request...`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
-      setError("");
-    }
-
-    setLastRequestTime(Date.now());
     setLoading(true);
     setError("");
     setChatHistory([]);
@@ -135,7 +120,7 @@ export function useCVTailor() {
 
       if (errorMessage.includes("Rate limit") || errorMessage.includes("429")) {
         setError(
-          "⏱️ API rate limit reached. The free tier has strict limits. Please wait 30-60 seconds and try again. Consider upgrading to a paid tier for higher limits.",
+          "⏱️ API rate limit reached. Please wait 30-60 seconds and try again.",
         );
       } else {
         setError(errorMessage);
@@ -169,20 +154,6 @@ export function useCVTailor() {
       return;
     }
 
-    const now = Date.now();
-    const timeSinceLastRequest = now - lastRequestTime;
-    const minDelay = 2000; // Shorter delay for refinements
-
-    if (timeSinceLastRequest < minDelay && lastRequestTime > 0) {
-      const waitTime = minDelay - timeSinceLastRequest;
-      setError(
-        `Please wait ${Math.ceil(waitTime / 1000)} seconds before making another request...`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
-      setError("");
-    }
-
-    setLastRequestTime(Date.now());
     setLoading(true);
     setError("");
 
@@ -325,7 +296,6 @@ export function useCVTailor() {
     setResults(null);
     setError("");
     setChatHistory([]);
-    setLastRequestTime(0);
     setOriginalTailoredHtml("");
     setStoredJobDescription("");
     setVersionHistory([]);

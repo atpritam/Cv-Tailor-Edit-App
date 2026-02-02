@@ -10,69 +10,52 @@ const generationConfig = {
   responseMimeType: "application/json",
 };
 
-const models = [
-  "gemini-2.0-flash",
-  "gemini-2.0-flash-lite",
-  "gemini-3-flash-preview",
-  "gemini-3-pro-preview",
-];
-
-export const model = genAI.getGenerativeModel({
-  model: "gemini-3-flash-preview",
-  generationConfig,
-});
+//  models
+const MODELS = {
+  primary: "gemini-2.0-flash",
+  fallback: "gemini-3-flash-preview",
+};
 
 export async function generateContentWithRetry(
   prompt: string,
-  maxAttemptsPerModel = 2,
+  maxAttempts = 2,
 ): Promise<string> {
-  let lastErr: unknown | null = null;
+  const modelsToTry = [MODELS.primary, MODELS.fallback];
+  let lastError: unknown = null;
 
-  // Try each model in the `models` list. For each model, attempt up to
-  // `maxAttemptsPerModel` times (default 2): the initial try and one retry.
-  for (const modelName of models) {
-    const localModel = genAI.getGenerativeModel({
+  for (const modelName of modelsToTry) {
+    const model = genAI.getGenerativeModel({
       model: modelName,
       generationConfig,
     });
 
-    for (let attempt = 1; attempt <= maxAttemptsPerModel; attempt++) {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        const result = await localModel.generateContent(prompt);
+        const result = (await Promise.race([
+          model.generateContent(prompt),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Timeout")), 30000),
+          ),
+        ])) as any;
+
         return result.response.text();
       } catch (err: unknown) {
-        lastErr = err;
-        const status =
-          err && typeof err === "object" && "status" in err
-            ? (err as { status: number }).status
-            : err &&
-                typeof err === "object" &&
-                "response" in err &&
-                typeof (err as { response: unknown }).response === "object" &&
-                (err as { response: { status: number } }).response.status
-              ? (err as { response: { status: number } }).response.status
-              : undefined;
-        const isRateLimit =
-          status === 429 ||
-          /429|Too Many Requests|Resource exhausted/i.test(String(err));
+        lastError = err;
+        const isRateLimit = /429|quota|exhausted/i.test(String(err));
 
-        if (attempt < maxAttemptsPerModel) {
-          // Always retry once with the same model (per request). Back off on retry.
-          const delay = 500 * Math.pow(2, attempt - 1); // 500ms, 1000ms...
-          console.warn(
-            `generateContent attempt ${attempt} for model ${modelName} failed${isRateLimit ? " (rate limit)" : ""}, retrying after ${delay}ms`,
-          );
-          await new Promise((res) => setTimeout(res, delay));
-          continue;
+        if (isRateLimit) break;
+
+        if (attempt < maxAttempts) {
+          await new Promise((r) => setTimeout(r, 500));
         }
-
-        // If we've exhausted attempts for this model, move to the next model.
-        console.warn(
-          `model ${modelName} failed after ${attempt} attempts — switching to next model`,
-        );
       }
     }
   }
 
-  throw lastErr ?? new Error("generateContent failed for all models");
+  throw lastError || new Error("All models failed");
 }
+
+export const model = genAI.getGenerativeModel({
+  model: MODELS.primary,
+  generationConfig,
+});

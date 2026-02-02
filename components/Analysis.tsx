@@ -153,7 +153,7 @@ export function Analysis({ results, regenerate, loading }: AnalysisProps) {
           {hasDetailedScoring && (
             <button
               onClick={() => setShowMetrics(!showMetrics)}
-              className="mt-4 flex items-center justify-center gap-2 mx-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="mt-4 flex items-center justify-center gap-2 mx-auto text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               <Info size={14} />
               {showMetrics ? "Hide" : "Show"} Detailed Metrics
