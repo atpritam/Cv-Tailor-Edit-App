@@ -4,9 +4,9 @@ export const processHtmlResponse = (html: string): string => {
   // Fix relative URLs
   processedHtml = processedHtml.replace(
     /href=("|')(?!https?:|mailto:|tel:|\/|#)([^"']+)["']/gi,
-    (m: string, q1: string, url: string, q2: string) => {
+    (m: string, q1: string, url: string) => {
       const trimmed = url.trim();
-      return `href=${q1}https://${trimmed}${q2}`;
+      return `href=${q1}https://${trimmed}${q1}`;
     },
   );
 
