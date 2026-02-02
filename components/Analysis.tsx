@@ -17,6 +17,7 @@ type AnalysisProps = {
   regenerate: () => void;
   loading: boolean;
   streamingStarted?: boolean;
+  refining?: boolean;
 };
 
 export function Analysis({
@@ -24,6 +25,7 @@ export function Analysis({
   regenerate,
   loading,
   streamingStarted,
+  refining = false,
 }: AnalysisProps) {
   const [showMetrics, setShowMetrics] = useState(false);
 
@@ -102,13 +104,13 @@ export function Analysis({
   }, [results.analysis?.atsScore]);
 
   useEffect(() => {
-    if (loading) {
+    if (loading && !refining) {
       setBarsPlayedOnce(false);
       setAnimateBars(false);
       setAnimateMain(false);
       setShowMetrics(false);
     }
-  }, [loading]);
+  }, [loading, refining]);
 
   const isLoadingScore =
     !results.analysis?.atsScore || results.analysis.atsScore === 0;

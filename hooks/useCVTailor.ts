@@ -21,6 +21,7 @@ export function useCVTailor() {
   const [streamingStarted, setStreamingStarted] = useState(false);
   const [error, setError] = useState("");
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [refining, setRefining] = useState(false);
 
   const [versionHistory, setVersionHistory] = useState<ResumeVersion[]>([]);
   const [currentVersionIndex, setCurrentVersionIndex] = useState<number>(-1);
@@ -257,6 +258,7 @@ export function useCVTailor() {
     if (!results) return;
 
     setLoading(true);
+    setRefining(true);
     setError("");
 
     const newHistory: ChatMessage[] = [
@@ -316,6 +318,7 @@ export function useCVTailor() {
       setChatHistory(chatHistory);
     } finally {
       setLoading(false);
+      setRefining(false);
     }
   };
 
@@ -419,5 +422,6 @@ export function useCVTailor() {
     canRedo,
     versionHistory,
     currentVersionIndex,
+    refining,
   };
 }
