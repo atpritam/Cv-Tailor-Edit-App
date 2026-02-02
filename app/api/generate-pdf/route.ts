@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium-min";
-import fs from "fs";
-import path from "path";
+import chromium from "@sparticuz/chromium";
 import { generatePrintHtml } from "../../../lib/print-content";
 
 export async function POST(request: NextRequest) {
@@ -19,38 +17,10 @@ export async function POST(request: NextRequest) {
     // Generate print-ready HTML with all styles inline
     const printHtml = generatePrintHtml(html, profilePhotoDataUrl, theme);
 
-    // - CHROMIUM_PACK_URL=https://my-bucket/chromium-pack.tar
-    // - CHROMIUM_PACK_DIR=/opt/chromium
-    const chromiumPackLocation =
-      process.env.CHROMIUM_PACK_URL || process.env.CHROMIUM_PACK_DIR;
-
-    // Debug/logging to help diagnose missing pack issues in deployments
-    try {
-      console.log("CHROMIUM_PACK_URL", process.env.CHROMIUM_PACK_URL);
-      console.log("CHROMIUM_PACK_DIR", process.env.CHROMIUM_PACK_DIR);
-
-      // Attempt to locate the installed package bin folder for extra visibility
-      try {
-        const pkgJson = require.resolve("@sparticuz/chromium-min/package.json");
-        const pkgDir = path.dirname(pkgJson);
-        const binDir = path.join(pkgDir, "bin");
-        console.log("chromium-min package dir", pkgDir);
-        console.log("chromium-min bin exists", fs.existsSync(binDir));
-      } catch (err) {
-        console.log("chromium-min package resolve failed", String(err));
-      }
-    } catch (err) {
-      console.log("Error logging chromium env/info", String(err));
-    }
-
-    const executablePath = chromiumPackLocation
-      ? await chromium.executablePath(chromiumPackLocation)
-      : await chromium.executablePath();
-
-    // Launch headless browser. Use puppeteer's defaultArgs merged with chromium args
+    // Launch headless browser
     const browser = await puppeteer.launch({
-      args: puppeteer.defaultArgs({ args: chromium.args, headless: "shell" }),
-      executablePath,
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
       headless: "shell",
       defaultViewport: { width: 1920, height: 1080 },
     });
