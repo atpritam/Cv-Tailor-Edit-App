@@ -1,6 +1,6 @@
 # CV Tailor App
 
-The CV Tailor App is an AI-powered application designed to help users tailor their CVs to specific job descriptions. By leveraging advanced generative AI models, the application parses resumes, analyzes job requirements, and provides intelligent suggestions to optimize a CV for a higher chance of success.
+The CV Tailor App is an AI-powered application designed to help users efficiently tailor their CVs to specific job descriptions. Leveraging advanced generative AI models and **parallel streaming processing**, the application parses resumes, analyzes job requirements, and provides intelligent, real-time suggestions to optimize a CV for a higher chance of success, ensuring a faster and more dynamic user experience.
 
 [![Tailor View](Screenshots/Tailor-View.png)](https://cv-tailor-edit-app.vercel.app)
 
@@ -9,6 +9,7 @@ Deployed: [cv-tailor-edit-app.vercel.app](https://cv-tailor-edit-app.vercel.app/
 ## Features
 
 - **AI-Powered CV Tailoring:** Utilize Google's Generative AI to analyze job descriptions and provide targeted CV adjustments.
+- **Parallel AI Streaming:** Leverages concurrent AI model calls to simultaneously generate CV analysis and tailored HTML, resulting in faster and more efficient processing.
 - **Interactive AI Refinement with Undo/Redo:** Engage in a chat-based experience with the AI to continuously refine your CV, with the ability to undo and redo changes.
 - **Resume Parsing:** Upload and process your existing CVs in PDF format.
 - **Job Description Analysis:** Input job descriptions for comprehensive analysis against your CV.
