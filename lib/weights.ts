@@ -1,6 +1,6 @@
 export const SCORING_WEIGHTS = {
-  SkillMatch: 40,
-  ExperienceMatch: 30,
+  SkillMatch: 34,
+  ExperienceMatch: 36,
   TitleMatch: 14,
   SoftSkillMatch: 16,
 } as const;

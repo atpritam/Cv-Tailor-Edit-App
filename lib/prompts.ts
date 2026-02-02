@@ -32,13 +32,13 @@ export const HTML_TEMPLATE = `
 
 <section>
   <h2>EXPERIENCE</h2>
-    <!-- FOR WORK EXPERIENCE: [Role] | [Company Name] -->
-    <!-- FOR PROJECTS ONLY RESUME: [Predicted Role] | [Short Project Name] (Project) – [2 to 3 words on primary descriptive project focus] -->
-    <!-- example (FOR PROJECTS ONLY RESUME): Core AI Engineer | Ollama Bridge (Project) – LLM Orchestration System-->
+    <!-- FOR WORK EXPERIENCE: [Role |]  [Company Name] -->
+    <!-- FOR PROJECTS ONLY RESUME: [Predicted Role |]  [Short Project Name] (Project) – [2 to 3 words on primary descriptive project focus] -->
+    <!-- example (FOR PROJECTS ONLY RESUME): Core AI Engineer | Ollama Bridge (Project) – LLM Orchestration System -->
    <!-- TOTAL PROJECT TITLE div SHOULD NOT EXCEED 8 WORDS. -->
   <div class="project">
     <div class="project-header">
-      <div class="project-title"><p>[Role] | [Company/Project Name]</p><p class="project-time">[Dates] • [Location]</p></div>
+      <div class="project-title"><p>[Role |]  [Company/Project Name]</p><p class="project-time">[Dates ][• Location]</p></div>
       <div class="project-sub"><p class="project-tech">[Technologies]</p></div>
     </div>
     <p class="project-description">[38-54 words, <strong> for achievements/metrics/optimizations done]</p>
