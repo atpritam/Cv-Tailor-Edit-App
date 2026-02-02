@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
-import fs from "fs";
-import path from "path";
 import { generatePrintHtml } from "../../../lib/print-content";
 
 export async function POST(request: NextRequest) {
@@ -19,30 +17,10 @@ export async function POST(request: NextRequest) {
     // Generate print-ready HTML with all styles inline
     const printHtml = generatePrintHtml(html, profilePhotoDataUrl, theme);
 
-    // Runtime diagnostics: check whether the package `bin` exists in deployed code
-    try {
-      const pkgJson = require.resolve("@sparticuz/chromium/package.json");
-      const pkgDir = path.dirname(pkgJson);
-      const binDir = path.join(pkgDir, "bin");
-      console.log("chromium pkgDir", pkgDir);
-      console.log("chromium bin exists", fs.existsSync(binDir));
-      if (fs.existsSync(binDir)) {
-        try {
-          const files = fs.readdirSync(binDir).slice(0, 20);
-          console.log("chromium bin files (sample)", files);
-        } catch (e) {
-          console.log("error listing bin files", String(e));
-        }
-      }
-    } catch (e) {
-      console.log("chromium package resolve failed at runtime", String(e));
-    }
-
     // Launch headless browser
-    const executablePath = await chromium.executablePath();
     const browser = await puppeteer.launch({
-      args: puppeteer.defaultArgs({ args: chromium.args, headless: "shell" }),
-      executablePath,
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
       headless: "shell",
       defaultViewport: { width: 1920, height: 1080 },
     });
