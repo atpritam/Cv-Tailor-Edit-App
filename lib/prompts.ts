@@ -70,10 +70,10 @@ LIMITS:
 About: 50-56 words | Skills: 9 words per category (3 total) | Experience: 3 items, 38-54 words each | Coursework: 8 words`;
 
 export const SCORING_CRITERIA = `SCORING (0-100 each, include evidence):
-SkillMatch (${SCORING_WEIGHTS.SkillMatch}%): Technical/domain skills overlap
-ExperienceMatch (${SCORING_WEIGHTS.ExperienceMatch}%): Role/project relevance (2+ years relevant = 70+ baseline)
-TitleMatch (${SCORING_WEIGHTS.TitleMatch}%): Title/level similarity  
-SoftSkillMatch (${SCORING_WEIGHTS.SoftSkillMatch}%): Leadership/culture fit
+SkillMatch (${SCORING_WEIGHTS.SkillMatch}%): Technical Skills (more points for exact Match with Job than just related skills)
+ExperienceMatch (${SCORING_WEIGHTS.ExperienceMatch}%): Role/project relevance | Give higher points for commercial roles than projects (2+ years commercial = 70+ baseline)
+TitleMatch (${SCORING_WEIGHTS.TitleMatch}%): Title/level/domain similarity  
+SoftSkillMatch (${SCORING_WEIGHTS.SoftSkillMatch}%): soft skill fit
 
 ATS = round(Σ(weight × score)) + production_bonus (8-15 points for deployment signals)
 Cap at 97.`;

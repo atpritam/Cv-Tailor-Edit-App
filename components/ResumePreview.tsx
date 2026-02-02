@@ -13,6 +13,7 @@ import type { TailorResult } from "@/lib/types";
 import { Chat } from "./Chat";
 import type { ChatMessage } from "@/hooks/useCVTailor";
 import { downloadPDF, printPDF } from "@/lib/pdf";
+import { ResumeSkeleton } from "./ui/ResumeSkeleton";
 
 type ResumePreviewProps = {
   results: TailorResult;
@@ -352,15 +353,19 @@ export function ResumePreview({
           </div>
         </div>
 
-        <div
-          ref={resumeRef}
-          className="resume-container max-h-[50vh] md:max-h-[calc(100vh-400px)] overflow-auto"
-          style={{
-            WebkitOverflowScrolling: "touch",
-            transform: "translateZ(0)",
-          }}
-          dangerouslySetInnerHTML={{ __html: results.tailoredResumeHtml }}
-        />
+        {loading ? (
+          <ResumeSkeleton />
+        ) : (
+          <div
+            ref={resumeRef}
+            className="resume-container max-h-[50vh] md:max-h-[calc(100vh-400px)] overflow-auto"
+            style={{
+              WebkitOverflowScrolling: "touch",
+              transform: "translateZ(0)",
+            }}
+            dangerouslySetInnerHTML={{ __html: results.tailoredResumeHtml }}
+          />
+        )}
       </div>
 
       {/* Action Buttons */}

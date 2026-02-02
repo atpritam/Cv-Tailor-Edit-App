@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import type { TailorResult, ResumeVersion } from "@/lib/types";
+import { renderToString } from "react-dom/server";
 
 export type ChatMessage = {
   role: "user" | "assistant";
@@ -85,8 +86,7 @@ export function useCVTailor() {
         gaps: [],
         improvements: [],
       },
-      tailoredResumeHtml:
-        "<div class='p-8 text-center text-muted-foreground'>Generating your tailored resume...</div>",
+      tailoredResumeHtml: "",
       originalProvided: true,
     });
 
