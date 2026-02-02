@@ -70,21 +70,32 @@ function extractIdentifier(htmlBlock: string): {
   value: string;
   tag?: string;
   classes?: string[];
+  id?: string;
 } | null {
-  // Prefer an `id` on the root opening tag
-  const rootIdMatch = htmlBlock.match(/^\s*<(\w+)[^>]*\sid="([^"]+)"/);
-  if (rootIdMatch) {
-    const tag = rootIdMatch[1];
-    const id = rootIdMatch[2];
-    return { type: "id", value: id, tag };
-  }
+  // Parse the root opening tag and its attributes
+  const rootTagMatch = htmlBlock.match(/^\s*<(\w+)([^>]*)>/);
+  if (rootTagMatch) {
+    const tag = rootTagMatch[1];
+    const attrString = rootTagMatch[2] || "";
 
-  // Try to find a class attribute on the root opening tag
-  const rootClassMatch = htmlBlock.match(/^\s*<(\w+)[^>]*class="([^"]+)"/);
-  if (rootClassMatch) {
-    const tag = rootClassMatch[1];
-    const classes = rootClassMatch[2].split(/\s+/).filter(Boolean);
-    return { type: "class", value: classes.join(" "), tag, classes };
+    const classMatch = attrString.match(/\bclass="([^"]+)"/);
+    const idMatch = attrString.match(/\bid="([^"]+)"/);
+
+    if (classMatch) {
+      const classes = classMatch[1].split(/\s+/).filter(Boolean);
+      // Prefer class identifier and include id when present so we can match class+id
+      return {
+        type: "class",
+        value: classes.join(" "),
+        tag,
+        classes,
+        id: idMatch ? idMatch[1] : undefined,
+      };
+    }
+
+    if (idMatch) {
+      return { type: "id", value: idMatch[1], tag };
+    }
   }
 
   // Try to extract tag name
@@ -118,6 +129,7 @@ function buildMatchPattern(identifier: {
   type: "class" | "tag" | "unique-text" | "id";
   value: string;
   classes?: string[];
+  id?: string;
 }): { regex: RegExp } | null {
   if (identifier.type === "class") {
     const classes =
@@ -128,15 +140,31 @@ function buildMatchPattern(identifier: {
     const classPattern = `(?:${alternation})`;
 
     const tag = (identifier as any).tag;
+    const idVal = (identifier as any).id;
     if (tag) {
       const tagEsc = String(tag).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      if (idVal) {
+        const idEsc = String(idVal).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        // Allow id and class attributes in any order using lookaheads
+        const regex = new RegExp(
+          `<${tagEsc}(?=[^>]*\\bid="${idEsc}")(?=[^>]*class="[^\"]*\\b${classPattern}\\b")[^>]*>[\\s\\S]*?</${tagEsc}>`,
+        );
+        return { regex };
+      }
+
       const regex = new RegExp(
-        `<${tagEsc}[^>]*class="[^"]*\\b${classPattern}\\b[^"]*"[^>]*>[\\s\\S]*?</${tagEsc}>`,
+        `<${tagEsc}[^>]*class="[^\"]*\\b${classPattern}\\b[^\"]*"[^>]*>[\\s\\S]*?</${tagEsc}>`,
       );
       return { regex };
     }
 
-    const anyTagRegex = `<[^>]+class="[^"]*\\b${classPattern}\\b[^\"]*"[^>]*>[\\s\\S]*?</[^>]+>`;
+    if (idVal) {
+      const idEsc = String(idVal).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const anyTagRegex = `<[^>]+(?=[^>]*\\bid="${idEsc}")(?=[^>]*class="[^\"]*\\b${classPattern}\\b")[^>]*>[\\s\\S]*?</[^>]+>`;
+      return { regex: new RegExp(anyTagRegex) };
+    }
+
+    const anyTagRegex = `<[^>]+class="[^\"]*\\b${classPattern}\\b[^\"]*"[^>]*>[\\s\\S]*?</[^>]+>`;
     const regex = new RegExp(anyTagRegex);
     return { regex };
   }

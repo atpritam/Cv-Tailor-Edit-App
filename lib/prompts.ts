@@ -38,8 +38,8 @@ export const HTML_TEMPLATE = `
       <!-- TOTAL PROJECT TITLE div SHOULD NOT EXCEED 8 WORDS. -->
   <div class="project" id="[unique numbered id]">
     <div class="project-header">
-      <div class="project-title" id="[unique numbered id]"><p>[Role |]  [Company/Project Name]</p><p class="project-time">[Dates ][• Location]</p></div>
-      <div class="project-sub"><p class="project-tech">[Technologies/Prominent skills]</p></div>
+      <div class="project-title" id="[unique numbered id]"><p>[Role |]  [Company/Project Name]</p><p class="project-time" id="[unique numbered id]">[Dates ][• Location]</p></div>
+      <div class="project-sub"><p class="project-tech" id="[unique numbered id]">[Technologies/Prominent skills]</p></div>
     </div>
     <p class="project-description" id="[unique numbered id]">[38-54 words, <strong> for achievements/optimizations done/specific important info relevent to job skill needed]</p>
   </div>
@@ -199,7 +199,7 @@ USER_REQUEST:
 RULES
 - Return ONLY modified blocks (never the full document)
 - Each block must be COMPLETE (opening tag → closing tag)
-- Preserve all class names and structure
+- Preserve all class names, ids and structure
 - Edit the SMALLEST uniquely identifiable block only
 - For entire div/block removal requests, return the nearest parent block with the target content removed
 - You can insert inline styles if specific style changes are requested
@@ -218,7 +218,7 @@ Return ONLY valid JSON:
   "blocks": [
     { "newHtml": "<complete unique HTML block>" }
   ],
-  "chatResponse": "short friendly confirmation"
+  "chatResponse": "short friendly reply to user"
 }
 `;
 };
