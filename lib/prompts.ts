@@ -9,7 +9,7 @@ export const HTML_TEMPLATE = `
       <div class="contact">
         [City, Country]<br />
         [email] • [phone]<br />
-        <a href="[url1]">[Site/GitHub display]</a> • <a href="[url2]">[LinkedIn display]</a><br />
+        <a class="[Github/Site]" href="[url1]" target="_blank" rel="noopener noreferrer">[Site/GitHub display]</a> • <a class="Linkedin" href="[url2]" target="_blank" rel="noopener noreferrer">[LinkedIn display]</a><br />
         [Languages/Certs]
       </div>
     </div>
