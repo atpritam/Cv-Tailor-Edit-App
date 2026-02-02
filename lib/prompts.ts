@@ -7,8 +7,8 @@ export const HTML_TEMPLATE = `
       <div class="contact">
         [City, Country - EXTRACT FROM RESUME or leave blank] <br />
         [email - EXTRACT FROM RESUME] [• phone - EXTRACT FROM RESUME or leave blank]<br />
-        <a href="[github_url]" target="_blank" rel="noopener noreferrer">[github display]</a>
-        <a href="[linkedin_url]" target="_blank" rel="noopener noreferrer">[• linkedin display]</a><br />
+        <!-- Add up to two URLs (personal site / GitHub / LinkedIn) separated by • -->
+        <a href="[url_1]" target="_blank" rel="noopener noreferrer">[Personal site or GitHub display]</a> • <a href="[url_2]" target="_blank" rel="noopener noreferrer">[LinkedIn or second URL display]</a><br />
         [Languages/Certifications - EXTRACT FROM RESUME or leave blank]
       </div>
     </div>

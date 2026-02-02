@@ -40,14 +40,9 @@ export default function CVTailorApp() {
     resumeFile,
     handleFileUpload,
     reset: resetParser,
-    extractLinksFromText,
   } = useResumeParser({
     setResumeText,
-    setLinkedin,
-    setGithub,
     setError,
-    linkedin,
-    github,
   });
 
   const handleFullReset = () => {
@@ -141,16 +136,8 @@ export default function CVTailorApp() {
           <CVTailorForm
             resumeText={resumeText}
             setResumeText={setResumeText}
-            extractLinksFromText={extractLinksFromText}
             resumeFile={resumeFile}
             handleFileUpload={handleFileUpload}
-            profilePhotoDataUrl={profilePhotoDataUrl}
-            handleProfilePhotoUpload={handleProfilePhotoUpload}
-            resetProfilePhoto={resetProfilePhoto}
-            linkedin={linkedin}
-            setLinkedin={setLinkedin}
-            github={github}
-            setGithub={setGithub}
             jobDescription={jobDescription}
             setJobDescription={setJobDescription}
             error={error}
