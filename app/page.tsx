@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useCVTailor } from "@/hooks/useCVTailor";
 import { useResumeParser } from "@/hooks/useResumeParser";
 import { useProfilePhoto } from "@/hooks/useProfilePhoto";
@@ -20,6 +20,7 @@ export default function CVTailorApp() {
     setResumeText,
     results,
     loading,
+    streamingStarted,
     error,
     handleSubmit,
     regenerate,
@@ -58,6 +59,9 @@ export default function CVTailorApp() {
   const handleRegenerate = () => {
     regenerate();
   };
+
+  // KEY CHANGE: Shows results page as soon as streaming starts
+  const shouldShowResults = streamingStarted || results;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -132,7 +136,7 @@ export default function CVTailorApp() {
       </header>
 
       <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12">
-        {!results ? (
+        {!shouldShowResults ? (
           <CVTailorForm
             resumeText={resumeText}
             setResumeText={setResumeText}
@@ -146,16 +150,17 @@ export default function CVTailorApp() {
           />
         ) : (
           <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 w-full">
-            <div className="w-full lg:col-span-3 order-2 lg:order-1">
+            <div className="w-full lg:col-span-4 order-2 lg:order-1">
               <Analysis
-                results={results}
+                results={results!}
                 regenerate={handleRegenerate}
                 loading={loading}
+                streamingStarted={streamingStarted}
               />
             </div>
-            <div className="w-full lg:col-span-9 order-1 lg:order-2 min-w-0">
+            <div className="w-full lg:col-span-8 order-1 lg:order-2 min-w-0">
               <ResumePreview
-                results={results}
+                results={results!}
                 loading={loading}
                 regenerate={handleRegenerate}
                 reset={handleFullReset}
@@ -167,6 +172,7 @@ export default function CVTailorApp() {
                 canRedo={canRedo}
                 onUndo={undoLastChange}
                 onRedo={redoChange}
+                streamingStarted={streamingStarted}
               />
             </div>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { TailorResult, ResumeVersion } from "@/lib/types";
 
 export type ChatMessage = {
@@ -8,7 +8,7 @@ export type ChatMessage = {
   parts: { text: string }[];
 };
 
-const MAX_HISTORY_VERSIONS = 10; // Store last 10 versions for undo
+const MAX_HISTORY_VERSIONS = 10;
 
 export function useCVTailor() {
   const [jobDescription, setJobDescription] = useState("");
@@ -17,16 +17,17 @@ export function useCVTailor() {
   const [resumeText, setResumeText] = useState("");
   const [results, setResults] = useState<TailorResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [streamingStarted, setStreamingStarted] = useState(false);
   const [error, setError] = useState("");
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
 
-  // Version history for undo functionality
   const [versionHistory, setVersionHistory] = useState<ResumeVersion[]>([]);
   const [currentVersionIndex, setCurrentVersionIndex] = useState<number>(-1);
 
-  // Store original tailored resume and job description for refine context
   const [originalTailoredHtml, setOriginalTailoredHtml] = useState<string>("");
   const [storedJobDescription, setStoredJobDescription] = useState<string>("");
+
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   const addVersion = (html: string, description: string) => {
     const newVersion: ResumeVersion = {
@@ -37,13 +38,10 @@ export function useCVTailor() {
     };
 
     setVersionHistory((prev) => {
-      // If we're not at the end of history, remove everything after current index
       const baseHistory =
         currentVersionIndex === -1
           ? prev
           : prev.slice(0, currentVersionIndex + 1);
-
-      // Add new version and keep only last MAX_HISTORY_VERSIONS
       const newHistory = [...baseHistory, newVersion].slice(
         -MAX_HISTORY_VERSIONS,
       );
@@ -70,17 +68,33 @@ export function useCVTailor() {
     }
 
     setLoading(true);
+    setStreamingStarted(false);
     setError("");
     setChatHistory([]);
     setVersionHistory([]);
     setCurrentVersionIndex(-1);
 
+    // initial empty result (will be populated by stream)
+    setResults({
+      recommendation: "tailor_resume",
+      recommendationReason: "Analyzing...",
+      analysis: {
+        atsScore: 0,
+        keySkills: [],
+        matchingStrengths: [],
+        gaps: [],
+        improvements: [],
+      },
+      tailoredResumeHtml:
+        "<div class='p-8 text-center text-muted-foreground'>Generating your tailored resume...</div>",
+      originalProvided: true,
+    });
+
     try {
-      const response = await fetch("/api/tailor", {
+      //  streaming endpoint
+      const response = await fetch("/api/tailor-stream", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           jobDescription,
           resumeText,
@@ -89,29 +103,116 @@ export function useCVTailor() {
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || "Failed to process your request");
+        throw new Error("Request failed");
       }
 
-      setResults(data);
-      setOriginalTailoredHtml(data.tailoredResumeHtml);
-      setStoredJobDescription(data.jobDescription || jobDescription);
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
 
-      // Add initial version to history
-      addVersion(data.tailoredResumeHtml, "Initial tailored resume");
+      if (!reader) {
+        throw new Error("No reader available");
+      }
 
-      setChatHistory([
-        {
-          role: "assistant",
-          parts: [
-            {
-              text: "I've created your tailored resume. You can refine it further by asking me to make specific changes!",
-            },
-          ],
-        },
-      ]);
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.type === "started") {
+                setStreamingStarted(true);
+              } else if (
+                data.type === "analysis_partial" ||
+                data.type === "analysis_complete"
+              ) {
+                // Update analysis as it comes in
+                setResults((prev) => {
+                  if (!prev) return prev;
+                  return {
+                    ...prev,
+                    recommendation:
+                      data.data.recommendation || prev.recommendation,
+                    recommendationReason:
+                      data.data.recommendationReason ||
+                      prev.recommendationReason,
+                    analysis: {
+                      atsScore: data.data.atsScore ?? prev.analysis.atsScore,
+                      SkillMatch: data.data.SkillMatch,
+                      ExperienceMatch: data.data.ExperienceMatch,
+                      TitleMatch: data.data.TitleMatch,
+                      SoftSkillMatch: data.data.SoftSkillMatch,
+                      evidence: data.data.evidence,
+                      keySkills: data.data.keySkills || prev.analysis.keySkills,
+                      matchingStrengths:
+                        data.data.matchingStrengths ||
+                        prev.analysis.matchingStrengths,
+                      gaps: data.data.gaps || prev.analysis.gaps,
+                      improvements:
+                        data.data.improvements || prev.analysis.improvements,
+                    },
+                  };
+                });
+              } else if (
+                data.type === "html_partial" ||
+                data.type === "html_complete"
+              ) {
+                // Update HTML as it comes in
+                setResults((prev) => {
+                  if (!prev) return prev;
+                  return {
+                    ...prev,
+                    tailoredResumeHtml:
+                      data.data.tailoredResumeHtml || prev.tailoredResumeHtml,
+                    analysis: {
+                      ...prev.analysis,
+                      improvements:
+                        data.data.improvements || prev.analysis.improvements,
+                    },
+                  };
+                });
+
+                if (data.type === "html_complete") {
+                  // Store for undo/refine
+                  setOriginalTailoredHtml(data.data.tailoredResumeHtml);
+                  addVersion(
+                    data.data.tailoredResumeHtml,
+                    "Initial tailored resume",
+                  );
+                }
+              } else if (data.type === "complete") {
+                setStoredJobDescription(
+                  data.data.jobDescription || jobDescription,
+                );
+                setChatHistory([
+                  {
+                    role: "assistant",
+                    parts: [
+                      {
+                        text: "I've created your tailored resume. You can refine it further by asking me to make specific changes!",
+                      },
+                    ],
+                  },
+                ]);
+              } else if (data.type === "error") {
+                throw new Error(data.error);
+              }
+            } catch (parseErr) {
+              console.error("Parse error:", parseErr);
+            }
+          }
+        }
+      }
     } catch (err) {
       const errorMessage =
         err instanceof Error
@@ -126,13 +227,16 @@ export function useCVTailor() {
         setError(errorMessage);
       }
       console.error(err);
+
+      // Clear results on error
+      setResults(null);
     } finally {
       setLoading(false);
+      setStreamingStarted(false);
     }
   };
 
   const regenerate = async () => {
-    // Reset history and regenerate
     setChatHistory([
       {
         role: "assistant",
@@ -150,9 +254,7 @@ export function useCVTailor() {
   };
 
   const sendChatMessage = async (message: string) => {
-    if (!results) {
-      return;
-    }
+    if (!results) return;
 
     setLoading(true);
     setError("");
@@ -171,9 +273,7 @@ export function useCVTailor() {
 
       const response = await fetch("/api/refine", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userMessage: message,
           currentResumeHtml: currentHtml,
@@ -188,26 +288,15 @@ export function useCVTailor() {
         throw new Error(data.error || "Failed to process your request");
       }
 
-      // Update results with new HTML
       setResults((prev) =>
-        prev
-          ? {
-              ...prev,
-              tailoredResumeHtml: data.updatedHtml,
-            }
-          : null,
+        prev ? { ...prev, tailoredResumeHtml: data.updatedHtml } : null,
       );
 
-      // Add to version history
       addVersion(data.updatedHtml, message.substring(0, 50));
 
-      // Add assistant response to chat
       setChatHistory((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          parts: [{ text: data.chatResponse }],
-        },
+        { role: "assistant", parts: [{ text: data.chatResponse }] },
       ]);
     } catch (err) {
       const errorMessage =
@@ -224,7 +313,6 @@ export function useCVTailor() {
       }
       console.error(err);
 
-      // Remove user message from chat on error
       setChatHistory(chatHistory);
     } finally {
       setLoading(false);
@@ -275,9 +363,7 @@ export function useCVTailor() {
           {
             role: "assistant",
             parts: [
-              {
-                text: `Restored version: ${nextVersion.changeDescription}`,
-              },
+              { text: `Restored version: ${nextVersion.changeDescription}` },
             ],
           },
         ]);
@@ -300,6 +386,12 @@ export function useCVTailor() {
     setStoredJobDescription("");
     setVersionHistory([]);
     setCurrentVersionIndex(-1);
+    setStreamingStarted(false);
+
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
   };
 
   return {
@@ -313,6 +405,7 @@ export function useCVTailor() {
     setResumeText,
     results,
     loading,
+    streamingStarted,
     error,
     handleSubmit: handleTailor,
     regenerate,

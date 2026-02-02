@@ -18,6 +18,7 @@ type CVTailorResultsProps = {
   regenerate: () => void;
   reset: () => void;
   downloadPDF: () => Promise<void> | void;
+  streamingStarted?: boolean;
 };
 
 export function CVTailorResults({
@@ -26,6 +27,7 @@ export function CVTailorResults({
   regenerate,
   reset,
   downloadPDF,
+  streamingStarted,
 }: CVTailorResultsProps) {
   const resumeRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = React.useState(false);
@@ -230,7 +232,7 @@ export function CVTailorResults({
               setIsDownloading(false);
             }
           }}
-          disabled={isDownloading}
+          disabled={isDownloading || loading || !!streamingStarted}
           className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 ${
             isDownloading ? "cursor-not-allowed opacity-60" : "cursor-pointer"
           }`}
@@ -250,7 +252,7 @@ export function CVTailorResults({
 
         <button
           onClick={regenerate}
-          disabled={loading}
+          disabled={loading || !!streamingStarted}
           className="flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
         >
           {loading ? (
@@ -268,7 +270,12 @@ export function CVTailorResults({
 
         <button
           onClick={reset}
-          className="flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted cursor-pointer"
+          disabled={loading || !!streamingStarted}
+          className={`flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted ${
+            loading || streamingStarted
+              ? "disabled:cursor-not-allowed disabled:opacity-50"
+              : "cursor-pointer"
+          }`}
         >
           Start New Analysis
         </button>

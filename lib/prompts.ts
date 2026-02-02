@@ -18,7 +18,7 @@ export const HTML_TEMPLATE = `
 
 <section>
   <h2>ABOUT</h2>
-  <p class="summary">[50-56 words, highlight AI tools use for accelerated development, tailor to role]</p>
+  <p class="summary">[50-56 words, highlight AI tools use for accelerated development, tailor to role and company (if company details available)]</p>
 </section>
 
 <section>
@@ -56,6 +56,28 @@ export const HTML_TEMPLATE = `
 </section>
 `;
 
+export const RULES = `RULES:
+1. Extract from resume, use socials if missing
+2. Never invent data - omit if absent
+3. Rewrite wording, preserve facts/metrics
+4. Links must be <a href>, omit if no URL
+5. For Projects, mentioning "(Project)" is mandatory, follow the Format
+6. Omit missing dates/locations
+7. Don't use "N/A" anywhere, just leave blank
+8. Do not try to push hard on a profile that doesn't fit the job description. Just be factual and objective.
+
+LIMITS:
+About: 50-56 words | Skills: 9 words per category (3 total) | Experience: 3 items, 38-54 words each | Coursework: 8 words`;
+
+export const SCORING_CRITERIA = `SCORING (0-100 each, include evidence):
+SkillMatch (${SCORING_WEIGHTS.SkillMatch}%): Technical/domain skills overlap
+ExperienceMatch (${SCORING_WEIGHTS.ExperienceMatch}%): Role/project relevance (2+ years relevant = 70+ baseline)
+TitleMatch (${SCORING_WEIGHTS.TitleMatch}%): Title/level similarity  
+SoftSkillMatch (${SCORING_WEIGHTS.SoftSkillMatch}%): Leadership/culture fit
+
+ATS = round(Σ(weight × score)) + production_bonus (8-15 points for deployment signals)
+Cap at 97.`;
+
 type TailorPromptData = {
   jobDescription: string;
   resumeText?: string;
@@ -77,26 +99,10 @@ export const generateTailorPrompt = (data: TailorPromptData): string => {
   if (hasResume) {
     return `Expert resume writer. Analyze resume vs job. Recommend apply_as_is (ATS≥75) or tailor_resume.
 
-${social ? `SOCIALS:\n${social}\n` : ""}RULES:
-1. Extract from resume, use socials if missing
-2. Never invent data - omit if absent
-3. Rewrite wording, preserve facts/metrics
-4. Links must be <a href>, omit if no URL
-5. For Projects, mentioning "(Project)" is mandatory, follow the Format
-6. Omit missing dates/locations.
-
-LIMITS:
-About: 50-56 words | Skills: 9 words per category (3 total) | Experience: 3 items, 38-54 words each | Coursework: 8 words
-
-SCORING (0-100 each, include evidence):
-SkillMatch (${SCORING_WEIGHTS.SkillMatch}%): Technical/domain skills overlap
-ExperienceMatch (${SCORING_WEIGHTS.ExperienceMatch}%): Role/project relevance (2+ years relevant = 70+ baseline)
-TitleMatch (${SCORING_WEIGHTS.TitleMatch}%): Title/level similarity  
-SoftSkillMatch (${SCORING_WEIGHTS.SoftSkillMatch}%): Leadership/culture fit
-
-ATS = round(Σ(weight × score)) + production_bonus (8-15 points for deployment signals)
-Cap at 97. Recommend apply_as_is only if ATS ≥75.
-
+${social ? `SOCIALS:\n${social}\n` : ""}
+${RULES}
+${SCORING_CRITERIA}
+Recommend apply_as_is only if ATS ≥75.
 JOB:
 ${jobDescription}
 
@@ -195,6 +201,6 @@ ${userMessage}
 JSON:
 {
   "updatedHtml": "<complete HTML>",
-  "chatResponse": "<1-2 sentence explanation>"
+  "chatResponse": "<1-2 friendly user directed sentence>"
 }`;
 };

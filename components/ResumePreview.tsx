@@ -22,11 +22,12 @@ type ResumePreviewProps = {
   chatHistory: ChatMessage[];
   sendChatMessage: (message: string) => void;
   profilePhotoDataUrl: string | null;
-  handleProfilePhotoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void; // Added for new feature
+  handleProfilePhotoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
+  streamingStarted?: boolean;
 };
 
 // Professional resume color themes
@@ -105,14 +106,15 @@ export function ResumePreview({
   chatHistory,
   sendChatMessage,
   profilePhotoDataUrl,
-  handleProfilePhotoUpload, // Destructure new prop
+  handleProfilePhotoUpload,
   canUndo,
   canRedo,
   onUndo,
   onRedo,
+  streamingStarted,
 }: ResumePreviewProps) {
   const resumeRef = useRef<HTMLDivElement>(null);
-  const profilePhotoInputRef = useRef<HTMLInputElement>(null); // New ref for hidden input
+  const profilePhotoInputRef = useRef<HTMLInputElement>(null);
   const [selectedTheme, setSelectedTheme] = useState(0); // Default to Classic Blue
   const [showProfilePhoto, setShowProfilePhoto] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
@@ -235,6 +237,8 @@ export function ResumePreview({
       );
     }
   };
+
+  const actionDisabled = isDownloading || loading || !!streamingStarted;
 
   return (
     <div className="w-full min-w-0">
@@ -365,11 +369,11 @@ export function ResumePreview({
           <>
             <button
               onClick={handleDownload}
-              disabled={isDownloading}
-              className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 md:py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 ${
-                isDownloading
-                  ? "cursor-not-allowed opacity-60"
-                  : "cursor-pointer"
+              disabled={actionDisabled}
+              className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 md:py-4 text-sm font-medium text-primary-foreground transition-colors ${
+                actionDisabled
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-primary/90 cursor-pointer"
               }`}
             >
               {isDownloading ? (
@@ -387,11 +391,11 @@ export function ResumePreview({
 
             <button
               onClick={handlePrint}
-              disabled={isDownloading}
-              className={`flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 md:py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted ${
-                isDownloading
+              disabled={actionDisabled}
+              className={`flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 md:py-4 text-sm font-medium text-foreground transition-colors ${
+                actionDisabled
                   ? "cursor-not-allowed opacity-50"
-                  : "cursor-pointer"
+                  : "hover:bg-muted cursor-pointer"
               }`}
             >
               <Printer size={16} />
@@ -401,9 +405,11 @@ export function ResumePreview({
         ) : (
           <button
             onClick={handleDownload}
-            disabled={isDownloading}
-            className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 md:col-span-2 ${
-              isDownloading ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+            disabled={actionDisabled}
+            className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors md:col-span-2 ${
+              actionDisabled
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-primary/90 cursor-pointer"
             }`}
           >
             {isDownloading ? (
@@ -422,7 +428,12 @@ export function ResumePreview({
 
         <button
           onClick={reset}
-          className="flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 md:py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted cursor-pointer"
+          disabled={loading || !!streamingStarted}
+          className={`flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 md:py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted ${
+            loading || streamingStarted
+              ? "disabled:cursor-not-allowed disabled:opacity-50"
+              : "cursor-pointer"
+          }`}
         >
           Start New Analysis
         </button>
