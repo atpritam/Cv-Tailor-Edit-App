@@ -1,7 +1,15 @@
 "use client";
-import React from "react";
-import { Check, RefreshCw, Loader2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  Check,
+  RefreshCw,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  Info,
+} from "lucide-react";
 import type { TailorResult } from "@/lib/types";
+import { SCORING_WEIGHTS, MATCH_LEVELS } from "@/lib/weights";
 
 type AnalysisProps = {
   results: TailorResult;
@@ -10,6 +18,82 @@ type AnalysisProps = {
 };
 
 export function Analysis({ results, regenerate, loading }: AnalysisProps) {
+  const [showMetrics, setShowMetrics] = useState(false);
+
+  const hasDetailedScoring =
+    results.analysis.SkillMatch !== undefined &&
+    results.analysis.ExperienceMatch !== undefined &&
+    results.analysis.TitleMatch !== undefined &&
+    results.analysis.SoftSkillMatch !== undefined;
+
+  const metrics = [
+    {
+      key: "SkillMatch",
+      label: "Skills",
+      weight: String(SCORING_WEIGHTS.SkillMatch),
+      color: "bg-blue-500",
+    },
+    {
+      key: "ExperienceMatch",
+      label: "Experience",
+      weight: String(SCORING_WEIGHTS.ExperienceMatch),
+      color: "bg-purple-500",
+    },
+    {
+      key: "TitleMatch",
+      label: "Title Match",
+      weight: String(SCORING_WEIGHTS.TitleMatch),
+      color: "bg-teal-500",
+    },
+    {
+      key: "SoftSkillMatch",
+      label: "Soft Skills",
+      weight: String(SCORING_WEIGHTS.SoftSkillMatch),
+      color: "bg-pink-500",
+    },
+  ];
+
+  const [animateBars, setAnimateBars] = useState(false);
+  const [barsPlayedOnce, setBarsPlayedOnce] = useState(false);
+
+  useEffect(() => {
+    let tStart: ReturnType<typeof setTimeout> | null = null;
+    let tEnd: ReturnType<typeof setTimeout> | null = null;
+    if (showMetrics) {
+      if (!barsPlayedOnce) {
+        setAnimateBars(false);
+        tStart = setTimeout(() => {
+          setAnimateBars(true);
+        }, 360);
+        tEnd = setTimeout(() => {
+          setBarsPlayedOnce(true);
+        }, 360 + 420);
+      } else {
+        setAnimateBars(false);
+      }
+    } else {
+      setAnimateBars(false);
+    }
+    return () => {
+      if (tStart) clearTimeout(tStart);
+      if (tEnd) clearTimeout(tEnd);
+    };
+  }, [showMetrics, barsPlayedOnce]);
+
+  const [animateMain, setAnimateMain] = useState(false);
+
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout> | null = null;
+    const score = results.analysis?.atsScore;
+    if (typeof score === "number") {
+      setAnimateMain(false);
+      t = setTimeout(() => setAnimateMain(true), 80);
+    }
+    return () => {
+      if (t) clearTimeout(t);
+    };
+  }, [results.analysis?.atsScore]);
+
   return (
     <div className="space-y-6 md:space-y-8 w-full">
       {/* Regenerate Button */}
@@ -31,34 +115,105 @@ export function Analysis({ results, regenerate, loading }: AnalysisProps) {
         )}
       </button>
 
-      {/* ATS Score */}
-      <div className="rounded-lg border border-border bg-card p-4 md:p-6 text-center w-full">
-        <div
-          className={`text-4xl md:text-5xl lg:text-6xl font-bold leading-none ${
-            results.analysis.atsScore >= 85
-              ? "bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-700"
-              : results.analysis.atsScore > 65
-                ? "bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-700"
-                : "bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-red-700"
-          }`}
-        >
-          {results.analysis.atsScore}
+      {/* Job Score with Detailed Metrics */}
+      <div className="rounded-lg border border-border bg-card overflow-hidden w-full">
+        <div className="p-4 md:p-6 text-center">
+          <div className="flex items-center justify-center gap-2">
+            <div
+              className={`text-4xl md:text-5xl lg:text-6xl font-bold leading-none bg-clip-text text-transparent ${
+                (results.analysis.atsScore ?? 0) > MATCH_LEVELS.high
+                  ? "bg-gradient-to-r from-green-400 to-green-700"
+                  : (results.analysis.atsScore ?? 0) > MATCH_LEVELS.mid
+                    ? "bg-gradient-to-r from-amber-400 to-amber-700"
+                    : "bg-gradient-to-r from-red-400 to-red-700"
+              }`}
+            >
+              {results.analysis.atsScore}
+            </div>
+          </div>
+          <div className="mt-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Job Compatibility Score
+          </div>
+          <div className="mx-auto mt-3 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-muted">
+            <div
+              className={`h-full transition-all duration-600 ${
+                (results.analysis.atsScore ?? 0) > MATCH_LEVELS.high
+                  ? "bg-gradient-to-r from-green-400 to-green-700"
+                  : (results.analysis.atsScore ?? 0) > MATCH_LEVELS.mid
+                    ? "bg-gradient-to-r from-amber-400 to-amber-700"
+                    : "bg-gradient-to-r from-red-400 to-red-700"
+              }`}
+              style={{
+                width: animateMain ? `${results.analysis.atsScore}%` : "0%",
+              }}
+            />
+          </div>
+
+          {/* Show Metrics Button */}
+          {hasDetailedScoring && (
+            <button
+              onClick={() => setShowMetrics(!showMetrics)}
+              className="mt-4 flex items-center justify-center gap-2 mx-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Info size={14} />
+              {showMetrics ? "Hide" : "Show"} Detailed Metrics
+              {showMetrics ? (
+                <ChevronUp size={14} />
+              ) : (
+                <ChevronDown size={14} />
+              )}
+            </button>
+          )}
         </div>
-        <div className="mt-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Job Compatibility Score
-        </div>
-        <div className="mx-auto mt-3 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-muted">
+
+        {/* Detailed Scoring Breakdown */}
+        {hasDetailedScoring && (
           <div
-            className={`h-full transition-all ${
-              results.analysis.atsScore >= 85
-                ? "bg-gradient-to-r from-green-400 to-green-700"
-                : results.analysis.atsScore > 65
-                  ? "bg-gradient-to-r from-amber-400 to-amber-700"
-                  : "bg-gradient-to-r from-red-400 to-red-700"
+            className={`border-t border-border bg-muted/30 overflow-hidden transition-all ease-in-out ${
+              showMetrics
+                ? "duration-300 max-h-[800px] opacity-100 py-4 md:py-6"
+                : "duration-150 max-h-0 opacity-0 py-0 md:py-0"
             }`}
-            style={{ width: `${results.analysis.atsScore}%` }}
-          />
-        </div>
+          >
+            <div className="px-4 md:px-6 space-y-4">
+              <div className="grid grid-cols-1 gap-3">
+                {metrics.map((m, idx) => {
+                  const value = (results.analysis as any)[m.key];
+                  return (
+                    <div className="space-y-2" key={m.key}>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-medium text-muted-foreground">
+                          {m.label} | Weight: {m.weight}
+                        </span>
+                        <span className="font-bold text-foreground">
+                          {value}%
+                        </span>
+                      </div>
+                      <div className="h-2 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className={`h-full ${m.color} ${
+                            barsPlayedOnce ? "" : "transition-all duration-300"
+                          }`}
+                          style={{
+                            width: barsPlayedOnce
+                              ? `${value}%`
+                              : animateBars
+                                ? `${value}%`
+                                : "0%",
+                            transitionDelay:
+                              !barsPlayedOnce && animateBars
+                                ? `${idx * 80}ms`
+                                : undefined,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Key Skills */}
@@ -70,7 +225,8 @@ export function Analysis({ results, regenerate, loading }: AnalysisProps) {
           {results.analysis.keySkills.map((skill, i) => (
             <span
               key={i}
-              className="rounded-full bg-primary/10 px-2.5 md:px-3 py-1 text-xs text-primary break-words"
+              className="rounded-full bg-primary/10 px-2.5 md:px-3 py-1 text-xs text-primary break-words animate-fade-in"
+              style={{ animationDelay: `${i * 50}ms` }}
             >
               {skill}
             </span>
@@ -85,7 +241,11 @@ export function Analysis({ results, regenerate, loading }: AnalysisProps) {
         </h3>
         <div className="flex flex-col gap-2">
           {results.analysis.improvements.map((improvement, i) => (
-            <div key={i} className="flex gap-2 text-xs md:text-sm">
+            <div
+              key={i}
+              className="flex gap-2 text-xs md:text-sm animate-fade-in"
+              style={{ animationDelay: `${i * 75}ms` }}
+            >
               <Check size={16} className="mt-0.5 shrink-0 text-green-600" />
               <span className="break-words">{improvement}</span>
             </div>
@@ -102,7 +262,11 @@ export function Analysis({ results, regenerate, loading }: AnalysisProps) {
             </h3>
             <div className="flex flex-col gap-2">
               {results.analysis.matchingStrengths.map((strength, i) => (
-                <div key={i} className="flex gap-2 text-xs md:text-sm">
+                <div
+                  key={i}
+                  className="flex gap-2 text-xs md:text-sm animate-fade-in"
+                  style={{ animationDelay: `${i * 75}ms` }}
+                >
                   <Check size={16} className="mt-0.5 shrink-0 text-green-600" />
                   <span className="break-words">{strength}</span>
                 </div>
@@ -119,7 +283,11 @@ export function Analysis({ results, regenerate, loading }: AnalysisProps) {
           </h3>
           <div className="flex flex-col gap-2">
             {results.analysis.gaps.map((gap, i) => (
-              <div key={i} className="flex gap-2 text-xs md:text-sm">
+              <div
+                key={i}
+                className="flex gap-2 text-xs md:text-sm animate-fade-in"
+                style={{ animationDelay: `${i * 75}ms` }}
+              >
                 <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gradient-to-br from-amber-400 to-amber-700 shadow-sm" />
                 <span className="break-words">{gap}</span>
               </div>

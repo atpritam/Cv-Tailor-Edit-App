@@ -17,7 +17,7 @@ type CVTailorResultsProps = {
   loading: boolean;
   regenerate: () => void;
   reset: () => void;
-  downloadPDF: () => void;
+  downloadPDF: () => Promise<void> | void;
 };
 
 export function CVTailorResults({
@@ -222,7 +222,7 @@ export function CVTailorResults({
           onClick={async () => {
             try {
               setIsDownloading(true);
-              const maybePromise: any = downloadPDF();
+              const maybePromise = downloadPDF();
               if (maybePromise && typeof maybePromise.then === "function") {
                 await maybePromise;
               }

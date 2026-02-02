@@ -4,6 +4,16 @@ export interface AnalysisResult {
   matchingStrengths: string[];
   gaps: string[];
   improvements: string[];
+  SkillMatch?: number;
+  ExperienceMatch?: number;
+  TitleMatch?: number;
+  SoftSkillMatch?: number;
+  evidence?: {
+    skillMatches?: string[];
+    experienceMatches?: string[];
+    titleMatches?: string[];
+    softSkillMatches?: string[];
+  };
 }
 
 export interface TailorResult {
@@ -25,4 +35,12 @@ export interface ResumeVersion {
 export interface RefineResponse {
   updatedHtml: string;
   chatResponse: string;
+}
+
+export interface Theme {
+  primary: string;
+  link: string;
+  h2: string;
+  border: string;
+  tech: string;
 }

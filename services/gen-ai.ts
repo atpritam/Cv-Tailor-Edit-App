@@ -26,7 +26,7 @@ export async function generateContentWithRetry(
   prompt: string,
   maxAttemptsPerModel = 2,
 ): Promise<string> {
-  let lastErr: any = null;
+  let lastErr: unknown | null = null;
 
   // Try each model in the `models` list. For each model, attempt up to
   // `maxAttemptsPerModel` times (default 2): the initial try and one retry.
@@ -40,9 +40,18 @@ export async function generateContentWithRetry(
       try {
         const result = await localModel.generateContent(prompt);
         return result.response.text();
-      } catch (err: any) {
+      } catch (err: unknown) {
         lastErr = err;
-        const status = err?.status || err?.response?.status;
+        const status =
+          err && typeof err === "object" && "status" in err
+            ? (err as { status: number }).status
+            : err &&
+                typeof err === "object" &&
+                "response" in err &&
+                typeof (err as { response: unknown }).response === "object" &&
+                (err as { response: { status: number } }).response.status
+              ? (err as { response: { status: number } }).response.status
+              : undefined;
         const isRateLimit =
           status === 429 ||
           /429|Too Many Requests|Resource exhausted/i.test(String(err));

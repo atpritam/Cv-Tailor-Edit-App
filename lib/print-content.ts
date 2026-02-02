@@ -1,3 +1,5 @@
+import { Theme } from "./types";
+
 export type PrintOptions = {
   includePrintScript?: boolean;
   title?: string;
@@ -7,7 +9,7 @@ export type PrintOptions = {
 export function generatePrintHtml(
   htmlContent: string,
   profilePhotoDataUrl: string | null,
-  theme: any,
+  theme: Theme,
   options: PrintOptions = {},
 ): string {
   const { includePrintScript = false, title = "Resume", lang = "en" } = options;
