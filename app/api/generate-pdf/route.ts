@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
 import { generatePrintHtml } from "../../../lib/print-content";
 
 export async function POST(request: NextRequest) {
@@ -14,41 +12,48 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate print-ready HTML with all styles inline
+    // Generate print-ready HTML
     const printHtml = generatePrintHtml(html, profilePhotoDataUrl, theme);
 
-    // Launch headless browser
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath(),
-      headless: "shell",
-      defaultViewport: { width: 1920, height: 1080 },
-    });
+    const browserlessUrl = "https://chrome.browserless.io/pdf";
+    const token = process.env.BROWSERLESS_API_TOKEN;
 
-    const page = await browser.newPage();
+    if (!token) {
+      throw new Error("BROWSERLESS_API_TOKEN not set");
+    }
 
-    // Set content and wait for all resources to load
-    await page.setContent(printHtml, {
-      waitUntil: ["networkidle0", "domcontentloaded"],
-    });
-
-    // Generate PDF with print-optimized settings
-    const pdf = await page.pdf({
-      format: "Letter",
-      printBackground: true,
-      margin: {
-        top: "0.3in",
-        bottom: "0.4in",
-        left: "0.4in",
-        right: "0.4in",
+    // Prepare payload
+    const payload = {
+      html: printHtml,
+      options: {
+        format: "Letter",
+        printBackground: true,
+        margin: {
+          top: "0.3in",
+          bottom: "0.1in",
+          left: "0.4in",
+          right: "0.4in",
+        },
       },
-      preferCSSPageSize: false,
-    });
+    };
 
-    await browser.close();
+    const response = await fetch(
+      `${browserlessUrl}?token=${encodeURIComponent(token)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+    );
 
-    // Return PDF as response
-    return new NextResponse(Buffer.from(pdf), {
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      throw new Error(`Browserless failed: ${response.status} ${text}`);
+    }
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+
+    return new NextResponse(buffer, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": 'attachment; filename="resume.pdf"',

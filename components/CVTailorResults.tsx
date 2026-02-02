@@ -28,6 +28,7 @@ export function CVTailorResults({
   downloadPDF,
 }: CVTailorResultsProps) {
   const resumeRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = React.useState(false);
 
   return (
     <div>
@@ -218,11 +219,33 @@ export function CVTailorResults({
       {/* Action Buttons */}
       <div className="grid gap-4 md:grid-cols-3">
         <button
-          onClick={downloadPDF}
-          className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
+          onClick={async () => {
+            try {
+              setIsDownloading(true);
+              const maybePromise: any = downloadPDF();
+              if (maybePromise && typeof maybePromise.then === "function") {
+                await maybePromise;
+              }
+            } finally {
+              setIsDownloading(false);
+            }
+          }}
+          disabled={isDownloading}
+          className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 ${
+            isDownloading ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+          }`}
         >
-          <Download size={16} />
-          Download / Print PDF
+          {isDownloading ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Downloading...
+            </>
+          ) : (
+            <>
+              <Download size={16} />
+              Download / Print PDF
+            </>
+          )}
         </button>
 
         <button

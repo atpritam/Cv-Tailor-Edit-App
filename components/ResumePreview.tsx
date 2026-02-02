@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
-import { Download, FileText, Loader2, RefreshCw, Printer, Upload } from "lucide-react";
+import {
+  Download,
+  FileText,
+  Loader2,
+  RefreshCw,
+  Printer,
+  Upload,
+} from "lucide-react";
 import type { TailorResult } from "@/lib/types";
 import { Chat } from "./Chat";
 import type { ChatMessage } from "@/hooks/useCVTailor";
@@ -109,6 +116,7 @@ export function ResumePreview({
   const [selectedTheme, setSelectedTheme] = useState(0); // Default to Classic Blue
   const [showProfilePhoto, setShowProfilePhoto] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Detect mobile
   useEffect(() => {
@@ -199,11 +207,16 @@ export function ResumePreview({
 
   const handleDownload = async () => {
     if (resumeRef.current) {
-      await downloadPDF(
-        resumeRef.current,
-        showProfilePhoto ? profilePhotoDataUrl : null,
-        COLOR_THEMES[selectedTheme],
-      );
+      try {
+        setIsDownloading(true);
+        await downloadPDF(
+          resumeRef.current,
+          showProfilePhoto ? profilePhotoDataUrl : null,
+          COLOR_THEMES[selectedTheme],
+        );
+      } finally {
+        setIsDownloading(false);
+      }
     }
   };
 
@@ -346,15 +359,34 @@ export function ResumePreview({
           <>
             <button
               onClick={handleDownload}
-              className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 md:py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
+              disabled={isDownloading}
+              className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 md:py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 ${
+                isDownloading
+                  ? "cursor-not-allowed opacity-60"
+                  : "cursor-pointer"
+              }`}
             >
-              <Download size={16} />
-              Download PDF
+              {isDownloading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  <Download size={16} />
+                  Download PDF
+                </>
+              )}
             </button>
 
             <button
               onClick={handlePrint}
-              className="flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 md:py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted cursor-pointer"
+              disabled={isDownloading}
+              className={`flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 md:py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted ${
+                isDownloading
+                  ? "cursor-not-allowed opacity-50"
+                  : "cursor-pointer"
+              }`}
             >
               <Printer size={16} />
               Print Resume
@@ -363,10 +395,22 @@ export function ResumePreview({
         ) : (
           <button
             onClick={handleDownload}
-            className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer md:col-span-2"
+            disabled={isDownloading}
+            className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 md:col-span-2 ${
+              isDownloading ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+            }`}
           >
-            <Download size={16} />
-            Download PDF
+            {isDownloading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Downloading...
+              </>
+            ) : (
+              <>
+                <Download size={16} />
+                Download PDF
+              </>
+            )}
           </button>
         )}
 
