@@ -174,6 +174,7 @@ export function ResumePreview({
     results.tailoredResumeHtml,
     showProfilePhoto,
     isDownloading,
+    profilePhotoDataUrl,
   ]);
 
   // Inject profile photo whenever resume HTML or photo changes
@@ -240,6 +241,7 @@ export function ResumePreview({
   };
 
   const actionDisabled = isDownloading || loading || !!streamingStarted;
+  const controlsDisabled = isDownloading || loading || !!streamingStarted;
 
   return (
     <div className="w-full min-w-0">
@@ -274,10 +276,15 @@ export function ResumePreview({
                   Profile Pic
                 </span>
                 <button
-                  onClick={() => setShowProfilePhoto(!showProfilePhoto)}
+                  onClick={() => {
+                    if (!controlsDisabled)
+                      setShowProfilePhoto(!showProfilePhoto);
+                  }}
+                  disabled={controlsDisabled}
+                  aria-disabled={controlsDisabled}
                   className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                     showProfilePhoto ? "bg-primary" : "bg-muted-foreground/30"
-                  }`}
+                  } ${controlsDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
                   aria-label="Toggle profile photo"
                 >
                   <span
@@ -290,7 +297,7 @@ export function ResumePreview({
             ) : (
               // New Profile Photo Upload Button
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium whitespace-nowrap">
+                <span className="text-xs font-medium whitespace-nowrap cursor-pointer">
                   Add Profile Pic
                 </span>
                 <input
@@ -300,10 +307,16 @@ export function ResumePreview({
                   onChange={handleProfilePhotoUpload}
                   className="hidden"
                   aria-hidden
+                  disabled={controlsDisabled}
                 />
                 <button
-                  onClick={() => profilePhotoInputRef.current?.click()}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20 transition-colors"
+                  onClick={() => {
+                    if (!controlsDisabled)
+                      profilePhotoInputRef.current?.click();
+                  }}
+                  disabled={controlsDisabled}
+                  aria-disabled={controlsDisabled}
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20 transition-colors ${controlsDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
                   aria-label="Upload profile photo"
                 >
                   <Upload size={16} />
@@ -320,8 +333,12 @@ export function ResumePreview({
               {COLOR_THEMES.map((theme, index) => (
                 <button
                   key={index}
-                  onClick={() => setSelectedTheme(index)}
-                  className="relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full"
+                  onClick={() => {
+                    if (!controlsDisabled) setSelectedTheme(index);
+                  }}
+                  disabled={controlsDisabled}
+                  aria-disabled={controlsDisabled}
+                  className={`relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full ${controlsDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
                   style={{
                     width: "20px",
                     height: "20px",

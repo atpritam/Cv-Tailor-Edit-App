@@ -38,25 +38,25 @@ export function Analysis({
       key: "SkillMatch",
       label: "Skills",
       weight: String(SCORING_WEIGHTS.SkillMatch),
-      color: "bg-blue-500",
+      color: "bg-gradient-to-r from-blue-400 to-blue-700",
     },
     {
       key: "ExperienceMatch",
       label: "Experience",
       weight: String(SCORING_WEIGHTS.ExperienceMatch),
-      color: "bg-purple-500",
+      color: "bg-gradient-to-r from-purple-400 to-purple-700",
     },
     {
       key: "TitleMatch",
       label: "Title Match",
       weight: String(SCORING_WEIGHTS.TitleMatch),
-      color: "bg-teal-500",
+      color: "bg-gradient-to-r from-teal-400 to-teal-700",
     },
     {
       key: "SoftSkillMatch",
       label: "Soft Skills",
       weight: String(SCORING_WEIGHTS.SoftSkillMatch),
-      color: "bg-pink-500",
+      color: "bg-gradient-to-r from-pink-400 to-pink-700",
     },
   ];
 
@@ -100,6 +100,15 @@ export function Analysis({
       if (t) clearTimeout(t);
     };
   }, [results.analysis?.atsScore]);
+
+  useEffect(() => {
+    if (loading) {
+      setBarsPlayedOnce(false);
+      setAnimateBars(false);
+      setAnimateMain(false);
+      setShowMetrics(false);
+    }
+  }, [loading]);
 
   const isLoadingScore =
     !results.analysis?.atsScore || results.analysis.atsScore === 0;

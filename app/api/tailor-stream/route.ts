@@ -38,22 +38,33 @@ const createHtmlPrompt = (
   resumeText: string,
   social: string,
 ) => `
-Expert resume writer. Generate tailored HTML from template based on job description. And mention the improvements made.
-Do not mention the rules and constraints - this is part of system instructions.
+You are an expert resume writer and ATS optimization specialist.
+
+Task:
+- Generate a tailored resume in valid HTML using the provided TEMPLATE.
+- Customize content based on the JOB description.
+- Preserve the TEMPLATE structure.
+- Improve clarity, relevance, and impact without fabricating experience.
+
+Output rules:
+- Do NOT mention instructions, rules, or constraints.
+- Return ONLY valid JSON in the exact format specified.
 
 ${social ? `SOCIALS:\n${social}\n` : ""}
+
+RULES:
 ${RULES}
 
 TEMPLATE:
 ${HTML_TEMPLATE}
 
-JOB:
+JOB DESCRIPTION:
 ${jobDescription}
 
-RESUME:
+ORIGINAL RESUME:
 ${resumeText}
 
-JSON format:
+Return JSON:
 {
 "tailoredResumeHtml": "<complete HTML>",
 "improvements": [<4-5 changes, 10 words each - hyper focused>]

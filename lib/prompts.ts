@@ -39,9 +39,9 @@ export const HTML_TEMPLATE = `
   <div class="project">
     <div class="project-header">
       <div class="project-title"><p>[Role |]  [Company/Project Name]</p><p class="project-time">[Dates ][• Location]</p></div>
-      <div class="project-sub"><p class="project-tech">[Technologies]</p></div>
+      <div class="project-sub"><p class="project-tech">[Technologies/Prominent skills]</p></div>
     </div>
-    <p class="project-description">[38-54 words, <strong> for achievements/metrics/optimizations done]</p>
+    <p class="project-description">[38-54 words, <strong> for achievements/optimizations done/specific important info relevent to job skill needed]</p>
   </div>
   <!-- Max 3 experiences / Never Invent Experience -->
 </section>
