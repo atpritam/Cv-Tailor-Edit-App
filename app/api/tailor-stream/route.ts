@@ -3,15 +3,9 @@ import { generateParallelStreaming } from "@/services/gen-ai";
 import { processHtmlResponse } from "@/lib/response-processor";
 import { HTML_TEMPLATE, RULES, SCORING_CRITERIA } from "@/lib/prompts";
 
-const createAnalysisPrompt = (
-  jobDescription: string,
-  resumeText: string,
-  social: string,
-) => `
+const createAnalysisPrompt = (jobDescription: string, resumeText: string) => `
 Expert resume analyzer. Calculate Job Compatibility Score (job-resume match.)
 
-
-${social ? `SOCIALS:\n${social}\n` : ""}
 ${SCORING_CRITERIA}
 
 JOB:
@@ -33,11 +27,7 @@ JSON format:
   "gaps": [<3-5>],
 }`;
 
-const createHtmlPrompt = (
-  jobDescription: string,
-  resumeText: string,
-  social: string,
-) => `
+const createHtmlPrompt = (jobDescription: string, resumeText: string) => `
 You are an expert resume writer and ATS optimization specialist.
 
 Task:
@@ -49,8 +39,6 @@ Task:
 Output rules:
 - Do NOT mention instructions, rules, or constraints.
 - Return ONLY valid JSON in the exact format specified.
-
-${social ? `SOCIALS:\n${social}\n` : ""}
 
 RULES:
 ${RULES}
@@ -127,8 +115,7 @@ export async function POST(request: NextRequest) {
       };
 
       try {
-        const { jobDescription, resumeText, linkedin, github } =
-          await request.json();
+        const { jobDescription, resumeText } = await request.json();
 
         if (!jobDescription?.trim()) {
           safeEnqueue(
@@ -146,13 +133,6 @@ export async function POST(request: NextRequest) {
           return;
         }
 
-        const social = [
-          linkedin?.trim() && `LinkedIn: ${linkedin}`,
-          github?.trim() && `GitHub: ${github}`,
-        ]
-          .filter(Boolean)
-          .join("\n");
-
         safeEnqueue(
           `data: ${JSON.stringify({ type: "started", message: "Analysis started" })}\n\n`,
         );
@@ -165,7 +145,7 @@ export async function POST(request: NextRequest) {
         // Run both streams in parallel
         await generateParallelStreaming([
           {
-            prompt: createAnalysisPrompt(jobDescription, resumeText, social),
+            prompt: createAnalysisPrompt(jobDescription, resumeText),
             onChunk: (chunk, accumulated) => {
               analysisAccumulated = accumulated;
 
@@ -210,7 +190,7 @@ export async function POST(request: NextRequest) {
             },
           },
           {
-            prompt: createHtmlPrompt(jobDescription, resumeText, social),
+            prompt: createHtmlPrompt(jobDescription, resumeText),
             onChunk: (chunk, accumulated) => {
               htmlAccumulated = accumulated;
 

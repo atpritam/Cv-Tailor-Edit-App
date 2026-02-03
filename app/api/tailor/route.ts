@@ -5,8 +5,7 @@ import { processHtmlResponse } from "@/lib/response-processor";
 
 export async function POST(request: NextRequest) {
   try {
-    const { jobDescription, resumeText, linkedin, github } =
-      await request.json();
+    const { jobDescription, resumeText } = await request.json();
 
     if (!jobDescription?.trim()) {
       return NextResponse.json(
@@ -22,8 +21,6 @@ export async function POST(request: NextRequest) {
     const prompt = generateTailorPrompt({
       jobDescription,
       resumeText,
-      linkedin,
-      github,
     });
 
     const text = await generateContentWithRetry(prompt, 2);

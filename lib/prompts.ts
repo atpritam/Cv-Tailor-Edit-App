@@ -51,15 +51,15 @@ export const HTML_TEMPLATE = `
   <div class="education">
     <div class="education-date"><div class="education-title">[University, Location]</div><div>[Date]</div></div>
     <div class="education-details"><div class="education-degree">[Degree]</div><div class="education-gpa">[GPA or omit]</div></div>
-    [Coursework max 8 words]
+    <p class="courses">[Coursework max 8 words or omit]</p>
   </div>
 </section>
 `;
 
 export const RULES = `RULES:
-1. Extract from resume, use socials if missing
+1. Extract details from resume only
 2. Never invent data - omit if absent
-3. Rewrite wording, preserve facts/metrics
+3. When Rewriting wording, preserve facts/metrics
 4. Links must be <a href>, omit if no URL
 5. For Projects, mentioning "(Project)" is mandatory, follow the Format
 6. Omit missing dates/locations
@@ -86,20 +86,11 @@ type TailorPromptData = {
 };
 
 export const generateTailorPrompt = (data: TailorPromptData): string => {
-  const { jobDescription, resumeText, linkedin, github } = data;
+  const { jobDescription, resumeText } = data;
   const hasResume = resumeText?.trim();
 
-  const social = [
-    linkedin?.trim() && `LinkedIn: ${linkedin}`,
-    github?.trim() && `GitHub: ${github}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  return `Expert resume writer. Analyze resume vs job. Recommend apply_as_is (ATS≥75) or tailor_resume.
 
-  if (hasResume) {
-    return `Expert resume writer. Analyze resume vs job. Recommend apply_as_is (ATS≥75) or tailor_resume.
-
-${social ? `SOCIALS:\n${social}\n` : ""}
 ${RULES}
 ${SCORING_CRITERIA}
 Recommend apply_as_is only if ATS ≥75.
@@ -135,29 +126,6 @@ JSON:
   },
   "tailoredResumeHtml": "<complete HTML>"
 }`;
-  } else {
-    return `Resume writer. User needs to upload resume.
-
-${social ? `SOCIALS:\n${social}\n` : ""}JOB:
-${jobDescription}
-
-TEMPLATE:
-${HTML_TEMPLATE}
-
-JSON:
-{
-  "recommendation": "needs_resume",
-  "recommendationReason": "Upload resume for analysis.",
-  "analysis": {
-    "atsScore": 0,
-    "keySkills": [<6-10 from job>],
-    "matchingStrengths": [],
-    "gaps": ["Resume required"],
-    "improvements": ["Upload resume"]
-  },
-  "tailoredResumeHtml": "<template with placeholders>"
-}`;
-  }
 };
 
 type RefinePromptData = {

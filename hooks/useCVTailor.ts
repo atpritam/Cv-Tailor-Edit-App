@@ -2,19 +2,16 @@
 
 import { useState, useRef } from "react";
 import type { TailorResult, ResumeVersion } from "@/lib/types";
-import { renderToString } from "react-dom/server";
 
 export type ChatMessage = {
   role: "user" | "assistant";
   parts: { text: string }[];
 };
 
-const MAX_HISTORY_VERSIONS = 10;
+const MAX_HISTORY_VERSIONS = 5;
 
 export function useCVTailor() {
   const [jobDescription, setJobDescription] = useState("");
-  const [linkedin, setLinkedin] = useState("");
-  const [github, setGithub] = useState("");
   const [resumeText, setResumeText] = useState("");
   const [results, setResults] = useState<TailorResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -99,8 +96,6 @@ export function useCVTailor() {
         body: JSON.stringify({
           jobDescription,
           resumeText,
-          linkedin,
-          github,
         }),
       });
 
@@ -379,8 +374,6 @@ export function useCVTailor() {
 
   const reset = () => {
     setJobDescription("");
-    setLinkedin("");
-    setGithub("");
     setResumeText("");
     setResults(null);
     setError("");
@@ -400,10 +393,6 @@ export function useCVTailor() {
   return {
     jobDescription,
     setJobDescription,
-    linkedin,
-    setLinkedin,
-    github,
-    setGithub,
     resumeText,
     setResumeText,
     results,

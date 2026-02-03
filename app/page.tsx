@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useEffect } from "react";
 import { useCVTailor } from "@/hooks/useCVTailor";
 import { useResumeParser } from "@/hooks/useResumeParser";
 import { useProfilePhoto } from "@/hooks/useProfilePhoto";
@@ -12,10 +11,6 @@ export default function CVTailorApp() {
   const {
     jobDescription,
     setJobDescription,
-    linkedin,
-    setLinkedin,
-    github,
-    setGithub,
     resumeText,
     setResumeText,
     results,

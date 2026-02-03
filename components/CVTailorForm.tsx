@@ -26,8 +26,6 @@ export function CVTailorForm({
   loading,
   handleSubmit,
 }: CVTailorFormProps) {
-  // photo upload and social inputs removed from initial form
-
   return (
     <>
       {/* Resume Upload Section */}
@@ -114,8 +112,6 @@ export function CVTailorForm({
           </div>
         </div>
       </section>
-
-      {/* Contact/social/photo inputs removed from initial form per request */}
 
       {/* Job Description Input */}
       <section className="mb-12">

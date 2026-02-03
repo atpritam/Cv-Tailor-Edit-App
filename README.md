@@ -1,6 +1,6 @@
 # CV Tailor App
 
-The CV Tailor App is an AI-powered application designed to help users efficiently tailor their CVs to specific job descriptions. Leveraging advanced generative AI models and **parallel streaming processing**, the application parses resumes, analyzes job requirements, and provides intelligent, real-time suggestions to optimize a CV for a higher chance of success, ensuring a faster and more dynamic user experience.
+The CV Tailor App is an AI-powered application designed to help users efficiently tailor their CVs to specific job descriptions. Leveraging advanced generative AI models and **parallel streaming processes** for lighning speed responses, the application parses resumes, analyzes job requirements, and provides intelligent, real-time suggestions to optimize a CV for a higher chance of success, ensuring a faster and more dynamic user experience.
 
 [![Tailor View](Screenshots/Tailor-View.png)](https://cv-tailor-edit-app.vercel.app)
 
@@ -10,25 +10,21 @@ Deployed: [cv-tailor-edit-app.vercel.app](https://cv-tailor-edit-app.vercel.app/
 
 - **AI-Powered CV Tailoring:** Utilize Google's Generative AI to analyze job descriptions and provide targeted CV adjustments.
 - **Parallel AI Streaming:** Leverages concurrent AI model calls to simultaneously generate CV analysis and tailored HTML, resulting in faster and more efficient processing.
-- **Interactive AI Refinement with Undo/Redo:** Engage in a chat-based experience with the AI to continuously refine your CV, with the ability to undo and redo changes.
-- **Resume Parsing:** Upload and process your existing CVs in PDF format.
-- **Job Description Analysis:** Input job descriptions for comprehensive analysis against your CV.
+- **Interactive AI Refinement:** Engage in a chat-based experience with the AI to continuously refine your CV, with the ability to undo and redo changes.
+- **Job Compatibility Analysis:** Input job descriptions for comprehensive analysis and scoring against your CV.
 - **Intelligent Suggestions:** Receive AI-driven recommendations for improving your CV content.
 - **Customizable Resume Themes & Profile Photo:** Personalize your tailored resume with various color themes and an option to upload a profile photo.
-- **Resume Preview:** Visualize your CV changes in real-time.
-- **PDF Generation & Printing:** Download your tailored CV as a PDF or print it directly, with robust fallback mechanisms for PDF generation.
+- **Resume Preview:** Visualize your CV changes in real-time before saving.
+- **PDF Generation & Printing:** Download your tailored CV as a PDF or print it directly.
 
 ## Technologies Used
 
-This project is built using modern web technologies and a robust component library:
+This project is built using modern web & GenAI technologies:
 
 - **Next.js:** A React framework for building fast web applications.
-- **React:** A JavaScript library for building user interfaces.
+- **Google Generative AI:** For intelligent content generation and analysis.
 - **TypeScript:** A typed superset of JavaScript that compiles to plain JavaScript.
 - **Tailwind CSS:** A utility-first CSS framework for rapidly building custom designs.
-- **Shadcn/ui:** A collection of re-usable components built using Radix UI and Tailwind CSS.
-- **Google Generative AI:** For intelligent content generation and analysis.
-- **Zod & React Hook Form:** For robust form validation and management.
 - **pnpm:** A fast, disk space efficient package manager.
 
 ## Getting Started
@@ -98,22 +94,10 @@ pnpm start
 
 1.  **Upload your resume:** Begin by uploading your existing CV in PDF format.
 2.  **Provide a job description:** Paste the job description you're targeting.
-3.  **Receive tailored suggestions:** The AI will process your resume and the job description, then generate an optimized CV.
+3.  **Receive tailored suggestions:** The AI will process your resume and the job description, then generate an optimized CV and produce a compatibility score.
 4.  **Refine with chat (optional):** Use the interactive chat with the AI, requesting further changes to your tailored CV. Utilize the undo/redo functionality to manage revisions.
 5.  **Customize appearance:** Choose from various color themes and upload a profile photo to personalize your resume's look.
 6.  **Preview and export:** Review the real-time preview of your tailored and customized CV, then download it as a PDF or print it directly.
-
-## Project Structure
-
-```
-.
-├── app/                  # Next.js app router: pages, layout, API routes
-├── components/           # Reusable React components, UI library (shadcn/ui)
-├── hooks/                # Custom React hooks
-├── lib/                  # Utility functions, type definitions, prompt templates
-├── public/               # Static assets
-└── services/             # API service integrations (e.g., gen-ai.ts)
-```
 
 ## Contributing
 
