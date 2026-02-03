@@ -154,12 +154,16 @@ function buildOpenTagRegex(identifier: {
   if (identifier.type === "class") {
     const classes =
       identifier.classes || identifier.value.split(/\s+/).filter(Boolean);
-    // Pattern to ensure all classes are present
-    const classLookaheads = classes
-      .map((c) => `(?=.*\\b${c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b)`)
-      .join("");
 
-    attrsPattern += `(?=[^>]*class="[^"]*"${classLookaheads})`;
+    // Lookaheads for each class to ensure they are all present in the tag
+    attrsPattern += classes
+      .map((c) =>
+        `(?=[^>]*\\bclass="[^"]*\\b${c.replace(
+          /[.*+?^${}()|[\]\\]/g,
+          "\\$&",
+        )}\\b[^"]*")`,
+      )
+      .join("");
 
     if (identifier.id) {
       const idEsc = String(identifier.id).replace(

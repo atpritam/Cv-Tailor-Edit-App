@@ -171,6 +171,7 @@ USER_REQUEST:
 "${userMessage}"
 
 RULES
+- CRITICAL: The "newHtml" value is a JSON string. All double quotes (") inside the HTML code itself MUST be escaped with a backslash (\\").
 - Return ONLY modified blocks (never the full document)
 - Each block must be COMPLETE (opening tag → closing tag)
 - Preserve all class names, ids and structure
@@ -190,7 +191,7 @@ OUTPUT (STRICT)
 Return ONLY valid JSON:
 {
   "blocks": [
-    { "newHtml": "<complete unique HTML block>" }
+    { "newHtml": "<complete unique HTML block with escaped quotes>" }
   ],
   "chatResponse": "short friendly reply to user"
 }
