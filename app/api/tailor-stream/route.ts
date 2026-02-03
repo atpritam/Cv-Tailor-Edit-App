@@ -1,5 +1,8 @@
 import { NextRequest } from "next/server";
-import { generateParallelStreaming } from "@/services/gen-ai";
+import {
+  generateContentStreaming,
+  generateContentWithRetry,
+} from "@/services/gen-ai";
 import { processHtmlResponse } from "@/lib/response-processor";
 import { HTML_TEMPLATE, RULES, SCORING_CRITERIA } from "@/lib/prompts";
 
@@ -137,120 +140,75 @@ export async function POST(request: NextRequest) {
           `data: ${JSON.stringify({ type: "started", message: "Analysis started" })}\n\n`,
         );
 
-        let analysisAccumulated = "";
-        let htmlAccumulated = "";
         let lastAnalysisSent = 0;
-        let lastHtmlSent = 0;
 
-        // Run both streams in parallel
-        await generateParallelStreaming([
-          {
-            prompt: createAnalysisPrompt(jobDescription, resumeText),
-            onChunk: (chunk, accumulated) => {
-              analysisAccumulated = accumulated;
-
-              const now = Date.now();
-              if (now - lastAnalysisSent > 120) {
-                try {
-                  const jsonStr = extractFirstJson(accumulated);
-                  if (jsonStr) {
-                    const parsed = JSON.parse(jsonStr);
-                    safeEnqueue(
-                      `data: ${JSON.stringify({ type: "analysis_partial", data: parsed })}\n\n`,
-                    );
-                    lastAnalysisSent = now;
-                  }
-                } catch (error: any) {
-                  console.warn(
-                    "Partial Analysis JSON parsing failed:",
-                    error?.message || String(error),
-                    "String:",
-                    accumulated.slice(0, 1000),
-                  );
-                }
-              }
-            },
-            onComplete: (fullText) => {
+        // Start analysis
+        const streamAnalysis = generateContentStreaming(
+          createAnalysisPrompt(jobDescription, resumeText),
+          (chunk, accumulated) => {
+            const now = Date.now();
+            // Send updates every 120ms to avoid ui re-render overload
+            if (now - lastAnalysisSent > 120) {
               try {
-                const jsonStr = extractFirstJson(fullText);
+                const jsonStr = extractFirstJson(accumulated);
                 if (jsonStr) {
                   const parsed = JSON.parse(jsonStr);
                   safeEnqueue(
-                    `data: ${JSON.stringify({ type: "analysis_complete", data: parsed })}\n\n`,
+                    `data: ${JSON.stringify({ type: "analysis_partial", data: parsed })}\n\n`,
                   );
+                  lastAnalysisSent = now;
                 }
-              } catch (err: any) {
-                console.error(
-                  "Analysis parse error:",
-                  err?.message || String(err),
-                  "String:",
-                  fullText.slice(0, 2000),
+              } catch (error: any) {
+                // Ignore parse errors during streaming
+              }
+            }
+          },
+          (fullText) => {
+            try {
+              const jsonStr = extractFirstJson(fullText);
+              if (jsonStr) {
+                const parsed = JSON.parse(jsonStr);
+                safeEnqueue(
+                  `data: ${JSON.stringify({ type: "analysis_complete", data: parsed })}\n\n`,
                 );
               }
-            },
+            } catch (err: any) {
+              console.error(
+                "Analysis parse error:",
+                err?.message || String(err),
+              );
+            }
           },
-          {
-            prompt: createHtmlPrompt(jobDescription, resumeText),
-            onChunk: (chunk, accumulated) => {
-              htmlAccumulated = accumulated;
+        );
 
-              const now = Date.now();
-              if (now - lastHtmlSent > 200) {
-                try {
-                  const jsonStr = extractFirstJson(accumulated);
-                  if (jsonStr) {
-                    const parsed = JSON.parse(jsonStr);
-                    if (parsed.tailoredResumeHtml) {
-                      safeEnqueue(
-                        `data: ${JSON.stringify({
-                          type: "html_partial",
-                          data: {
-                            tailoredResumeHtml: parsed.tailoredResumeHtml,
-                            improvements: parsed.improvements,
-                          },
-                        })}\n\n`,
-                      );
-                      lastHtmlSent = now;
-                    }
-                  }
-                } catch (error: any) {
-                  console.warn(
-                    "Partial HTML JSON parsing failed:",
-                    error?.message || String(error),
-                    "String:",
-                    accumulated.slice(0, 1000),
-                  );
-                }
-              }
-            },
-            onComplete: (fullText) => {
-              try {
-                const jsonStr = extractFirstJson(fullText);
-                if (jsonStr) {
-                  const parsed = JSON.parse(jsonStr);
-                  safeEnqueue(
-                    `data: ${JSON.stringify({
-                      type: "html_complete",
-                      data: {
-                        tailoredResumeHtml: processHtmlResponse(
-                          parsed.tailoredResumeHtml,
-                        ),
-                        improvements: parsed.improvements,
-                      },
-                    })}\n\n`,
-                  );
-                }
-              } catch (err: any) {
-                console.error(
-                  "HTML parse error:",
-                  err?.message || String(err),
-                  "String:",
-                  fullText.slice(0, 2000),
-                );
-              }
-            },
-          },
-        ]);
+        await new Promise((resolve) => setTimeout(resolve, 270));
+
+        const generateHtml = generateContentWithRetry(
+          createHtmlPrompt(jobDescription, resumeText),
+          2,
+        );
+
+        const [, htmlText] = await Promise.all([streamAnalysis, generateHtml]);
+
+        try {
+          const jsonStr = extractFirstJson(htmlText);
+          if (jsonStr) {
+            const parsed = JSON.parse(jsonStr);
+            safeEnqueue(
+              `data: ${JSON.stringify({
+                type: "html_complete",
+                data: {
+                  tailoredResumeHtml: processHtmlResponse(
+                    parsed.tailoredResumeHtml,
+                  ),
+                  improvements: parsed.improvements,
+                },
+              })}\n\n`,
+            );
+          }
+        } catch (err: any) {
+          console.error("HTML parse error:", err?.message || String(err));
+        }
 
         // Send final completion signal
         safeEnqueue(

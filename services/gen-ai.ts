@@ -43,8 +43,24 @@ export async function generateContentWithRetry(
         return result.response.text();
       } catch (err: unknown) {
         lastError = err;
-        const isRateLimit = /429|quota|exhausted/i.test(String(err));
-        if (isRateLimit) break;
+        const isRateLimit = /429|quota|exhausted|Too Many Requests/i.test(
+          String(err),
+        );
+
+        if (isRateLimit) {
+          // Exponential backoff for rate limits: 1s, 2s, 4s, etc.
+          const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 8000);
+          console.log(`Rate limit hit, waiting ${backoffMs}ms before retry...`);
+          await new Promise((r) => setTimeout(r, backoffMs));
+
+          // For rate limits, retry with same model before falling back
+          if (attempt < maxAttempts) {
+            continue;
+          }
+          // If all retries exhausted, try fallback model
+          break;
+        }
+
         if (attempt < maxAttempts) {
           await new Promise((r) => setTimeout(r, 500));
         }
@@ -63,42 +79,65 @@ export async function generateContentStreaming(
   prompt: string,
   onChunk: (chunk: string, accumulated: string) => void,
   onComplete?: (fullText: string) => void,
+  maxAttempts = 3,
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({
-    model: MODELS.primary,
-    generationConfig: {
-      temperature: 0.7,
-      topK: 40,
-      topP: 0.95,
-      maxOutputTokens: 8192,
-      responseMimeType: "text/plain",
-    },
-  });
+  let lastError: unknown = null;
 
-  try {
-    const result = await model.generateContentStream(prompt);
-    let accumulated = "";
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const model = genAI.getGenerativeModel({
+      model: MODELS.primary,
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 8192,
+        responseMimeType: "text/plain",
+      },
+    });
 
-    for await (const chunk of result.stream) {
-      const chunkText = chunk.text();
-      accumulated += chunkText;
-      onChunk(chunkText, accumulated);
+    try {
+      const result = await model.generateContentStream(prompt);
+      let accumulated = "";
+
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        accumulated += chunkText;
+        onChunk(chunkText, accumulated);
+      }
+
+      if (onComplete) {
+        onComplete(accumulated);
+      }
+
+      return accumulated;
+    } catch (err) {
+      lastError = err;
+      const isRateLimit = /429|quota|exhausted|Too Many Requests/i.test(
+        String(err),
+      );
+
+      if (isRateLimit && attempt < maxAttempts) {
+        const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 8000);
+        console.log(
+          `Streaming rate limit hit, waiting ${backoffMs}ms before retry...`,
+        );
+        await new Promise((r) => setTimeout(r, backoffMs));
+        continue;
+      }
+
+      console.error("Streaming failed:", err);
+      // Fallback to non-streaming only on final attempt
+      if (attempt === maxAttempts) {
+        const text = await generateContentWithRetry(prompt, 1);
+        if (onComplete) {
+          onComplete(text);
+        }
+        return text;
+      }
     }
-
-    if (onComplete) {
-      onComplete(accumulated);
-    }
-
-    return accumulated;
-  } catch (err) {
-    console.error("Streaming failed:", err);
-    // Fallback to non-streaming
-    const text = await generateContentWithRetry(prompt, 1);
-    if (onComplete) {
-      onComplete(text);
-    }
-    return text;
   }
+
+  throw lastError || new Error("Streaming failed after retries");
 }
 
 /**
