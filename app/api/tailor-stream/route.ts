@@ -26,8 +26,8 @@ JSON format:
   "SoftSkillMatch": <0-100>,
   "evidence": {"skillMatches":[{"token":"","count":0}],"experienceMatches":[{"phrase":"","count":0}],"titleMatches":[{"phrase":"","count":0}],"softSkillMatches":[{"phrase":"","count":0}]},
   "keySkills": [<6-10 from job>],
-  "matchingStrengths": [<4-6>],
-  "gaps": [<3-5>],
+  "matchingStrengths": [<4-6, around 10 words each - hyper focused>],
+  "gaps": [<3-5, around 10 words each - hyper focused>],
 }`;
 
 const createHtmlPrompt = (jobDescription: string, resumeText: string) => `
@@ -58,7 +58,7 @@ ${resumeText}
 Return JSON:
 {
 "tailoredResumeHtml": "<complete HTML>",
-"improvements": [<4-5 changes, 10 words each - hyper focused>]
+"improvements": [<4-5 changes, around 10 words each - hyper focused>]
 }`;
 
 export async function POST(request: NextRequest) {

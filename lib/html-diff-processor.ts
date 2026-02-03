@@ -147,24 +147,24 @@ function buildMatchPattern(identifier: {
         const idEsc = String(idVal).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         // Allow id and class attributes in any order using lookaheads
         const regex = new RegExp(
-          `<${tagEsc}(?=[^>]*\\bid="${idEsc}")(?=[^>]*class="[^\"]*\\b${classPattern}\\b")[^>]*>[\\s\\S]*?</${tagEsc}>`,
+          `<${tagEsc}(?=[^>]*\\bid="${idEsc}")(?=[^>]*class="[^\"]*\\b${classPattern}\\b")[^>]*>[\\s\\S]*</${tagEsc}>`,
         );
         return { regex };
       }
 
       const regex = new RegExp(
-        `<${tagEsc}[^>]*class="[^\"]*\\b${classPattern}\\b[^\"]*"[^>]*>[\\s\\S]*?</${tagEsc}>`,
+        `<${tagEsc}[^>]*class="[^\"]*\\b${classPattern}\\b[^\"]*"[^>]*>[\\s\\S]*</${tagEsc}>`,
       );
       return { regex };
     }
 
     if (idVal) {
       const idEsc = String(idVal).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const anyTagRegex = `<[^>]+(?=[^>]*\\bid="${idEsc}")(?=[^>]*class="[^\"]*\\b${classPattern}\\b")[^>]*>[\\s\\S]*?</[^>]+>`;
+      const anyTagRegex = `<[^>]+(?=[^>]*\\bid="${idEsc}")(?=[^>]*class="[^\"]*\\b${classPattern}\\b")[^>]*>[\\s\\S]*</[^>]+>`;
       return { regex: new RegExp(anyTagRegex) };
     }
 
-    const anyTagRegex = `<[^>]+class="[^\"]*\\b${classPattern}\\b[^\"]*"[^>]*>[\\s\\S]*?</[^>]+>`;
+    const anyTagRegex = `<[^>]+class="[^\"]*\\b${classPattern}\\b[^\"]*"[^>]*>[\\s\\S]*</[^>]+>`;
     const regex = new RegExp(anyTagRegex);
     return { regex };
   }
@@ -185,19 +185,19 @@ function buildMatchPattern(identifier: {
     if (tag) {
       const tagEsc = String(tag).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const regex = new RegExp(
-        `<${tagEsc}[^>]*\\sid="${idVal}"[^>]*>[\\s\\S]*?</${tagEsc}>`,
+        `<${tagEsc}[^>]*\\sid="${idVal}"[^>]*>[\\s\\S]*</${tagEsc}>`,
       );
       return { regex };
     }
 
-    const anyTagRegex = `<[^>]+\\sid="${idVal}"[^>]*>[\\s\\S]*?</[^>]+>`;
+    const anyTagRegex = `<[^>]+\\sid="${idVal}"[^>]*>[\\s\\S]*</[^>]+>`;
     return { regex: new RegExp(anyTagRegex) };
   }
 
   if (identifier.type === "tag") {
     // Match by tag - less reliable but works for unique tags
     const tag = identifier.value;
-    const regex = new RegExp(`<${tag}[^>]*>[\\s\\S]*?</${tag}>`, "");
+    const regex = new RegExp(`<${tag}[^>]*>[\\s\\S]*</${tag}>`, "");
     return { regex };
   }
 
