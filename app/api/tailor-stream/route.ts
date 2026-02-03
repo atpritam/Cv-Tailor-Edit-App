@@ -4,62 +4,7 @@ import {
   generateContentWithRetry,
 } from "@/services/gen-ai";
 import { processHtmlResponse } from "@/lib/response-processor";
-import { HTML_TEMPLATE, RULES, SCORING_CRITERIA } from "@/lib/prompts";
-
-const createAnalysisPrompt = (jobDescription: string, resumeText: string) => `
-Expert resume analyzer. Calculate Job Compatibility Score (job-resume match.)
-
-${SCORING_CRITERIA}
-
-JOB:
-${jobDescription}
-
-RESUME:
-${resumeText}
-
-JSON format:
-{
-  "atsScore": <0-100>,
-  "SkillMatch": <0-100>,
-  "ExperienceMatch": <0-100>,
-  "TitleMatch": <0-100>,
-  "SoftSkillMatch": <0-100>,
-  "evidence": {"skillMatches":[{"token":"","count":0}],"experienceMatches":[{"phrase":"","count":0}],"titleMatches":[{"phrase":"","count":0}],"softSkillMatches":[{"phrase":"","count":0}]},
-  "keySkills": [<6-10 from job>],
-  "matchingStrengths": [<4-6, around 10 words each - hyper focused>],
-  "gaps": [<3-5, around 10 words each - hyper focused>],
-}`;
-
-const createHtmlPrompt = (jobDescription: string, resumeText: string) => `
-You are an expert resume writer and ATS optimization specialist.
-
-Task:
-- Generate a tailored resume in valid HTML using the provided TEMPLATE.
-- Customize content based on the JOB description.
-- Preserve the TEMPLATE structure.
-- Improve clarity, relevance, and impact without fabricating experience.
-
-Output rules:
-- Do NOT mention instructions, rules, or constraints.
-- Return ONLY valid JSON in the exact format specified.
-
-RULES:
-${RULES}
-
-TEMPLATE:
-${HTML_TEMPLATE}
-
-JOB DESCRIPTION:
-${jobDescription}
-
-ORIGINAL RESUME:
-${resumeText}
-
-Return JSON:
-{
-"tailoredResumeHtml": "<complete HTML>",
-"improvements": [<4-5 changes, around 10 words each - hyper focused>]
-}`;
+import { createAnalysisPrompt, createHtmlPrompt } from "@/lib/prompts";
 
 export async function POST(request: NextRequest) {
   const extractFirstJson = (text: string): string | null => {

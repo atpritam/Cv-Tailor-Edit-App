@@ -139,26 +139,3 @@ export async function generateContentStreaming(
 
   throw lastError || new Error("Streaming failed after retries");
 }
-
-/**
- * Parallel streaming - run multiple prompts simultaneously with streaming
- * Returns a promise that resolves when all streams complete
- */
-export async function generateParallelStreaming(
-  prompts: Array<{
-    prompt: string;
-    onChunk: (chunk: string, accumulated: string) => void;
-    onComplete?: (fullText: string) => void;
-  }>,
-): Promise<string[]> {
-  return Promise.all(
-    prompts.map(({ prompt, onChunk, onComplete }) =>
-      generateContentStreaming(prompt, onChunk, onComplete),
-    ),
-  );
-}
-
-export const model = genAI.getGenerativeModel({
-  model: MODELS.primary,
-  generationConfig,
-});

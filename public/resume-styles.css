@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-size: 15px;
 }
 
 .resume-container {
@@ -20,41 +21,18 @@
 @media (max-width: 768px) {
   .resume-container {
     padding: 16px;
-    font-size: 14px;
+    font-size: 15px;
     max-width: 100%;
-  }
-}
-
-@media print {
-  .resume-container {
-    padding: 12px 12px;
-    padding-bottom: 0;
-    margin-bottom: 0;
-    max-width: 100%;
-    font-size: 10.5pt;
-    line-height: 1.25;
-  }
-
-  @page {
-    margin: 0.3in 0.4in;
-    size: letter;
   }
 }
 
 .resume-container .resume-header {
   margin-bottom: 18px;
 }
-
-@media print {
-  .resume-container .resume-header {
-    margin-bottom: 16px;
-  }
-}
-
 .resume-container .profile-container {
   display: flex;
   align-items: flex-start;
-  gap: 30px;
+  gap: 26px;
 }
 
 @media (max-width: 768px) {
@@ -64,15 +42,9 @@
   }
 }
 
-@media print {
-  .resume-container .profile-container {
-    gap: 24px;
-  }
-}
-
 .resume-container .profile-picture {
-  width: 180px;
-  height: 180px;
+  width: 145px;
+  height: 145px;
   border-radius: 14px;
   object-fit: cover;
   flex-shrink: 0;
@@ -85,24 +57,16 @@
   }
 }
 
-@media print {
-  .resume-container .profile-picture {
-    width: 135px;
-    height: 135px;
-    border-radius: 14px;
-  }
-}
-
 .resume-container .contact-info {
   flex: 1;
 }
 
 .resume-container h1 {
-  font-size: 36px;
+  font-size: 26px;
   font-weight: 700;
   color: #2563eb;
-  margin-bottom: 4px;
-  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+  letter-spacing: 0.4px;
 }
 
 .resume-container .title-line {
@@ -123,20 +87,9 @@
   }
 }
 
-@media print {
-  .resume-container h1 {
-    font-size: 16pt;
-    margin-bottom: -1px;
-  }
-  .resume-container .title-line {
-    font-size: 12pt;
-    margin-bottom: 8px;
-  }
-}
-
 .resume-container .contact {
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.5;
   color: #374151;
 }
 
@@ -146,14 +99,6 @@
     line-height: 1.5;
   }
 }
-
-@media print {
-  .resume-container .contact {
-    font-size: 11.5pt;
-    line-height: 1.25;
-  }
-}
-
 .resume-container .contact a {
   color: #2563eb;
   text-decoration: none;
@@ -164,7 +109,7 @@
 }
 
 .resume-container section {
-  margin-bottom: 26px;
+  margin-bottom: 15px;
 }
 
 @media (max-width: 768px) {
@@ -173,19 +118,13 @@
   }
 }
 
-@media print {
-  .resume-container section {
-    margin-bottom: 14px;
-  }
-}
-
 .resume-container h2 {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #2563eb;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   padding-bottom: 4px;
   border-bottom: 2px solid #2563eb;
 }
@@ -197,19 +136,9 @@
     margin-bottom: 8px;
   }
 }
-
-@media print {
-  .resume-container h2 {
-    font-size: 11.5pt;
-    margin-bottom: 8px;
-    padding-bottom: 2px;
-    border-bottom: 2px solid #2563eb;
-  }
-}
-
 .resume-container .summary {
   text-align: justify;
-  line-height: 1.6;
+  line-height: 1.5;
   color: #374151;
 }
 
@@ -220,35 +149,16 @@
     text-align: left;
   }
 }
-
-@media print {
-  .resume-container .summary {
-    line-height: 1.5;
-  }
-}
-
 .resume-container .skills {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-@media print {
-  .resume-container .skills {
-    gap: 4px;
-  }
+  gap: 8px;
 }
 
 .resume-container .skill-level {
   display: flex;
   gap: 8px;
-  line-height: 1.6;
-}
-
-@media print {
-  .resume-container .skill-level {
-    line-height: 1.4;
-  }
+  line-height: 1.5;
 }
 
 .resume-container .skill-level-title {
@@ -278,13 +188,7 @@
 }
 
 .resume-container .project {
-  margin-bottom: 18px;
-}
-
-@media print {
-  .resume-container .project {
-    margin-bottom: 16px;
-  }
+  margin-bottom: 16px;
 }
 
 .resume-container .project:last-child {
@@ -292,19 +196,13 @@
 }
 
 .resume-container .project-header {
-  margin-bottom: 4px;
-}
-
-@media print {
-  .resume-container .project-header {
-    margin-bottom: 3px;
-  }
+  margin-bottom: 3px;
 }
 
 .resume-container .project-title {
   font-weight: 700;
   color: #1f2937;
-  font-size: 16px;
+  font-size: 15px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -327,16 +225,6 @@
     font-weight: 600;
   }
 }
-
-@media print {
-  .resume-container .project-title {
-    font-size: 11pt;
-  }
-  .resume-container .project-time {
-    font-size: 10pt;
-  }
-}
-
 .resume-container .project-link {
   color: #2563eb;
   font-weight: 500;
@@ -344,6 +232,7 @@
 
 .resume-container a {
   text-decoration: none;
+  color: #2563eb;
 }
 
 .resume-container a:hover {
@@ -367,18 +256,9 @@
     font-size: 11px;
   }
 }
-
-@media print {
-  .resume-container .project-tech {
-    font-size: 10pt;
-    margin-top: 2px;
-    margin-bottom: 4px;
-  }
-}
-
 .resume-container .project-description {
   text-align: justify;
-  line-height: 1.6;
+  line-height: 1.5;
   color: #374151;
   margin-top: 4px;
 }
@@ -391,24 +271,10 @@
   }
 }
 
-@media print {
-  .resume-container .project-description {
-    line-height: 1.45;
-    margin-top: 0px;
-  }
-}
-
 .resume-container .education {
-  line-height: 1.6;
+  line-height: 1.5;
   color: #374151;
 }
-
-@media print {
-  .resume-container .education {
-    line-height: 1.5;
-  }
-}
-
 .resume-container .education-date {
   display: flex;
   justify-content: space-between;
@@ -435,62 +301,23 @@
   }
 }
 
-@media print {
-  .resume-container .education-date {
-    margin-bottom: 2px;
-  }
-}
-
 .resume-container .education-title {
   font-weight: 700;
   color: #1f2937;
 }
-
-@media print {
-  .resume-container * {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .resume-container a {
-    color: #2563eb !important;
-    text-decoration: none;
-  }
-
-  .resume-container section {
-    page-break-inside: avoid;
-  }
-
-  .resume-container .project {
-    page-break-inside: avoid;
-  }
-
-  .resume-container h2 {
-    page-break-after: avoid;
-  }
-}
-
 .resume-container .consent {
-  display: none;
+  display: block;
   font-size: 10.5px;
   color: #6b7280;
   text-align: center;
-}
-
-@media print {
-  .resume-container .consent {
-    display: block;
-    position: fixed;
-    bottom: 20px;
-    left: 0;
-    right: 0;
-    width: 100%;
-    text-align: center;
-    z-index: 9999;
-  }
+  margin-top: 40px;
 }
 
 .resume-container strong {
   font-weight: 700;
   color: #1f2937;
+}
+.resume-container section,
+.resume-container .project {
+  page-break-inside: avoid;
 }

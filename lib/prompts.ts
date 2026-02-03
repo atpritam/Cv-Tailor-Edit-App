@@ -24,24 +24,22 @@ export const HTML_TEMPLATE = `
 <section class="skills-section">
   <h2 class="skills-header">SKILLS</h2>
   <div class="skills">
+    <!-- Repeat this block for each skill category (max 3) -->
     <div class="skill-level" id="1"><div class="skill-level-title">[Category]:</div><div class="skill-items">[Max 9 words from resume]</div></div>
-    <div class="skill-level" id="2"><div class="skill-level-title">[Category]:</div><div class="skill-items">[Max 9 words]</div></div>
-    <div class="skill-level" id="3"><div class="skill-level-title">[Category]:</div><div class="skill-items">[Max 9 words]</div></div>
   </div>
 </section>
 
 <section class="experience-section">
   <h2 class="experience-header">EXPERIENCE</h2>
-      <!-- FOR WORK EXPERIENCE: [Role |]  [Company Name] -->
-      <!-- FOR PROJECTS ONLY RESUME: [Predicted Role |]  [Short Project Name] (Project) – [2 to 3 words on primary descriptive project focus] -->
-      <!-- example (FOR PROJECTS ONLY RESUME): Core AI Engineer | Ollama Bridge (Project) – LLM Orchestration System -->
+      <!-- FOR WORK EXPERIENCE: [Role] | [Company Name] -->
+      <!-- FOR PROJECTS ONLY RESUME: [Predicted Role] | [Short Project Name] (Project)-->
       <!-- TOTAL PROJECT TITLE div SHOULD NOT EXCEED 8 WORDS. -->
   <div class="project" id="[unique numbered id]">
     <div class="project-header">
-      <div class="project-title" id="[unique numbered id]"><p>[Role |]  [Company/Project Name]</p><p class="project-time" id="[unique numbered id]">[Dates ][• Location]</p></div>
+      <div class="project-title" id="[unique numbered id]"><p>[Role] |  [Company/Project Name]</p><p class="project-time" id="[unique numbered id]">[Dates] • [Location]</p></div>
       <div class="project-sub"><p class="project-tech" id="[unique numbered id]">[Technologies/Prominent skills]</p></div>
     </div>
-    <p class="project-description" id="[unique numbered id]">[38-54 words, <strong> for achievements/optimizations done/specific important info relevent to job skill needed]</p>
+    <p class="project-description" id="[unique numbered id]">[50-54 words, <strong> for achievements/optimizations done or specific important info relevent to job skill needed]</p>
   </div>
   <!-- Max 3 experiences / Never Invent Experience -->
 </section>
@@ -60,14 +58,11 @@ export const RULES = `RULES:
 1. Extract details from resume only
 2. Never invent data - omit if absent
 3. When Rewriting wording, preserve facts/metrics
-4. Links must be <a href>, omit if no URL
+4. Links must be <a href>, omit if no URL (like Github/Live/Demo etc.)
 5. For Projects, mentioning "(Project)" is mandatory, follow the Format
-6. Omit missing dates/locations
-7. Don't use "N/A" anywhere, just leave blank
-8. Do not try to push hard on a profile that doesn't fit the job description. Just be factual and objective.
-
-LIMITS:
-About: 50-56 words | Skills: 9 words per category (3 total) | Experience: 3 items, 38-54 words each | Coursework: 8 words`;
+6. Don't use "N/A" anywhere, just leave blank
+7. Do not try to push hard on a profile that doesn't fit the job description. Just be factual and objective
+8. Ignore separators like | , • when not needed`;
 
 export const SCORING_CRITERIA = `SCORING (0-100 each, include evidence):
 SkillMatch (${SCORING_WEIGHTS.SkillMatch}%): Technical Skills (more points for exact Match with Job than just related skills)
@@ -78,55 +73,66 @@ SoftSkillMatch (${SCORING_WEIGHTS.SoftSkillMatch}%): soft skill fit
 ATS = round(Σ(weight × score)) + production_bonus (8-15 points for deployment signals)
 Cap at 97.`;
 
-type TailorPromptData = {
-  jobDescription: string;
-  resumeText?: string;
-  linkedin?: string;
-  github?: string;
-};
+export const createAnalysisPrompt = (
+  jobDescription: string,
+  resumeText: string,
+) => `
+Expert resume analyzer. Calculate Job Compatibility Score (job-resume match.)
 
-export const generateTailorPrompt = (data: TailorPromptData): string => {
-  const { jobDescription, resumeText } = data;
-  const hasResume = resumeText?.trim();
-
-  return `Expert resume writer. Analyze resume vs job. Recommend apply_as_is (ATS≥75) or tailor_resume.
-
-${RULES}
 ${SCORING_CRITERIA}
-Recommend apply_as_is only if ATS ≥75.
+
 JOB:
 ${jobDescription}
 
 RESUME:
 ${resumeText}
 
+JSON format:
+{
+  "atsScore": <0-100>,
+  "SkillMatch": <0-100>,
+  "ExperienceMatch": <0-100>,
+  "TitleMatch": <0-100>,
+  "SoftSkillMatch": <0-100>,
+  "evidence": {"skillMatches":[{"token":"","count":0}],"experienceMatches":[{"phrase":"","count":0}],"titleMatches":[{"phrase":"","count":0}],"softSkillMatches":[{"phrase":"","count":0}]},
+  "keySkills": [<6-10 from job>],
+  "matchingStrengths": [<4-6, around 10 words each - hyper focused>],
+  "gaps": [<3-5, around 10 words each - hyper focused>],
+}`;
+
+export const createHtmlPrompt = (
+  jobDescription: string,
+  resumeText: string,
+) => `
+You are an expert resume writer and ATS optimization specialist.
+
+Task:
+- Generate a tailored resume in valid HTML using the provided TEMPLATE.
+- Customize content based on the JOB description.
+- Preserve the TEMPLATE structure.
+- Improve clarity, relevance, and impact without fabricating experience.
+
+Output rules:
+- Do NOT mention instructions, rules, or constraints.
+- Return ONLY valid JSON in the exact format specified.
+
+RULES:
+${RULES}
+
 TEMPLATE:
 ${HTML_TEMPLATE}
 
-JSON:
+JOB DESCRIPTION:
+${jobDescription}
+
+ORIGINAL RESUME:
+${resumeText}
+
+Return JSON:
 {
-  "recommendation": "apply_as_is"|"tailor_resume",
-  "recommendationReason": "<1-2 sentences>",
-  "analysis": {
-    "atsScore": <0-100>,
-    "SkillMatch": <0-100>,
-    "ExperienceMatch": <0-100>,
-    "TitleMatch": <0-100>,
-    "SoftSkillMatch": <0-100>,
-    "evidence": {
-      "skillMatches": [{"token":"<>","count":<>}],
-      "experienceMatches": [{"phrase":"<>","count":<>}],
-      "titleMatches": [{"phrase":"<>","count":<>}],
-      "softSkillMatches": [{"phrase":"<>","count":<>}]
-    },
-    "keySkills": [<6-10 from job>],
-    "matchingStrengths": [<4-6 user strengths>],
-    "gaps": [<3-5 areas>],
-    "improvements": [<4-6 changes>]
-  },
-  "tailoredResumeHtml": "<complete HTML>"
+"tailoredResumeHtml": "<complete HTML>",
+"improvements": [<4-5 changes, around 10 words each - hyper focused>]
 }`;
-};
 
 type RefinePromptData = {
   userMessage: string;
