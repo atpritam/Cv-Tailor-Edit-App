@@ -1,4 +1,4 @@
-import { JSDOM } from "jsdom";
+// Dynamically import `jsdom` at runtime to avoid CommonJS/ESM interop issues in server
 
 /**
  * Smart HTML Diff Processor
@@ -10,14 +10,14 @@ export interface HtmlBlock {
   description?: string;
 }
 
-export function applyHtmlDiff(
+export async function applyHtmlDiff(
   currentHtml: string,
   blocks: HtmlBlock[],
-): string {
+): Promise<string> {
   let html = currentHtml;
 
   for (const block of blocks) {
-    html = replaceHtmlBlock(html, block.newHtml);
+    html = await replaceHtmlBlock(html, block.newHtml);
   }
 
   return html;
@@ -26,12 +26,13 @@ export function applyHtmlDiff(
 /**
  * Helpers
  */
-function createDocument(html: string): Document {
+async function createDocument(html: string): Promise<Document> {
   if (typeof window !== "undefined" && typeof DOMParser !== "undefined") {
     return new DOMParser().parseFromString(html, "text/html");
   }
 
-  return new JSDOM(html).window.document;
+  const jsdom = await import("jsdom");
+  return new jsdom.JSDOM(html).window.document;
 }
 
 function hasIdentifier(el: Element): boolean {
@@ -61,9 +62,12 @@ function buildSelector(el: Element): string | null {
 /**
  * Replace exactly ONE block using data-* identifiers
  */
-function replaceHtmlBlock(currentHtml: string, newBlock: string): string {
-  const currentDoc = createDocument(currentHtml);
-  const newDoc = createDocument(newBlock);
+async function replaceHtmlBlock(
+  currentHtml: string,
+  newBlock: string,
+): Promise<string> {
+  const currentDoc = await createDocument(currentHtml);
+  const newDoc = await createDocument(newBlock);
 
   let newEl = newDoc.body.firstElementChild;
   if (!newEl) return currentHtml;

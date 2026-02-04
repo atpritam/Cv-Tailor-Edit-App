@@ -1,7 +1,7 @@
-import { JSDOM } from "jsdom";
-
-const fixDataIndexes = (html: string): string => {
-  const dom = new JSDOM(html);
+// Use dynamic import for jsdom to avoid require() of ESM modules during bundling
+const fixDataIndexes = async (html: string): Promise<string> => {
+  const jsdom = await import("jsdom");
+  const dom = new jsdom.JSDOM(html);
   const { document } = dom.window;
   const listItemsCorrectIndex = new Map<Element, string>();
   const lists = new Map<Element, Map<string, Element[]>>();
@@ -45,7 +45,7 @@ const fixDataIndexes = (html: string): string => {
   return document.body.innerHTML;
 };
 
-export const processHtmlResponse = (html: string): string => {
+export const processHtmlResponse = async (html: string): Promise<string> => {
   let processedHtml = html;
 
   // Fix relative URLs
@@ -88,7 +88,7 @@ export const processHtmlResponse = (html: string): string => {
       .replace(/>\s*<\s*/g, "><");
   }
   // Fix data-index attributes
-  processedHtml = fixDataIndexes(processedHtml);
+  processedHtml = await fixDataIndexes(processedHtml);
 
   return processedHtml;
 };

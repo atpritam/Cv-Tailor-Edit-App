@@ -68,7 +68,10 @@ export async function POST(request: NextRequest) {
       console.log("Refine API parsed response:", parsed);
 
       // Apply the HTML block changes
-      const updatedHtml = applyHtmlDiff(currentResumeHtml, parsed.blocks || []);
+      const updatedHtml = await applyHtmlDiff(
+        currentResumeHtml,
+        parsed.blocks || [],
+      );
 
       return NextResponse.json({
         updatedHtml,

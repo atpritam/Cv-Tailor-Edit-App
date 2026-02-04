@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
               `data: ${JSON.stringify({
                 type: "html_complete",
                 data: {
-                  tailoredResumeHtml: processHtmlResponse(
+                  tailoredResumeHtml: await processHtmlResponse(
                     parsed.tailoredResumeHtml,
                   ),
                   improvements: parsed.improvements,
