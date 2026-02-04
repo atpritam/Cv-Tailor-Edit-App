@@ -14,6 +14,21 @@ type ChatProps = {
   onRedo: () => void;
 };
 
+const BoldableText = ({ text }: { text: string }) => {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.startsWith("**") && part.endsWith("**") ? (
+          <strong key={i}>{part.slice(2, -2)}</strong>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+};
+
 export function Chat({
   chatHistory,
   sendChatMessage,
@@ -85,10 +100,12 @@ export function Chat({
               <div
                 className={`p-2.5 md:p-3 rounded-lg max-w-[85%] md:max-w-sm ${entry.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}
               >
-                <p className="text-xs md:text-sm">
-                  {entry.parts
-                    .map((part: { text: string }) => part.text)
-                    .join(" ")}
+                <p className="text-xs md:text-sm whitespace-pre-wrap">
+                  <BoldableText
+                    text={entry.parts
+                      .map((part: { text: string }) => part.text)
+                      .join("")}
+                  />
                 </p>
               </div>
             </div>

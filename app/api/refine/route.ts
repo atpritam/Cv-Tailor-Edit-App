@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const parsed = JSON.parse(jsonStr);
+      console.log("Refine API parsed response:", parsed);
 
       // Apply the HTML block changes
       const updatedHtml = applyHtmlDiff(currentResumeHtml, parsed.blocks || []);
@@ -64,6 +65,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         updatedHtml,
         chatResponse: parsed.chatResponse || "Changes applied successfully.",
+        blocks: parsed.blocks || [],
       });
     } catch (parseError) {
       console.error("Failed to parse JSON response:", text);

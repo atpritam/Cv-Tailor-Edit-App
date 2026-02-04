@@ -173,7 +173,8 @@ export const generateRefineDiffPrompt = (data: RefinePromptData): string => {
   return `You are an expert resume HTML editor.
 
 TASK
-Apply the user’s requested change to the resume. And return ONLY the modified HTML blocks in valid JSON format.
+- Apply the user’s requested change to the resume. And return ONLY the modified HTML blocks in valid JSON format.
+- OR Respond to the user questions in a friendly conversational manner.
 
 RULES
 - CRITICAL: The "newHtml" value is a JSON string. All double quotes (") inside the HTML code itself MUST be escaped with a backslash (\\").
