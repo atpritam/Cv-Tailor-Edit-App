@@ -1,8 +1,7 @@
-// Use dynamic import for jsdom to avoid require() of ESM modules during bundling
-const fixDataIndexes = async (html: string): Promise<string> => {
-  const jsdom = await import("jsdom");
-  const dom = new jsdom.JSDOM(html);
-  const { document } = dom.window;
+import { parseHTML } from "linkedom";
+
+const fixDataIndexes = (html: string): string => {
+  const { document } = parseHTML(html);
   const listItemsCorrectIndex = new Map<Element, string>();
   const lists = new Map<Element, Map<string, Element[]>>();
   document.querySelectorAll("[data-block][data-index]").forEach((el) => {
@@ -88,7 +87,7 @@ export const processHtmlResponse = async (html: string): Promise<string> => {
       .replace(/>\s*<\s*/g, "><");
   }
   // Fix data-index attributes
-  processedHtml = await fixDataIndexes(processedHtml);
+  processedHtml = fixDataIndexes(processedHtml);
 
   return processedHtml;
 };

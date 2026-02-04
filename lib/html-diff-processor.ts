@@ -1,4 +1,4 @@
-// Dynamically import `jsdom` at runtime to avoid CommonJS/ESM interop issues in server
+import { parseHTML } from "linkedom";
 
 /**
  * Smart HTML Diff Processor
@@ -31,8 +31,8 @@ async function createDocument(html: string): Promise<Document> {
     return new DOMParser().parseFromString(html, "text/html");
   }
 
-  const jsdom = await import("jsdom");
-  return new jsdom.JSDOM(html).window.document;
+  const { document } = parseHTML(html);
+  return document as unknown as Document;
 }
 
 function hasIdentifier(el: Element): boolean {
