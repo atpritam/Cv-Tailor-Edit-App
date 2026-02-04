@@ -31,7 +31,16 @@ async function createDocument(html: string): Promise<Document> {
     return new DOMParser().parseFromString(html, "text/html");
   }
 
-  const { document } = parseHTML(html);
+  const trimmed = (html || "").trim();
+  const needsWrapper =
+    !/<!doctype\s+/i.test(trimmed) &&
+    !/<html[\s>]/i.test(trimmed) &&
+    !/<body[\s>]/i.test(trimmed);
+  const input = needsWrapper
+    ? `<!doctype html><html><body>${html}</body></html>`
+    : html;
+
+  const { document } = parseHTML(input);
   return document as unknown as Document;
 }
 
@@ -80,17 +89,37 @@ async function replaceHtmlBlock(
   const selector = buildSelector(newEl);
 
   if (!selector) {
-    console.warn("Block missing identifier — skipping");
+    console.warn("Block missing identifier — skipping", {
+      newHtml: newEl.outerHTML?.slice(0, 200),
+    });
     return currentHtml;
   }
-
   const target = currentDoc.querySelector(selector);
+  console.debug("Attempting replace", {
+    selector,
+    newHtmlSnippet: newEl.outerHTML?.slice(0, 200),
+  });
+
   if (!target) {
-    console.warn("Target not found:", selector);
+    console.warn("Target not found:", selector, {
+      currentHtmlSnippet: currentHtml.slice(0, 400),
+    });
     return currentHtml;
   }
 
-  target.outerHTML = newEl.outerHTML;
+  try {
+    const before = target.outerHTML?.slice(0, 200);
+    target.outerHTML = newEl.outerHTML;
+    const after = newEl.outerHTML?.slice(0, 200);
+    console.info("Replaced selector", selector, { before, after });
+  } catch (err: any) {
+    console.error(
+      "Failed to replace target for selector",
+      selector,
+      err?.message || String(err),
+    );
+    return currentHtml;
+  }
 
   return currentDoc.body.innerHTML;
 }
