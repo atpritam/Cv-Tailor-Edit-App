@@ -52,7 +52,8 @@ export const HTML_TEMPLATE = `
 </section>
 <section class="education-section" data-block="education">
   <h2 class="education-header" data-field="education-header">EDUCATION</h2>
-  <!-- Repeat if multiple educations - data-index MUST be UNIQUE and sequential -->
+  <!-- Repeat if multiple (only university education, recent 2) - data-index MUST be UNIQUE and sequential -->
+  <!-- If 2 degrees, Reduce Projects section description word count total to 135 words -->
   <div class="education" data-block="education-item" data-index="1">
     <div class="education-date" data-block="education-date" data-index="1">
       <div class="education-title" data-field="university" data-index="1">[University, Location]</div>
@@ -122,7 +123,7 @@ You are an expert resume writer and ATS optimization specialist.
 Task:
 - Generate a tailored resume in valid HTML using the provided TEMPLATE.
 - Customize content based on the JOB description.
-- Preserve all class names, and data-* attributes exactly as provided in the TEMPLATE.
+- Preserve all class names, structures and data-* attributes exactly as provided in the TEMPLATE.
 - Improve clarity, relevance, and impact without fabricating experience.
 
 RULES:
