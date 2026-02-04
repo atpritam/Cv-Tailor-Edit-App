@@ -179,12 +179,15 @@ RULES
 - Each block must be COMPLETE (opening tag → closing tag)
 - Preserve all class names, and data-* attributes exactly as provided
 - For entire div/block removal requests, return the nearest parent block with the target content removed
-- You can insert inline styles if specific style changes are requested
+- You can insert tags and inline styles if specific style changes are requested
 
 EXAMPLES OF VALID CHANGES: 
 
 User: "Make the summary shorter"
 Return: <p class="summary" data-field="summary">Concise new summary text here</p>
+
+User: "make this text red: Integrated Stripe subscriptions"
+Return: <p class="project-description" data-field="description" data-index="3">Made... <span style=\"color: red;\">Integrated Stripe subscriptions</span> ...experimental.</p>
 
 User: "Remove the second skill category"
 Return: The immediate entire outer block with removal changes; <div class="skills" data-block="skills-list">...</div>
