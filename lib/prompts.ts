@@ -1,55 +1,68 @@
 import { SCORING_WEIGHTS } from "./weights";
 
 export const HTML_TEMPLATE = `
-<header class="resume-header">
-  <div class="profile-container">
-    <div class="contact-info">
-      <h1 class="name">[FULL NAME CAPS]</h1>
-      <span class="title-line">[Title | Specializations]</span>
-      <div class="contact">
-        [City, Country]<br />
-        [email] • [phone]<br />
-        <a class="[Github/Site]" href="[url1]" target="_blank" rel="noopener noreferrer">[Site/GitHub display]</a> • <a class="Linkedin" href="[url2]" target="_blank" rel="noopener noreferrer">[LinkedIn display]</a><br />
-        [Languages/Certs]
+<header class="resume-header" data-block="header">
+  <div class="profile-container" data-block="profile">
+    <div class="contact-info" data-block="contact-info">
+      <h1 class="name" data-field="name">[FULL NAME CAPS]</h1>
+      <span class="title-line" data-field="title">[Title | Specializations]</span>
+      <div class="contact" data-block="contact-details">
+        <span data-field="location">[City, Country]</span><br />
+        <span data-field="email">[email]</span> • <span data-field="phone">[phone]</span><br />
+        <a class="[Github/Site]" data-field="github" href="[url1]" target="_blank" rel="noopener noreferrer">[Site/GitHub display]</a> •
+        <a class="Linkedin" data-field="linkedin" href="[url2]" target="_blank" rel="noopener noreferrer">[LinkedIn display]</a><br />
+        <span data-field="extras">[Languages/Certs]</span>
       </div>
     </div>
   </div>
 </header>
-
-<section class="about-section">
-  <h2 class="about-header">ABOUT</h2>
-  <p class="summary">[50-56 words, highlight AI tools use for accelerated development, tailor to role and company (if company details available)]</p>
+<section class="about-section" data-block="about">
+  <h2 class="about-header" data-field="about-header">ABOUT</h2>
+  <p class="summary" data-field="summary">[50-56 words, highlight AI tools use for accelerated development, tailor to role and company (if company details available)]</p>
 </section>
-
-<section class="skills-section">
-  <h2 class="skills-header">SKILLS</h2>
-  <div class="skills">
-    <!-- Repeat this block for each skill category (max 3) -->
-    <div class="skill-level" id="1"><div class="skill-level-title">[Category]:</div><div class="skill-items">[Max 9 words from resume]</div></div>
+<section class="skills-section" data-block="skills">
+  <h2 class="skills-header" data-field="skills-header">SKILLS</h2>
+  <div class="skills" data-block="skills-list">
+    <!-- Repeat this entire block for each skill category (max 3) - data-index MUST be UNIQUE and sequential: 1, 2, 3 -->
+    <div class="skill-level" data-block="skill-level" data-index="1">
+      <div class="skill-level-title" data-field="category" data-index="1">[Category]:</div>
+      <div class="skill-items" data-field="items" data-index="1">[Max 9 words from resume]</div>
+    </div>
   </div>
 </section>
-
-<section class="experience-section">
-  <h2 class="experience-header">EXPERIENCE</h2>
+<section class="experience-section" data-block="experience">
+  <h2 class="experience-header" data-field="experience-header">EXPERIENCE</h2>
       <!-- FOR WORK EXPERIENCE: [Role] | [Company Name] -->
       <!-- FOR PROJECTS ONLY RESUME: [Predicted Role] | [Short Project Name] (Project)-->
       <!-- TOTAL PROJECT TITLE div SHOULD NOT EXCEED 8 WORDS. -->
-  <div class="project" id="[unique numbered id]">
-    <div class="project-header">
-      <div class="project-title" id="[unique numbered id]"><p>[Role] |  [Company/Project Name]</p><p class="project-time" id="[unique numbered id]">[Dates] • [Location]</p></div>
-      <div class="project-sub"><p class="project-tech" id="[unique numbered id]">[Technologies/Prominent skills]</p></div>
+  <!-- Repeat this entire project block (max 3) - data-index MUST be UNIQUE and sequential: 1, 2, 3 - All nested blocks MUST use the SAME index -->
+  <div class="project" data-block="project" data-index="1">
+    <div class="project-header" data-block="project-header" data-index="1">
+      <div class="project-title" data-block="project-title" data-index="1">
+        <p data-field="role-company" data-index="1">[Role] |  [Company/Project Name]</p>
+        <p class="project-time" data-field="time" data-index="1">[Dates] • [Location]</p>
+      </div>
+      <div class="project-sub" data-block="project-sub" data-index="1">
+        <p class="project-tech" data-field="tech" data-index="1">[Technologies/Prominent skills]</p>
+      </div>
     </div>
-    <p class="project-description" id="[unique numbered id]">[50-54 words, <strong> for achievements/optimizations done or specific important info relevent to job skill needed]</p>
+    <p class="project-description" data-field="description" data-index="1">[50-54 words, <strong> for achievements/optimizations done or specific important info relevent to job skill needed]</p>
   </div>
   <!-- Max 3 experiences / Never Invent Experience -->
 </section>
-
-<section class="education-section">
-  <h2 class="education-header">EDUCATION</h2>
-  <div class="education">
-    <div class="education-date"><div class="education-title">[University, Location]</div><div>[Date]</div></div>
-    <div class="education-details"><div class="education-degree">[Degree]</div><div class="education-gpa">[GPA or omit]</div></div>
-    <p class="courses">[Coursework max 8 words or omit]</p>
+<section class="education-section" data-block="education">
+  <h2 class="education-header" data-field="education-header">EDUCATION</h2>
+  <!-- Repeat if multiple educations - data-index MUST be UNIQUE and sequential -->
+  <div class="education" data-block="education-item" data-index="1">
+    <div class="education-date" data-block="education-date" data-index="1">
+      <div class="education-title" data-field="university" data-index="1">[University, Location]</div>
+      <div data-field="date" data-index="1">[Date]</div>
+    </div>
+    <div class="education-details" data-block="education-details" data-index="1">
+      <div class="education-degree" data-field="degree" data-index="1">[Degree]</div>
+      <div class="education-gpa" data-field="gpa" data-index="1">[GPA or omit]</div>
+    </div>
+    <p class="courses" data-field="courses" data-index="1">[Coursework max 8 words or omit]</p>
   </div>
 </section>
 `;
@@ -160,32 +173,24 @@ export const generateRefineDiffPrompt = (data: RefinePromptData): string => {
   return `You are an expert resume HTML editor.
 
 TASK
-Apply the user’s requested change to the resume.
-
-CURRENT_RESUME_HTML:
-${currentResumeHtml}
-
-${ctx}
-
-USER_REQUEST:
-"${userMessage}"
+Apply the user’s requested change to the resume. And return ONLY the modified HTML blocks in valid JSON format.
 
 RULES
 - CRITICAL: The "newHtml" value is a JSON string. All double quotes (") inside the HTML code itself MUST be escaped with a backslash (\\").
-- Return ONLY modified blocks (never the full document)
+- Edit the SMALLEST possible uniquely identifiable block
+- Return ONLY modified blocks. ALWAYS return the smallest uniquely identifiable block
 - Each block must be COMPLETE (opening tag → closing tag)
-- Preserve all class names, ids and structure
-- Edit the SMALLEST uniquely identifiable block only
+- Preserve all class names, and data-* attributes exactly as provided
 - For entire div/block removal requests, return the nearest parent block with the target content removed
 - You can insert inline styles if specific style changes are requested
 
 EXAMPLES OF VALID CHANGES: 
 
 User: "Make the summary shorter"
-Return: <p class="summary">Concise new summary text here</p>
+Return: <p class="summary" data-field="summary">Concise new summary text here</p>
 
 User: "Remove the second skill category"
-Return: The immediate entire outer block with removal changes; <div class="skills">...</div>
+Return: The immediate entire outer block with removal changes; <div class="skills" data-block="skills-list">...</div>
 
 OUTPUT (STRICT)
 Return ONLY valid JSON:
@@ -195,5 +200,13 @@ Return ONLY valid JSON:
   ],
   "chatResponse": "short friendly reply to user"
 }
+
+CURRENT_RESUME_HTML:
+${currentResumeHtml}
+
+${ctx}
+
+USER_REQUEST:
+"${userMessage}"
 `;
 };
