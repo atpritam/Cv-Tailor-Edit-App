@@ -46,7 +46,7 @@ export const HTML_TEMPLATE = `
         <p class="project-tech" data-field="tech" data-index="1">[Technologies/Prominent skills]</p>
       </div>
     </div>
-    <p class="project-description" data-field="description" data-index="1">[50-54 words, <strong> for achievements/optimizations done or specific important info relevent to job skill needed]</p>
+    <p class="project-description" data-field="description" data-index="1">[42–50 words per project, max 150 words total. If 3 projects, one must be under 40 words, <strong> for achievements/optimizations done or specific important info relevent to job skill needed]</p>
   </div>
   <!-- Max 3 experiences / Never Invent Experience -->
 </section>
@@ -122,12 +122,8 @@ You are an expert resume writer and ATS optimization specialist.
 Task:
 - Generate a tailored resume in valid HTML using the provided TEMPLATE.
 - Customize content based on the JOB description.
-- Preserve the TEMPLATE structure.
+- Preserve all class names, and data-* attributes exactly as provided in the TEMPLATE.
 - Improve clarity, relevance, and impact without fabricating experience.
-
-Output rules:
-- Do NOT mention instructions, rules, or constraints.
-- Return ONLY valid JSON in the exact format specified.
 
 RULES:
 ${RULES}

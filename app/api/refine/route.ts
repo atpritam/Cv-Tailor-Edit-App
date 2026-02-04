@@ -1,5 +1,5 @@
 /**
- * Refine API Route - Diff-based edit chnage
+ * Refine API Route - Diff-based edit change
  */
 
 import { NextRequest, NextResponse } from "next/server";

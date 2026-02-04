@@ -1,19 +1,25 @@
-import { GoogleGenerativeAI, Content, Part } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
+import type { Content, Part, GenerateContentConfig } from "@google/genai/types";
 import { ChatMessage } from "@/lib/types";
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
+const ai = new GoogleGenAI({
+  apiKey: process.env.GOOGLE_AI_API_KEY || "",
+});
 
-const generationConfig = {
+const generationConfig: GenerateContentConfig = {
   temperature: 0.7,
   topK: 40,
   topP: 0.95,
   maxOutputTokens: 8192,
   responseMimeType: "application/json",
+  thinkingConfig: {
+    thinkingBudget: 0,
+  },
 };
 
 const MODELS = {
-  primary: "gemini-2.0-flash",
-  refine: "gemini-2.0-flash-lite",
+  primary: "gemini-2.5-flash",
+  refine: "gemini-2.5-flash-lite",
   fallback: "gemini-3-flash-preview",
 };
 
@@ -58,11 +64,6 @@ export async function generateContentWithRetry(
   const useChat = googleHistory.length > 0;
 
   for (const modelName of modelsToTry) {
-    const model = genAI.getGenerativeModel({
-      model: modelName,
-      generationConfig,
-    });
-
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         let result: any;
@@ -71,19 +72,27 @@ export async function generateContentWithRetry(
         );
 
         if (useChat) {
-          const chat = model.startChat({ history: googleHistory });
+          const chat = ai.chats.create({
+            model: modelName,
+            config: generationConfig,
+            history: googleHistory,
+          });
           result = await Promise.race([
-            chat.sendMessage(prompt),
+            chat.sendMessage({ message: prompt }),
             timeoutPromise,
           ]);
         } else {
           result = await Promise.race([
-            model.generateContent(prompt),
+            ai.models.generateContent({
+              model: modelName,
+              contents: prompt,
+              config: generationConfig,
+            }),
             timeoutPromise,
           ]);
         }
 
-        return result.response.text();
+        return result.text || "";
       } catch (err: unknown) {
         lastError = err;
         const isRateLimit = /429|quota|exhausted|Too Many Requests/i.test(
@@ -127,23 +136,28 @@ export async function generateContentStreaming(
   let lastError: unknown = null;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const model = genAI.getGenerativeModel({
-      model: MODELS.primary,
-      generationConfig: {
+    try {
+      const streamConfig: GenerateContentConfig = {
         temperature: 0.7,
         topK: 40,
         topP: 0.95,
         maxOutputTokens: 8192,
         responseMimeType: "text/plain",
-      },
-    });
+        thinkingConfig: {
+          thinkingBudget: 0,
+        },
+      };
 
-    try {
-      const result = await model.generateContentStream(prompt);
+      const result = await ai.models.generateContentStream({
+        model: MODELS.primary,
+        contents: prompt,
+        config: streamConfig,
+      });
+
       let accumulated = "";
 
-      for await (const chunk of result.stream) {
-        const chunkText = chunk.text();
+      for await (const chunk of result) {
+        const chunkText = chunk.text || "";
         accumulated += chunkText;
         onChunk(chunkText, accumulated);
       }

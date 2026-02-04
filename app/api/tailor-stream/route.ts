@@ -11,8 +11,17 @@ export async function POST(request: NextRequest) {
     if (!text) return null;
     text = text.replace(/```\w*\n?|```/g, "");
 
-    const start = text.indexOf("{");
-    if (start === -1) return null;
+    // find first JSON start char (object or array)
+    const firstBrace = text.indexOf("{");
+    const firstBracket = text.indexOf("[");
+    let start = -1;
+    if (firstBrace === -1 && firstBracket === -1) return null;
+    if (firstBrace === -1) start = firstBracket;
+    else if (firstBracket === -1) start = firstBrace;
+    else start = Math.min(firstBrace, firstBracket);
+
+    const startChar = text[start];
+    const endChar = startChar === "{" ? "}" : "]";
 
     let inString = false;
     let escape = false;
@@ -32,11 +41,14 @@ export async function POST(request: NextRequest) {
         continue;
       }
       if (inString) continue;
-      if (ch === "{") depth++;
-      else if (ch === "}") {
+      if (ch === startChar) depth++;
+      else if (ch === endChar) {
         depth--;
         if (depth === 0) {
-          return text.substring(start, i + 1);
+          let candidate = text.substring(start, i + 1);
+          // sanitize common non-json extras: remove trailing commas before ] or }
+          candidate = candidate.replace(/,\s*([}\]])/g, "$1");
+          return candidate;
         }
       }
     }
@@ -86,6 +98,7 @@ export async function POST(request: NextRequest) {
         );
 
         let lastAnalysisSent = 0;
+        let analysisRetried = false;
 
         // Start analysis
         const streamAnalysis = generateContentStreaming(
@@ -122,11 +135,32 @@ export async function POST(request: NextRequest) {
                 "Analysis parse error:",
                 err?.message || String(err),
               );
+              if (!analysisRetried) {
+                analysisRetried = true;
+                setTimeout(async () => {
+                  try {
+                    const retryText = await generateContentWithRetry(
+                      createAnalysisPrompt(jobDescription, resumeText),
+                      [],
+                      2,
+                    );
+                    const retryJson = extractFirstJson(retryText);
+                    if (retryJson) {
+                      const parsedRetry = JSON.parse(retryJson);
+                      safeEnqueue(
+                        `data: ${JSON.stringify({ type: "analysis_complete", data: parsedRetry })}\n\n`,
+                      );
+                    }
+                  } catch (retryErr) {
+                    console.error("Analysis retry failed:", retryErr);
+                  }
+                }, 1010);
+              }
             }
           },
         );
 
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        await new Promise((resolve) => setTimeout(resolve, 1010));
 
         const generateHtml = generateContentWithRetry(
           createHtmlPrompt(jobDescription, resumeText),
