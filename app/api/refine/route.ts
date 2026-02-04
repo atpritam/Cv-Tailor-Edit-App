@@ -6,15 +6,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateRefineDiffPrompt } from "@/lib/prompts";
 import { generateContentWithRetry } from "@/services/gen-ai";
 import { applyHtmlDiff } from "@/lib/html-diff-processor";
+import { ChatMessage } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   console.log("Refine API route hit:", request.method, request.url);
   try {
     const {
       userMessage,
+      chatHistory,
       currentResumeHtml,
       originalTailoredHtml,
       jobDescription,
+    }: {
+      userMessage: string;
+      chatHistory?: ChatMessage[];
+      currentResumeHtml: string;
+      originalTailoredHtml?: string;
+      jobDescription?: string;
     } = await request.json();
 
     if (!userMessage?.trim()) {
@@ -45,7 +53,7 @@ export async function POST(request: NextRequest) {
       jobDescription,
     });
 
-    const text = await generateContentWithRetry(prompt, 3);
+    const text = await generateContentWithRetry(prompt, chatHistory, 3, true);
 
     let jsonStr = text.trim();
     if (jsonStr.startsWith("```")) {

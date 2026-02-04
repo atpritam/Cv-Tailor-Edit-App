@@ -1,4 +1,5 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, Content, Part } from "@google/generative-ai";
+import { ChatMessage } from "@/lib/types";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
 
@@ -12,7 +13,30 @@ const generationConfig = {
 
 const MODELS = {
   primary: "gemini-2.0-flash",
+  refine: "gemini-2.0-flash-lite",
   fallback: "gemini-3-flash-preview",
+};
+
+const mapToGoogleHistory = (history: ChatMessage[]): Content[] => {
+  let historyWithoutLast = history.slice(0, -1);
+
+  const firstUserIndex = historyWithoutLast.findIndex(
+    (msg) => msg.role === "user",
+  );
+
+  if (firstUserIndex === -1) {
+    return [];
+  }
+
+  if (firstUserIndex > 0) {
+    historyWithoutLast = historyWithoutLast.slice(firstUserIndex);
+  }
+
+  return historyWithoutLast.map((msg) => {
+    const role = msg.role === "assistant" ? "model" : msg.role;
+    const parts: Part[] = msg.parts.map((part) => ({ text: part.text }));
+    return { role, parts };
+  });
 };
 
 /**
@@ -20,10 +44,18 @@ const MODELS = {
  */
 export async function generateContentWithRetry(
   prompt: string,
+  history: ChatMessage[] = [],
   maxAttempts = 2,
+  refine = false,
 ): Promise<string> {
   const modelsToTry = [MODELS.primary, MODELS.fallback];
+  if (refine) {
+    modelsToTry.unshift(MODELS.refine);
+  }
   let lastError: unknown = null;
+
+  const googleHistory = mapToGoogleHistory(history);
+  const useChat = googleHistory.length > 0;
 
   for (const modelName of modelsToTry) {
     const model = genAI.getGenerativeModel({
@@ -33,12 +65,23 @@ export async function generateContentWithRetry(
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        const result = (await Promise.race([
-          model.generateContent(prompt),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Timeout")), 30000),
-          ),
-        ])) as any;
+        let result: any;
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout")), 30000),
+        );
+
+        if (useChat) {
+          const chat = model.startChat({ history: googleHistory });
+          result = await Promise.race([
+            chat.sendMessage(prompt),
+            timeoutPromise,
+          ]);
+        } else {
+          result = await Promise.race([
+            model.generateContent(prompt),
+            timeoutPromise,
+          ]);
+        }
 
         return result.response.text();
       } catch (err: unknown) {
@@ -128,7 +171,7 @@ export async function generateContentStreaming(
       console.error("Streaming failed:", err);
       // Fallback to non-streaming only on final attempt
       if (attempt === maxAttempts) {
-        const text = await generateContentWithRetry(prompt, 1);
+        const text = await generateContentWithRetry(prompt, [], 1);
         if (onComplete) {
           onComplete(text);
         }

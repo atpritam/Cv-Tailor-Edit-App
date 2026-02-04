@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { Bot, Undo2, Redo2 } from "lucide-react";
-import type { ChatMessage } from "@/hooks/useCVTailor";
+import type { ChatMessage } from "@/lib/types";
 
 type ChatProps = {
   chatHistory: ChatMessage[];

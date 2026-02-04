@@ -130,6 +130,7 @@ export async function POST(request: NextRequest) {
 
         const generateHtml = generateContentWithRetry(
           createHtmlPrompt(jobDescription, resumeText),
+          [],
           2,
         );
 

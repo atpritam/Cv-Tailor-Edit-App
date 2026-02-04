@@ -44,3 +44,8 @@ export interface Theme {
   border: string;
   tech: string;
 }
+
+export type ChatMessage = {
+  role: "user" | "assistant";
+  parts: { text: string }[];
+};

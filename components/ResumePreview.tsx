@@ -9,9 +9,8 @@ import {
   Printer,
   Upload,
 } from "lucide-react";
-import type { TailorResult } from "@/lib/types";
+import type { TailorResult, ChatMessage } from "@/lib/types";
 import { Chat } from "./Chat";
-import type { ChatMessage } from "@/hooks/useCVTailor";
 import { downloadPDF, printPDF } from "@/lib/pdf";
 import { ResumeSkeleton } from "./ui/ResumeSkeleton";
 

@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import type { TailorResult, ResumeVersion } from "@/lib/types";
-
-export type ChatMessage = {
-  role: "user" | "assistant";
-  parts: { text: string }[];
-};
+import type { TailorResult, ResumeVersion, ChatMessage } from "@/lib/types";
 
 const MAX_HISTORY_VERSIONS = 5;
 
@@ -273,6 +268,7 @@ export function useCVTailor() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userMessage: message,
+          chatHistory: newHistory,
           currentResumeHtml: currentHtml,
           originalTailoredHtml: originalTailoredHtml,
           jobDescription: storedJobDescription,
