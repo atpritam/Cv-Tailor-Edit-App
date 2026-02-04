@@ -140,17 +140,36 @@ export async function POST(request: NextRequest) {
           const jsonStr = extractFirstJson(htmlText);
           if (jsonStr) {
             const parsed = JSON.parse(jsonStr);
-            safeEnqueue(
-              `data: ${JSON.stringify({
-                type: "html_complete",
-                data: {
-                  tailoredResumeHtml: await processHtmlResponse(
-                    parsed.tailoredResumeHtml,
-                  ),
-                  improvements: parsed.improvements,
-                },
-              })}\n\n`,
-            );
+            try {
+              const processedHtml = await processHtmlResponse(
+                parsed.tailoredResumeHtml,
+              );
+
+              safeEnqueue(
+                `data: ${JSON.stringify({
+                  type: "html_complete",
+                  data: {
+                    tailoredResumeHtml:
+                      processedHtml || parsed.tailoredResumeHtml,
+                    improvements: parsed.improvements,
+                  },
+                })}\n\n`,
+              );
+            } catch (procErr) {
+              console.error(
+                "HTML processing failed, sending raw HTML:",
+                procErr,
+              );
+              safeEnqueue(
+                `data: ${JSON.stringify({
+                  type: "html_complete",
+                  data: {
+                    tailoredResumeHtml: parsed.tailoredResumeHtml,
+                    improvements: parsed.improvements,
+                  },
+                })}\n\n`,
+              );
+            }
           }
         } catch (err: any) {
           console.error("HTML parse error:", err?.message || String(err));
