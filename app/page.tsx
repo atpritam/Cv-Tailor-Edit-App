@@ -28,6 +28,9 @@ export default function CVTailorApp() {
     canUndo,
     canRedo,
     refining,
+    analysisComplete,
+    htmlComplete,
+    analysisRetrying,
   } = useCVTailor();
 
   const { profilePhotoDataUrl, handleProfilePhotoUpload, resetProfilePhoto } =
@@ -153,6 +156,8 @@ export default function CVTailorApp() {
                 loading={loading}
                 refining={refining}
                 streamingStarted={streamingStarted}
+                analysisComplete={analysisComplete}
+                analysisRetrying={analysisRetrying}
               />
             </div>
             <div className="w-full lg:col-span-8 order-1 lg:order-2 min-w-0">
@@ -170,6 +175,7 @@ export default function CVTailorApp() {
                 onUndo={undoLastChange}
                 onRedo={redoChange}
                 streamingStarted={streamingStarted}
+                htmlComplete={htmlComplete}
               />
             </div>
           </div>

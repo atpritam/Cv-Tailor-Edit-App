@@ -98,7 +98,6 @@ export async function POST(request: NextRequest) {
         );
 
         let lastAnalysisSent = 0;
-        let analysisRetried = false;
 
         // Start analysis
         const streamAnalysis = generateContentStreaming(
@@ -121,7 +120,7 @@ export async function POST(request: NextRequest) {
               }
             }
           },
-          (fullText) => {
+          async (fullText) => {
             try {
               const jsonStr = extractFirstJson(fullText);
               if (jsonStr) {
@@ -135,31 +134,39 @@ export async function POST(request: NextRequest) {
                 "Analysis parse error:",
                 err?.message || String(err),
               );
-              if (!analysisRetried) {
-                analysisRetried = true;
-                setTimeout(async () => {
-                  try {
-                    const retryText = await generateContentWithRetry(
-                      createAnalysisPrompt(jobDescription, resumeText),
-                      [],
-                      2,
-                    );
-                    const retryJson = extractFirstJson(retryText);
-                    if (retryJson) {
-                      const parsedRetry = JSON.parse(retryJson);
-                      safeEnqueue(
-                        `data: ${JSON.stringify({ type: "analysis_complete", data: parsedRetry })}\n\n`,
-                      );
-                    }
-                  } catch (retryErr) {
-                    console.error("Analysis retry failed:", retryErr);
-                  }
-                }, 1010);
+
+              // Emit retry event
+              safeEnqueue(
+                `data: ${JSON.stringify({ type: "analysis_retrying" })}\n\n`,
+              );
+
+              try {
+                // Retry synchronously
+                const retryText = await generateContentWithRetry(
+                  createAnalysisPrompt(jobDescription, resumeText),
+                  [],
+                  2,
+                );
+                const retryJson = extractFirstJson(retryText);
+                if (retryJson) {
+                  const parsedRetry = JSON.parse(retryJson);
+                  safeEnqueue(
+                    `data: ${JSON.stringify({ type: "analysis_complete", data: parsedRetry })}\n\n`,
+                  );
+                } else {
+                  throw new Error("Failed to extract JSON from retry response");
+                }
+              } catch (retryErr) {
+                console.error("Analysis retry failed:", retryErr);
+                safeEnqueue(
+                  `data: ${JSON.stringify({ type: "error", error: "Failed to generate analysis after retry" })}\n\n`,
+                );
               }
             }
           },
         );
 
+        // Small delay before starting HTML generation
         await new Promise((resolve) => setTimeout(resolve, 1010));
 
         const generateHtml = generateContentWithRetry(
@@ -207,6 +214,9 @@ export async function POST(request: NextRequest) {
           }
         } catch (err: any) {
           console.error("HTML parse error:", err?.message || String(err));
+          safeEnqueue(
+            `data: ${JSON.stringify({ type: "error", error: "Failed to generate resume HTML" })}\n\n`,
+          );
         }
 
         // Send final completion signal

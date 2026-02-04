@@ -18,6 +18,8 @@ type AnalysisProps = {
   loading: boolean;
   streamingStarted?: boolean;
   refining?: boolean;
+  analysisComplete?: boolean;
+  analysisRetrying?: boolean;
 };
 
 export function Analysis({
@@ -26,6 +28,8 @@ export function Analysis({
   loading,
   streamingStarted,
   refining = false,
+  analysisComplete = false,
+  analysisRetrying = false,
 }: AnalysisProps) {
   const [showMetrics, setShowMetrics] = useState(false);
 
@@ -104,16 +108,18 @@ export function Analysis({
   }, [results.analysis?.atsScore]);
 
   useEffect(() => {
-    if (loading && !refining) {
+    if ((loading && !refining) || analysisRetrying) {
       setBarsPlayedOnce(false);
       setAnimateBars(false);
       setAnimateMain(false);
       setShowMetrics(false);
     }
-  }, [loading, refining]);
+  }, [loading, refining, analysisRetrying]);
 
   const isLoadingScore =
-    loading && !refining && results.analysis.atsScore === 0;
+    (!analysisComplete || analysisRetrying) &&
+    !refining &&
+    (loading || streamingStarted || analysisRetrying);
 
   return (
     <div className="space-y-6 md:space-y-8 w-full">
@@ -258,7 +264,7 @@ export function Analysis({
         <h3 className="mb-3 md:mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Key Skills Required
         </h3>
-        {loading && !refining && results.analysis.keySkills.length === 0 ? (
+        {isLoadingScore ? (
           <div className="space-y-2">
             <Skeleton className="h-6 rounded-full w-20" shimmer />
             <Skeleton className="h-6 rounded-full w-24" shimmer />
@@ -284,7 +290,7 @@ export function Analysis({
         <h3 className="mb-3 md:mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Optimizations Applied
         </h3>
-        {loading && !refining && results.analysis.improvements.length === 0 ? (
+        {isLoadingScore ? (
           <div className="space-y-2">
             <div className="flex gap-2">
               <Skeleton className="h-4 w-4 rounded mt-0.5" shimmer />

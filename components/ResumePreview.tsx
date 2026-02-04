@@ -28,6 +28,7 @@ type ResumePreviewProps = {
   onUndo: () => void;
   onRedo: () => void;
   streamingStarted?: boolean;
+  htmlComplete?: boolean;
 };
 
 // Professional resume color themes
@@ -112,6 +113,7 @@ export function ResumePreview({
   onUndo,
   onRedo,
   streamingStarted,
+  htmlComplete = false,
 }: ResumePreviewProps) {
   const resumeRef = useRef<HTMLDivElement>(null);
   const profilePhotoInputRef = useRef<HTMLInputElement>(null);
@@ -250,6 +252,8 @@ export function ResumePreview({
   const actionDisabled = isDownloading || loading || !!streamingStarted;
   const controlsDisabled = isDownloading || loading || !!streamingStarted;
 
+  const showResumeLoader = !htmlComplete && (loading || streamingStarted);
+
   return (
     <div className="w-full min-w-0">
       {/* Chat */}
@@ -377,7 +381,7 @@ export function ResumePreview({
           </div>
         </div>
 
-        {loading ? (
+        {showResumeLoader ? (
           <ResumeSkeleton />
         ) : (
           <div

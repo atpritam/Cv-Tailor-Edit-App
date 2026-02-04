@@ -46,7 +46,7 @@ export const HTML_TEMPLATE = `
         <p class="project-tech" data-field="tech" data-index="1">[Technologies/Prominent skills]</p>
       </div>
     </div>
-    <p class="project-description" data-field="description" data-index="1">[42–50 words per project, max 150 words total. If 3 projects, one must be under 40 words, <strong> for achievements/optimizations done or specific important info relevent to job skill needed]</p>
+    <p class="project-description" data-field="description" data-index="1">[42–50 words per project, max 150 words total. If 3 projects, one must be under 40 words, (use <strong> intelligently to highlight achievements/optimizations done or any specific important info relevent to job skills)]</p>
   </div>
   <!-- Max 3 experiences / Never Invent Experience -->
 </section>

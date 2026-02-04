@@ -14,6 +14,9 @@ export function useCVTailor() {
   const [error, setError] = useState("");
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [refining, setRefining] = useState(false);
+  const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [htmlComplete, setHtmlComplete] = useState(false);
+  const [analysisRetrying, setAnalysisRetrying] = useState(false);
 
   const [versionHistory, setVersionHistory] = useState<ResumeVersion[]>([]);
   const [currentVersionIndex, setCurrentVersionIndex] = useState<number>(-1);
@@ -63,6 +66,9 @@ export function useCVTailor() {
 
     setLoading(true);
     setStreamingStarted(false);
+    setAnalysisComplete(false);
+    setHtmlComplete(false);
+    setAnalysisRetrying(false);
     setError("");
     setChatHistory([]);
     setVersionHistory([]);
@@ -123,11 +129,34 @@ export function useCVTailor() {
 
               if (data.type === "started") {
                 setStreamingStarted(true);
+              } else if (data.type === "analysis_retrying") {
+                // Show skeletons again during retry
+                setAnalysisRetrying(true);
+                setAnalysisComplete(false);
+                setResults((prev) => {
+                  if (!prev) return prev;
+                  return {
+                    ...prev,
+                    analysis: {
+                      atsScore: 0,
+                      keySkills: [],
+                      matchingStrengths: [],
+                      gaps: [],
+                      improvements: [],
+                    },
+                  };
+                });
               } else if (
                 data.type === "analysis_partial" ||
                 data.type === "analysis_complete"
               ) {
                 // Update analysis as it comes in
+                setAnalysisRetrying(false);
+
+                if (data.type === "analysis_complete") {
+                  setAnalysisComplete(true);
+                }
+
                 setResults((prev) => {
                   if (!prev) return prev;
                   return {
@@ -159,6 +188,10 @@ export function useCVTailor() {
                 data.type === "html_complete"
               ) {
                 // Update HTML as it comes in
+                if (data.type === "html_complete") {
+                  setHtmlComplete(true);
+                }
+
                 setResults((prev) => {
                   if (!prev) return prev;
                   return {
@@ -221,9 +254,12 @@ export function useCVTailor() {
 
       // Clear results on error
       setResults(null);
+      setAnalysisComplete(false);
+      setHtmlComplete(false);
     } finally {
       setLoading(false);
       setStreamingStarted(false);
+      setAnalysisRetrying(false);
     }
   };
 
@@ -380,6 +416,9 @@ export function useCVTailor() {
     setVersionHistory([]);
     setCurrentVersionIndex(-1);
     setStreamingStarted(false);
+    setAnalysisComplete(false);
+    setHtmlComplete(false);
+    setAnalysisRetrying(false);
 
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
@@ -409,5 +448,8 @@ export function useCVTailor() {
     versionHistory,
     currentVersionIndex,
     refining,
+    analysisComplete,
+    htmlComplete,
+    analysisRetrying,
   };
 }
