@@ -40,7 +40,7 @@ export const HTML_TEMPLATE = `
     <div class="project-header" data-block="project-header" data-index="1">
       <div class="project-title" data-block="project-title" data-index="1">
         <p data-field="role-company" data-index="1">[Role] |  [Company/Project Name]</p>
-        <p class="project-time" data-field="time" data-index="1">[Dates] • [Location]</p>
+        <p class="project-time" data-field="time" data-index="1">[Dates or omit] • [Location or omit]</p>
       </div>
       <div class="project-sub" data-block="project-sub" data-index="1">
         <p class="project-tech" data-field="tech" data-index="1">[Technologies/Prominent skills]</p>
@@ -75,7 +75,7 @@ export const RULES = `RULES:
 5. For Projects, mentioning "(Project)" is mandatory, follow the Format
 6. Don't use "N/A" anywhere, just leave blank
 7. Do not try to push hard on a profile that doesn't fit the job description. Just be factual and objective
-8. Ignore separators like | , • when not needed`;
+8. Ignore separators like | , • used in template when not needed`;
 
 export const SCORING_CRITERIA = `SCORING (0-100 each, include evidence):
 SkillMatch (${SCORING_WEIGHTS.SkillMatch}%): Technical Skills (more points for exact Match with Job than just related skills)

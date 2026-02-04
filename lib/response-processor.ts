@@ -1,3 +1,50 @@
+import { JSDOM } from "jsdom";
+
+const fixDataIndexes = (html: string): string => {
+  const dom = new JSDOM(html);
+  const { document } = dom.window;
+  const listItemsCorrectIndex = new Map<Element, string>();
+  const lists = new Map<Element, Map<string, Element[]>>();
+  document.querySelectorAll("[data-block][data-index]").forEach((el) => {
+    const parent = el.parentElement;
+    const blockType = el.getAttribute("data-block");
+    if (!parent || !blockType) return;
+    if (!lists.has(parent)) lists.set(parent, new Map());
+    const parentMap = lists.get(parent)!;
+    if (!parentMap.has(blockType)) parentMap.set(blockType, []);
+    parentMap.get(blockType)!.push(el);
+  });
+
+  for (const parentMap of lists.values()) {
+    for (const list of parentMap.values()) {
+      list.forEach((item, index) => {
+        listItemsCorrectIndex.set(item, (index + 1).toString());
+      });
+    }
+  }
+  const stack: { node: Element; inheritedIndex: string | null }[] = [
+    { node: document.body, inheritedIndex: null },
+  ];
+
+  while (stack.length > 0) {
+    const { node, inheritedIndex } = stack.pop()!;
+
+    let currentIndex = inheritedIndex;
+    if (inheritedIndex === null && listItemsCorrectIndex.has(node)) {
+      currentIndex = listItemsCorrectIndex.get(node)!;
+    }
+
+    if (node.hasAttribute("data-index") && currentIndex !== null) {
+      node.setAttribute("data-index", currentIndex);
+    }
+    for (let i = node.children.length - 1; i >= 0; i--) {
+      stack.push({ node: node.children[i], inheritedIndex: currentIndex });
+    }
+  }
+
+  return document.body.innerHTML;
+};
+
 export const processHtmlResponse = (html: string): string => {
   let processedHtml = html;
 
@@ -40,6 +87,8 @@ export const processHtmlResponse = (html: string): string => {
       .replace(/(\s{2,}|\n{2,})/g, " ")
       .replace(/>\s*<\s*/g, "><");
   }
+  // Fix data-index attributes
+  processedHtml = fixDataIndexes(processedHtml);
 
   return processedHtml;
 };
