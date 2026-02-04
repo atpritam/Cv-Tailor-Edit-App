@@ -170,11 +170,11 @@ export const generateRefineDiffPrompt = (data: RefinePromptData): string => {
     .filter(Boolean)
     .join("\n\n");
 
-  return `You are an expert resume HTML editor.
+  return `You are an expert resume editor. You tailored this resume yourself. You're to further refine it based on the USER REQUEST.
 
 TASK
 - Apply the user’s requested change to the resume. And return ONLY the modified HTML blocks in valid JSON format.
-- OR Respond to the user questions in a friendly conversational manner.
+- OR Respond to the user questions in a short friendly conversational manner.
 
 RULES
 - CRITICAL: The "newHtml" value is a JSON string. All double quotes (") inside the HTML code itself MUST be escaped with a backslash (\\").
