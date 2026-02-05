@@ -4,45 +4,51 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Deep slate/charcoal theme - professional and sophisticated */
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --card: #1e293b;
-  --card-foreground: #f1f5f9;
-  --popover: #1e293b;
-  --popover-foreground: #f1f5f9;
-  /* Teal accent - professional, calming, trustworthy */
-  --primary: #5eead4;
-  --primary-foreground: #0f172a;
-  --secondary: #334155;
-  --secondary-foreground: #f1f5f9;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #334155;
-  --accent-foreground: #f1f5f9;
-  --destructive: #ef4444;
+  /* Refined dark theme with warm undertones */
+  --background: #0c0c0f;
+  --foreground: #fafafa;
+  --card: #141418;
+  --card-foreground: #fafafa;
+  --popover: #141418;
+  --popover-foreground: #fafafa;
+  
+  /* Warm amber/gold accent - confident, premium, energizing */
+  --primary: #f59e0b;
+  --primary-foreground: #0c0c0f;
+  
+  --secondary: #1f1f24;
+  --secondary-foreground: #fafafa;
+  --muted: #1f1f24;
+  --muted-foreground: #71717a;
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  --destructive: #dc2626;
   --destructive-foreground: #fef2f2;
-  --border: #334155;
-  --input: #334155;
-  --ring: #5eead4;
-  /* Score colors - more sophisticated */
-  --score-high: #34d399;
-  --score-mid: #fbbf24;
-  --score-low: #f87171;
-  --chart-1: #5eead4;
-  --chart-2: #38bdf8;
-  --chart-3: #a78bfa;
-  --chart-4: #fb923c;
-  --chart-5: #f472b6;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #f59e0b;
+  
+  /* Score colors */
+  --score-high: #22c55e;
+  --score-mid: #f59e0b;
+  --score-low: #ef4444;
+  
+  /* Charts */
+  --chart-1: #f59e0b;
+  --chart-2: #3b82f6;
+  --chart-3: #8b5cf6;
+  --chart-4: #ec4899;
+  --chart-5: #22c55e;
+  
   --radius: 0.75rem;
-  --sidebar: #1e293b;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #5eead4;
-  --sidebar-primary-foreground: #0f172a;
-  --sidebar-accent: #334155;
-  --sidebar-accent-foreground: #f1f5f9;
-  --sidebar-border: #334155;
-  --sidebar-ring: #5eead4;
+  --sidebar: #141418;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #f59e0b;
+  --sidebar-primary-foreground: #0c0c0f;
+  --sidebar-accent: #27272a;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #27272a;
+  --sidebar-ring: #f59e0b;
 }
 
 @theme inline {
@@ -104,9 +110,9 @@
   .skeleton-shimmer {
     background-image: linear-gradient(
       90deg,
-      rgba(94, 234, 212, 0.02) 0%,
-      rgba(94, 234, 212, 0.08) 50%,
-      rgba(94, 234, 212, 0.02) 100%
+      rgba(245, 158, 11, 0.02) 0%,
+      rgba(245, 158, 11, 0.06) 50%,
+      rgba(245, 158, 11, 0.02) 100%
     );
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.2s linear infinite;
@@ -122,42 +128,114 @@
   }
 }
 
-/* Subtle background pattern */
-.bg-pattern {
-  background-image: 
-    radial-gradient(circle at 25% 25%, rgba(94, 234, 212, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(56, 189, 248, 0.03) 0%, transparent 50%);
+/* Ambient gradient background */
+.bg-ambient {
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(59, 130, 246, 0.04) 0%, transparent 40%),
+    var(--background);
 }
 
-/* Glow effects for accents */
-.glow-primary {
-  box-shadow: 0 0 20px rgba(94, 234, 212, 0.15);
+/* Noise texture overlay */
+.noise-overlay::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.015;
+  pointer-events: none;
+  z-index: 1000;
 }
 
-/* Score bar animations */
-@keyframes score-fill {
-  from { width: 0; }
-  to { width: var(--score-width); }
+/* Score ring animation */
+@keyframes score-ring {
+  0% { stroke-dashoffset: 283; }
 }
 
-/* Fade in animation */
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Stagger animation */
+@keyframes stagger-in {
+  from { 
+    opacity: 0; 
+    transform: translateY(12px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.4s ease-out forwards;
+.animate-stagger-in {
+  animation: stagger-in 0.5s ease-out forwards;
   opacity: 0;
 }
 
-/* Smooth score text color transitions */
-.score-high { color: var(--score-high); }
-.score-mid { color: var(--score-mid); }
-.score-low { color: var(--score-low); }
+/* Pulse glow */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+  50% { box-shadow: 0 0 20px 4px rgba(245, 158, 11, 0.15); }
+}
 
-/* Input focus glow */
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Score colors */
+.score-excellent { color: #22c55e; }
+.score-good { color: #f59e0b; }
+.score-needs-work { color: #ef4444; }
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.2s ease;
+}
+.card-hover:hover {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.02);
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(20, 20, 24, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #fafafa 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Focus states */
 textarea:focus,
 input:focus {
-  box-shadow: 0 0 0 2px rgba(94, 234, 212, 0.2);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
+}
+
+/* Step indicator line */
+.step-line {
+  position: absolute;
+  left: 15px;
+  top: 40px;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--border) 0%, transparent 100%);
 }

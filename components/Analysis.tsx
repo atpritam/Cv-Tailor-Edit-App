@@ -1,15 +1,14 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Check,
   RefreshCw,
   Loader2,
   ChevronDown,
   ChevronUp,
-  BarChart3,
-  Zap,
   Target,
   TrendingUp,
+  AlertCircle,
 } from "lucide-react";
 import type { TailorResult } from "@/lib/types";
 import { SCORING_WEIGHTS, MATCH_LEVELS } from "@/lib/weights";
@@ -34,7 +33,8 @@ export function Analysis({
   analysisComplete = false,
   analysisRetrying = false,
 }: AnalysisProps) {
-  const [showMetrics, setShowMetrics] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const scoreRef = useRef<SVGCircleElement>(null);
 
   const hasDetailedScoring =
     results.analysis.SkillMatch !== undefined &&
@@ -43,240 +43,192 @@ export function Analysis({
     results.analysis.SoftSkillMatch !== undefined;
 
   const metrics = [
-    {
-      key: "SkillMatch",
-      label: "Skills",
-      weight: String(SCORING_WEIGHTS.SkillMatch),
-      color: "bg-primary",
-    },
-    {
-      key: "ExperienceMatch",
-      label: "Experience",
-      weight: String(SCORING_WEIGHTS.ExperienceMatch),
-      color: "bg-chart-2",
-    },
-    {
-      key: "TitleMatch",
-      label: "Title Match",
-      weight: String(SCORING_WEIGHTS.TitleMatch),
-      color: "bg-chart-3",
-    },
-    {
-      key: "SoftSkillMatch",
-      label: "Soft Skills",
-      weight: String(SCORING_WEIGHTS.SoftSkillMatch),
-      color: "bg-chart-5",
-    },
+    { key: "SkillMatch", label: "Technical Skills", weight: SCORING_WEIGHTS.SkillMatch },
+    { key: "ExperienceMatch", label: "Experience", weight: SCORING_WEIGHTS.ExperienceMatch },
+    { key: "TitleMatch", label: "Role Alignment", weight: SCORING_WEIGHTS.TitleMatch },
+    { key: "SoftSkillMatch", label: "Soft Skills", weight: SCORING_WEIGHTS.SoftSkillMatch },
   ];
-
-  const [animateBars, setAnimateBars] = useState(false);
-  const [barsPlayedOnce, setBarsPlayedOnce] = useState(false);
-
-  useEffect(() => {
-    let tStart: ReturnType<typeof setTimeout> | null = null;
-    let tEnd: ReturnType<typeof setTimeout> | null = null;
-    if (showMetrics) {
-      if (!barsPlayedOnce) {
-        setAnimateBars(false);
-        tStart = setTimeout(() => {
-          setAnimateBars(true);
-        }, 360);
-        tEnd = setTimeout(() => {
-          setBarsPlayedOnce(true);
-        }, 360 + 420);
-      } else {
-        setAnimateBars(false);
-      }
-    } else {
-      setAnimateBars(false);
-    }
-    return () => {
-      if (tStart) clearTimeout(tStart);
-      if (tEnd) clearTimeout(tEnd);
-    };
-  }, [showMetrics, barsPlayedOnce]);
-
-  const [animateMain, setAnimateMain] = useState(false);
-
-  useEffect(() => {
-    let t: ReturnType<typeof setTimeout> | null = null;
-    const score = results.analysis?.atsScore;
-    if (typeof score === "number" && score > 0) {
-      setAnimateMain(false);
-      t = setTimeout(() => setAnimateMain(true), 80);
-    }
-    return () => {
-      if (t) clearTimeout(t);
-    };
-  }, [results.analysis?.atsScore]);
-
-  useEffect(() => {
-    if ((loading && !refining) || analysisRetrying) {
-      setBarsPlayedOnce(false);
-      setAnimateBars(false);
-      setAnimateMain(false);
-      setShowMetrics(false);
-    }
-  }, [loading, refining, analysisRetrying]);
 
   const isLoadingScore =
     (!analysisComplete || analysisRetrying) &&
     !refining &&
     (loading || streamingStarted || analysisRetrying);
 
-  const getScoreColor = (score: number) => {
-    if (score > MATCH_LEVELS.high) return "text-[#34d399]";
-    if (score > MATCH_LEVELS.mid) return "text-[#fbbf24]";
-    return "text-[#f87171]";
+  const score = results.analysis?.atsScore ?? 0;
+
+  const getScoreColor = (s: number) => {
+    if (s >= MATCH_LEVELS.high) return "#22c55e";
+    if (s >= MATCH_LEVELS.mid) return "#f59e0b";
+    return "#ef4444";
   };
 
-  const getScoreBarColor = (score: number) => {
-    if (score > MATCH_LEVELS.high) return "bg-[#34d399]";
-    if (score > MATCH_LEVELS.mid) return "bg-[#fbbf24]";
-    return "bg-[#f87171]";
+  const getScoreLabel = (s: number) => {
+    if (s >= 80) return "Excellent Match";
+    if (s >= 60) return "Good Match";
+    if (s >= 40) return "Moderate Match";
+    return "Needs Work";
   };
+
+  // Animate score ring
+  const [animatedScore, setAnimatedScore] = useState(0);
+  useEffect(() => {
+    if (!isLoadingScore && score > 0) {
+      setAnimatedScore(0);
+      const timer = setTimeout(() => setAnimatedScore(score), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoadingScore, score]);
+
+  const circumference = 2 * Math.PI * 45;
+  const strokeDashoffset = circumference - (animatedScore / 100) * circumference;
 
   return (
-    <div className="space-y-4 md:space-y-6 w-full">
+    <div className="space-y-4">
+      {/* Score Card */}
+      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        <div className="p-6">
+          {isLoadingScore ? (
+            <div className="flex flex-col items-center py-4">
+              <Skeleton className="h-28 w-28 rounded-full mb-4" shimmer />
+              <Skeleton className="h-4 w-24 rounded mb-2" shimmer />
+              <Skeleton className="h-3 w-32 rounded" shimmer />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              {/* Circular Score */}
+              <div className="relative w-28 h-28 mb-4">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                  {/* Background circle */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="6"
+                    className="text-muted"
+                  />
+                  {/* Score circle */}
+                  <circle
+                    ref={scoreRef}
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    fill="none"
+                    stroke={getScoreColor(score)}
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    className="transition-all duration-1000 ease-out"
+                  />
+                </svg>
+                {/* Score number */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span 
+                    className="text-3xl font-bold tabular-nums"
+                    style={{ color: getScoreColor(score) }}
+                  >
+                    {animatedScore}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <div className="text-sm font-medium text-foreground mb-1">
+                  {getScoreLabel(score)}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Job Compatibility Score
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Detailed Metrics Toggle */}
+        {hasDetailedScoring && !isLoadingScore && (
+          <>
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              className="w-full flex items-center justify-center gap-2 py-3 border-t border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors cursor-pointer"
+            >
+              <span>{showDetails ? "Hide" : "Show"} breakdown</span>
+              {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+
+            {/* Metrics Breakdown */}
+            <div
+              className={`overflow-hidden transition-all duration-300 ${
+                showDetails ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="px-6 py-4 space-y-4 border-t border-border bg-muted/30">
+                {metrics.map((m) => {
+                  const value = (results.analysis as Record<string, unknown>)[m.key] as number;
+                  return (
+                    <div key={m.key} className="space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">{m.label}</span>
+                        <span className="font-medium text-foreground tabular-nums">{value}%</span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{
+                            width: `${value}%`,
+                            backgroundColor: getScoreColor(value),
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
       {/* Regenerate Button */}
       <button
         onClick={regenerate}
         disabled={loading || !!streamingStarted}
-        className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-muted hover:border-primary/30 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+        className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 text-sm font-medium text-foreground hover:bg-accent/50 hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all"
       >
         {loading ? (
           <>
-            <Loader2 size={16} className="animate-spin text-primary" />
+            <Loader2 size={14} className="animate-spin text-primary" />
             <span>Regenerating...</span>
           </>
         ) : (
           <>
-            <RefreshCw size={16} className="text-primary" />
-            <span>Regenerate Analysis</span>
+            <RefreshCw size={14} />
+            <span>Regenerate</span>
           </>
         )}
       </button>
 
-      {/* Job Score Card */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden w-full">
-        <div className="p-6 md:p-8">
-          {isLoadingScore ? (
-            <div className="space-y-4">
-              <Skeleton className="h-20 md:h-24 rounded-lg mx-auto w-36" shimmer />
-              <Skeleton className="h-4 rounded w-44 mx-auto" shimmer />
-              <Skeleton className="h-2 rounded-full w-full max-w-xs mx-auto" shimmer />
-            </div>
-          ) : (
-            <div className="text-center">
-              <div className="relative inline-flex items-center justify-center mb-2">
-                <div
-                  className={`text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight ${getScoreColor(results.analysis.atsScore ?? 0)}`}
-                >
-                  {results.analysis.atsScore}
-                </div>
-              </div>
-              <div className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">
-                Job Compatibility Score
-              </div>
-              <div className="mx-auto h-2 w-full max-w-xs overflow-hidden rounded-full bg-muted">
-                <div
-                  className={`h-full transition-all duration-700 ease-out ${getScoreBarColor(results.analysis.atsScore ?? 0)}`}
-                  style={{
-                    width: animateMain ? `${results.analysis.atsScore}%` : "0%",
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Show Metrics Button */}
-          {hasDetailedScoring && !isLoadingScore && (
-            <button
-              onClick={() => setShowMetrics(!showMetrics)}
-              className="mt-6 flex items-center justify-center gap-2 mx-auto text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer group"
-            >
-              <BarChart3 size={14} className="group-hover:text-primary" />
-              <span>{showMetrics ? "Hide" : "Show"} Detailed Metrics</span>
-              {showMetrics ? (
-                <ChevronUp size={14} />
-              ) : (
-                <ChevronDown size={14} />
-              )}
-            </button>
-          )}
-        </div>
-
-        {/* Detailed Scoring Breakdown */}
-        {hasDetailedScoring && (
-          <div
-            className={`border-t border-border bg-muted/30 overflow-hidden transition-all ease-in-out ${
-              showMetrics
-                ? "duration-300 max-h-[800px] opacity-100 py-5 md:py-6"
-                : "duration-150 max-h-0 opacity-0 py-0"
-            }`}
-          >
-            <div className="px-5 md:px-6 space-y-4">
-              {metrics.map((m, idx) => {
-                const value = (results.analysis as Record<string, unknown>)[m.key] as number;
-                return (
-                  <div className="space-y-2" key={m.key}>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-muted-foreground">
-                        {m.label}
-                        <span className="ml-2 text-muted-foreground/60">
-                          Weight: {m.weight}
-                        </span>
-                      </span>
-                      <span className="font-bold text-foreground tabular-nums">
-                        {value}%
-                      </span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={`h-full ${m.color} ${
-                          barsPlayedOnce ? "" : "transition-all duration-500"
-                        }`}
-                        style={{
-                          width: barsPlayedOnce
-                            ? `${value}%`
-                            : animateBars
-                              ? `${value}%`
-                              : "0%",
-                          transitionDelay:
-                            !barsPlayedOnce && animateBars
-                              ? `${idx * 100}ms`
-                              : undefined,
-                        }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Key Skills */}
-      <div className="rounded-xl border border-border bg-card p-5 md:p-6 w-full">
-        <div className="flex items-center gap-2 mb-4">
-          <Target size={16} className="text-primary" />
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Target size={14} className="text-primary" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Key Skills Required
           </h3>
         </div>
         {isLoadingScore ? (
           <div className="flex flex-wrap gap-2">
-            <Skeleton className="h-7 rounded-full w-20" shimmer />
-            <Skeleton className="h-7 rounded-full w-24" shimmer />
-            <Skeleton className="h-7 rounded-full w-16" shimmer />
+            <Skeleton className="h-6 w-16 rounded-full" shimmer />
+            <Skeleton className="h-6 w-20 rounded-full" shimmer />
+            <Skeleton className="h-6 w-14 rounded-full" shimmer />
           </div>
         ) : (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {results.analysis.keySkills.map((skill, i) => (
               <span
                 key={i}
-                className="rounded-full bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-medium text-primary animate-fade-in"
+                className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium animate-stagger-in"
                 style={{ animationDelay: `${i * 50}ms` }}
               >
                 {skill}
@@ -286,91 +238,86 @@ export function Analysis({
         )}
       </div>
 
-      {/* Improvements */}
-      <div className="rounded-xl border border-border bg-card p-5 md:p-6 w-full">
-        <div className="flex items-center gap-2 mb-4">
-          <Zap size={16} className="text-primary" />
+      {/* Improvements Applied */}
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Check size={14} className="text-chart-5" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Optimizations Applied
+            Optimizations Made
           </h3>
         </div>
         {isLoadingScore ? (
-          <div className="space-y-3">
-            <div className="flex gap-2">
-              <Skeleton className="h-4 w-4 rounded mt-0.5" shimmer />
-              <Skeleton className="h-4 rounded flex-1" shimmer />
-            </div>
-            <div className="flex gap-2">
-              <Skeleton className="h-4 w-4 rounded mt-0.5" shimmer />
-              <Skeleton className="h-4 rounded flex-1" shimmer />
-            </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full rounded" shimmer />
+            <Skeleton className="h-4 w-5/6 rounded" shimmer />
           </div>
         ) : (
-          <div className="flex flex-col gap-2.5">
-            {results.analysis.improvements.map((improvement, i) => (
-              <div
+          <ul className="space-y-2">
+            {results.analysis.improvements.map((item, i) => (
+              <li
                 key={i}
-                className="flex gap-2.5 text-xs md:text-sm animate-fade-in"
+                className="flex gap-2.5 text-xs text-muted-foreground animate-stagger-in"
                 style={{ animationDelay: `${i * 75}ms` }}
               >
-                <div className="h-5 w-5 rounded-full bg-[#34d399]/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Check size={12} className="text-[#34d399]" />
+                <div className="h-4 w-4 rounded-full bg-chart-5/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check size={10} className="text-chart-5" />
                 </div>
-                <span className="text-muted-foreground leading-relaxed">{improvement}</span>
-              </div>
+                <span className="leading-relaxed">{item}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
 
       {/* Strengths */}
-      {results.originalProvided &&
-        results.analysis.matchingStrengths.length > 0 && (
-          <div className="rounded-xl border border-border bg-card p-5 md:p-6 w-full">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp size={16} className="text-primary" />
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Your Strengths
-              </h3>
-            </div>
-            <div className="flex flex-col gap-2.5">
-              {results.analysis.matchingStrengths.map((strength, i) => (
-                <div
-                  key={i}
-                  className="flex gap-2.5 text-xs md:text-sm animate-fade-in"
-                  style={{ animationDelay: `${i * 75}ms` }}
-                >
-                  <div className="h-5 w-5 rounded-full bg-[#34d399]/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <Check size={12} className="text-[#34d399]" />
-                  </div>
-                  <span className="text-muted-foreground leading-relaxed">{strength}</span>
-                </div>
-              ))}
-            </div>
+      {results.originalProvided && results.analysis.matchingStrengths.length > 0 && (
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp size={14} className="text-chart-5" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Your Strengths
+            </h3>
           </div>
-        )}
+          <ul className="space-y-2">
+            {results.analysis.matchingStrengths.map((item, i) => (
+              <li
+                key={i}
+                className="flex gap-2.5 text-xs text-muted-foreground animate-stagger-in"
+                style={{ animationDelay: `${i * 75}ms` }}
+              >
+                <div className="h-4 w-4 rounded-full bg-chart-5/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check size={10} className="text-chart-5" />
+                </div>
+                <span className="leading-relaxed">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Gaps */}
-      {results.analysis.gaps.length > 0 &&
-        results.analysis.gaps[0] !== "Resume required" && (
-          <div className="rounded-xl border border-border bg-card p-5 md:p-6 w-full">
-            <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Areas to Enhance
+      {results.analysis.gaps.length > 0 && results.analysis.gaps[0] !== "Resume required" && (
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertCircle size={14} className="text-primary" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Areas to Strengthen
             </h3>
-            <div className="flex flex-col gap-2.5">
-              {results.analysis.gaps.map((gap, i) => (
-                <div
-                  key={i}
-                  className="flex gap-2.5 text-xs md:text-sm animate-fade-in"
-                  style={{ animationDelay: `${i * 75}ms` }}
-                >
-                  <div className="h-2 w-2 rounded-full bg-[#fbbf24] shrink-0 mt-2" />
-                  <span className="text-muted-foreground leading-relaxed">{gap}</span>
-                </div>
-              ))}
-            </div>
           </div>
-        )}
+          <ul className="space-y-2">
+            {results.analysis.gaps.map((item, i) => (
+              <li
+                key={i}
+                className="flex gap-2.5 text-xs text-muted-foreground animate-stagger-in"
+                style={{ animationDelay: `${i * 75}ms` }}
+              >
+                <div className="h-1.5 w-1.5 rounded-full bg-primary shrink-0 mt-1.5" />
+                <span className="leading-relaxed">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
