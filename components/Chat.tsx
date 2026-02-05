@@ -184,33 +184,33 @@ export function Chat({
                 </div>
               </div>
             )}
+
+            {/* Suggestions in chat area - shown when AI has responded but user hasn't interacted */}
+            {showSuggestions && (
+              <div className="flex justify-center pt-4">
+                <div className="flex flex-wrap justify-center gap-2">
+                  {suggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setMessage(s);
+                        setUserHasInteracted(true);
+                      }}
+                      disabled={isDisabled}
+                      className="px-3 py-1.5 text-xs rounded-full border border-border bg-muted/50 text-muted-foreground hover:bg-accent hover:text-foreground hover:border-primary/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
 
-      {/* Suggestions above input - shown when AI has responded but user hasn't interacted */}
-      {showSuggestions && (
-        <div className="border-t border-border px-4 py-3">
-          <div className="flex flex-wrap justify-center gap-2">
-            {suggestions.map((s, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  setMessage(s);
-                  setUserHasInteracted(true);
-                }}
-                disabled={isDisabled}
-                className="px-3 py-1.5 text-xs rounded-full border border-border bg-muted/50 text-muted-foreground hover:bg-accent hover:text-foreground hover:border-primary/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Input */}
-      <div className={`${showSuggestions ? '' : 'border-t border-border'} p-4 flex gap-2`}>
+      <div className="border-t border-border p-4 flex gap-2">
         <Input
           placeholder="Type a message..."
           value={message}
@@ -223,14 +223,13 @@ export function Chat({
           onClick={handleSend}
           disabled={isDisabled}
           style={{ 
-            backgroundColor: isDisabled ? undefined : '#f59e0b',
-            color: '#0c0c0f'
+            backgroundColor: isDisabled ? '#334155' : '#f59e0b',
+            color: '#0c0c0f',
+            opacity: isDisabled ? 0.5 : 1
           }}
           className={`shrink-0 h-10 w-10 rounded-xl flex items-center justify-center transition-all ${
             isDisabled 
-              ? "bg-muted opacity-50 cursor-not-allowed" 
-              : !message.trim()
-              ? "opacity-70 cursor-default"
+              ? "cursor-not-allowed" 
               : "hover:opacity-90 cursor-pointer"
           }`}
         >
