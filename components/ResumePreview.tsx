@@ -185,7 +185,7 @@ export function ResumePreview({
       />
 
       {/* Resume Preview Card */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6 flex flex-col max-h-[600px]">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6 flex flex-col flex-1 min-h-0">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-5 bg-muted/30 shrink-0">
           <div className="flex items-center gap-3">
@@ -263,14 +263,14 @@ export function ResumePreview({
 
         {/* Resume Content */}
         {showResumeLoader ? (
-          <div className="overflow-auto" style={{ minHeight: '500px', maxHeight: '500px' }}>
+          <div className="overflow-auto flex-1 min-h-0">
             <ResumeSkeleton />
           </div>
         ) : (
           <div
             ref={resumeRef}
-            className="resume-container overflow-auto"
-            style={{ minHeight: '500px', maxHeight: '500px', WebkitOverflowScrolling: "touch" }}
+            className="resume-container overflow-auto flex-1 min-h-0"
+            style={{ WebkitOverflowScrolling: "touch" }}
             dangerouslySetInnerHTML={{ __html: results.tailoredResumeHtml }}
           />
         )}
