@@ -91,7 +91,7 @@ export function Analysis({
   const strokeDashoffset = circumference - (animatedScore / 100) * circumference;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
       {/* Score Card */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
         <div className="p-6">

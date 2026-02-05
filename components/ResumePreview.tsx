@@ -171,7 +171,7 @@ export function ResumePreview({
   const showResumeLoader = !htmlComplete && (loading || streamingStarted);
 
   return (
-    <div className="w-full min-w-0">
+    <div className="w-full min-w-0 flex flex-col max-h-[calc(100vh-8rem)]">
       {/* Chat */}
       <Chat
         chatHistory={chatHistory}
