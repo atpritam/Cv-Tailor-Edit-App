@@ -12,6 +12,7 @@ export default SCORING_WEIGHTS;
 export const MATCH_LEVELS = {
   high: 80, // above this value is considered a high match
   mid: 65, // above this value is considered a mid match
+  low: 40, // below this value is considered a low match
 } as const;
 
 export type MatchLevels = typeof MATCH_LEVELS;

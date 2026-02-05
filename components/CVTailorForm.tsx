@@ -292,7 +292,7 @@ export function CVTailorForm({
                   Smart Analysis
                 </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  AI compares your skills against job requirements
+                  AI compares skills against job requirements
                 </p>
               </div>
             </div>

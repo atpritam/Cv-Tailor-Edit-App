@@ -100,6 +100,54 @@ export const processHtmlResponse = async (html: string): Promise<string> => {
         .replace(/(\s{2,}|\n{2,})/g, " ")
         .replace(/>\s*<\s*/g, "><");
     }
+    // Convert inline markdown-like syntax in text nodes to HTML
+    try {
+      const { document } = parseHTML(processedHtml);
+      const skipTags = new Set(["CODE", "PRE", "A", "SCRIPT", "STYLE"]);
+
+      const convertTextNodes = (root: Element) => {
+        const walk = (node: Node) => {
+          for (let child = node.firstChild; child; ) {
+            const next = child.nextSibling;
+
+            if (child.nodeType === Node.TEXT_NODE) {
+              let text = child.nodeValue || "";
+              if (!/\n|\*/.test(text)) {
+                child = next;
+                continue;
+              }
+
+              text = text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+              const html = text
+                .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+                .replace(/\*(.+?)\*/g, "<em>$1</em>")
+                .replace(/\n/g, "<br>");
+
+              const temp = document.createElement("div");
+              temp.innerHTML = html;
+              node.insertBefore(temp, child);
+              while (temp.firstChild) node.insertBefore(temp.firstChild, child);
+
+              node.removeChild(child);
+            } else if (child.nodeType === Node.ELEMENT_NODE) {
+              const el = child as Element;
+              if (!skipTags.has(el.tagName)) walk(child);
+            }
+            child = next;
+          }
+        };
+        walk(root);
+      };
+
+      convertTextNodes(document.body);
+      processedHtml = document.body.innerHTML;
+    } catch (e: any) {
+      console.debug("Inline markdown conversion skipped", e?.message || e);
+    }
+
     // Fix data-index attributes
     processedHtml = fixDataIndexes(processedHtml);
 

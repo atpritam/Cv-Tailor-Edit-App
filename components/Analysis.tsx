@@ -34,7 +34,6 @@ export function Analysis({
   analysisRetrying = false,
 }: AnalysisProps) {
   const [showDetails, setShowDetails] = useState(false);
-  const [hasAnimated, setHasAnimated] = useState(false);
   const scoreRef = useRef<SVGCircleElement>(null);
 
   const hasDetailedScoring =
@@ -80,9 +79,10 @@ export function Analysis({
   };
 
   const getScoreLabel = (s: number) => {
-    if (s >= 80) return "Excellent Match";
-    if (s >= 60) return "Good Match";
-    if (s >= 40) return "Moderate Match";
+    if (s >= MATCH_LEVELS.high) return "Excellent Match";
+    if (s >= MATCH_LEVELS.mid) return "Good Match";
+    if (s >= MATCH_LEVELS.low) return "Moderate Match";
+    else return "Needs Work";
     return "Needs Work";
   };
 
@@ -94,12 +94,6 @@ export function Analysis({
       return () => clearTimeout(timer);
     }
   }, [isLoadingScore, score]);
-
-  useEffect(() => {
-    if (!refining && analysisComplete) {
-      setHasAnimated(false);
-    }
-  }, [refining, analysisComplete, results]);
 
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset =
@@ -172,12 +166,7 @@ export function Analysis({
         {hasDetailedScoring && !isLoadingScore && (
           <>
             <button
-              onClick={() => {
-                setShowDetails(!showDetails);
-                if (!showDetails && !hasAnimated) {
-                  setHasAnimated(true);
-                }
-              }}
+              onClick={() => setShowDetails(!showDetails)}
               className="w-full flex items-center justify-center gap-2 py-3 border-t border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors cursor-pointer"
             >
               <span>{showDetails ? "Hide" : "Show"} breakdown</span>
@@ -212,13 +201,11 @@ export function Analysis({
                         <div
                           className="h-full rounded-full"
                           style={{
-                            width:
-                              showDetails && hasAnimated ? `${value}%` : "0%",
+                            width: showDetails ? `${value}%` : "0%",
                             backgroundColor: getScoreColor(value),
-                            transition:
-                              showDetails && hasAnimated
-                                ? `width 800ms ease-out ${index * 100}ms`
-                                : "none",
+                            transition: showDetails
+                              ? `width 800ms ease-out ${index * 100}ms`
+                              : "none",
                           }}
                         />
                       </div>
