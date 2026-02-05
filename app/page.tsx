@@ -132,10 +132,10 @@ export default function CVTailorApp() {
           />
         ) : (
           <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
-            <div className="flex flex-col xl:flex-row gap-6 xl:gap-8 xl:items-start">
+            <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
               {/* Left Panel - Analysis */}
-              <aside className="w-full xl:w-96 shrink-0 order-2 xl:order-1">
-                <div className="xl:sticky xl:top-24">
+              <aside className="w-full xl:w-96 shrink-0 order-2 xl:order-1 flex">
+                <div className="flex-1">
                   <Analysis
                     results={results!}
                     regenerate={handleRegenerate}
@@ -149,7 +149,7 @@ export default function CVTailorApp() {
               </aside>
 
               {/* Right Panel - Preview & Chat */}
-              <div className="flex-1 min-w-0 order-1 xl:order-2">
+              <div className="flex-1 min-w-0 order-1 xl:order-2 flex flex-col">
                 <ResumePreview
                   results={results!}
                   loading={loading}
