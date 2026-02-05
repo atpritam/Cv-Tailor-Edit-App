@@ -7,6 +7,7 @@ import { CVTailorForm } from "@/components/CVTailorForm";
 import { Analysis } from "@/components/Analysis";
 import { ResumePreview } from "@/components/ResumePreview";
 import { FileCheck } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
 
 export default function CVTailorApp() {
   const {
