@@ -5,9 +5,10 @@ import {
   Download,
   FileText,
   Loader2,
-  RefreshCw,
   Printer,
   Upload,
+  RotateCcw,
+  Check,
 } from "lucide-react";
 import type { TailorResult, ChatMessage } from "@/lib/types";
 import { Chat } from "./Chat";
@@ -31,7 +32,6 @@ type ResumePreviewProps = {
   htmlComplete?: boolean;
 };
 
-// Professional resume color themes
 const COLOR_THEMES = [
   {
     name: "Classic Blue",
@@ -117,35 +117,29 @@ export function ResumePreview({
 }: ResumePreviewProps) {
   const resumeRef = useRef<HTMLDivElement>(null);
   const profilePhotoInputRef = useRef<HTMLInputElement>(null);
-  const [selectedTheme, setSelectedTheme] = useState(0); // Default to Classic Blue
+  const [selectedTheme, setSelectedTheme] = useState(0);
   const [showProfilePhoto, setShowProfilePhoto] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Detect mobile
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Apply theme colors to resume
   useEffect(() => {
     if (resumeRef.current) {
       const theme = COLOR_THEMES[selectedTheme];
       const container = resumeRef.current;
 
-      // Apply colors using CSS variables
       container.style.setProperty("--resume-primary", theme.primary);
       container.style.setProperty("--resume-h2", theme.h2);
       container.style.setProperty("--resume-border", theme.border);
       container.style.setProperty("--resume-link", theme.link);
       container.style.setProperty("--resume-tech", theme.tech);
 
-      // Apply to elements
       const h1 = container.querySelector("h1");
       if (h1) {
         const h1El = h1 as HTMLElement;
@@ -186,7 +180,6 @@ export function ResumePreview({
     profilePhotoDataUrl,
   ]);
 
-  // Inject profile photo whenever resume HTML or photo changes
   useEffect(() => {
     if (resumeRef.current) {
       const profileContainer =
@@ -195,11 +188,8 @@ export function ResumePreview({
         const existingImg = profileContainer.querySelector(
           "img.profile-picture",
         );
-        if (existingImg) {
-          existingImg.remove();
-        }
+        if (existingImg) existingImg.remove();
 
-        // Add photo if available and enabled
         if (profilePhotoDataUrl && showProfilePhoto) {
           const img = document.createElement("img");
           img.src = profilePhotoDataUrl;
@@ -251,7 +241,6 @@ export function ResumePreview({
 
   const actionDisabled = isDownloading || loading || !!streamingStarted;
   const controlsDisabled = isDownloading || loading || !!streamingStarted;
-
   const showResumeLoader = !htmlComplete && (loading || streamingStarted);
 
   return (
@@ -265,210 +254,164 @@ export function ResumePreview({
         canRedo={canRedo}
         onUndo={onUndo}
         onRedo={onRedo}
+        isTailoring={
+          !htmlComplete &&
+          (loading || !!streamingStarted) &&
+          chatHistory.length === 0
+        }
       />
 
-      {/* Tailored Resume Preview */}
-      <div className="mb-4 md:mb-6 overflow-hidden rounded-lg border border-border">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-2 border-b border-border bg-muted/50 px-4 py-3 md:px-6 md:py-4">
-          <div className="flex items-center gap-2">
-            <FileText size={16} className="shrink-0" />
-            <h3 className="text-xs font-semibold uppercase tracking-wider">
-              {results.recommendation === "apply_as_is"
-                ? "Optimized Resume"
-                : "Tailored Resume"}
+      {/* Resume Preview Card */}
+      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-5 bg-muted/30">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+              <FileText size={14} className="text-primary" />
+            </div>
+            <h3 className="text-sm font-semibold text-foreground">
+              Resume Preview
             </h3>
           </div>
 
-          <div className="flex items-center gap-3 md:gap-4 flex-wrap md:flex-nowrap">
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Photo Toggle/Upload */}
             {profilePhotoDataUrl ? (
-              // Existing Profile Photo Toggle
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium whitespace-nowrap">
-                  Profile Pic
-                </span>
+                <span className="text-xs text-muted-foreground">Photo</span>
                 <button
-                  onClick={() => {
-                    if (!controlsDisabled)
-                      setShowProfilePhoto(!showProfilePhoto);
-                  }}
+                  onClick={() =>
+                    !controlsDisabled && setShowProfilePhoto(!showProfilePhoto)
+                  }
                   disabled={controlsDisabled}
-                  aria-disabled={controlsDisabled}
-                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                  className={`relative h-5 w-9 rounded-full transition-colors ${
                     showProfilePhoto ? "bg-primary" : "bg-muted-foreground/30"
-                  } ${controlsDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
-                  aria-label="Toggle profile photo"
+                  } ${controlsDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      showProfilePhoto ? "translate-x-5" : "translate-x-0.5"
+                    className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+                      showProfilePhoto ? "translate-x-4" : "translate-x-0"
                     }`}
                   />
                 </button>
               </div>
             ) : (
-              // New Profile Photo Upload Button
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium whitespace-nowrap cursor-pointer">
-                  Add Profile Pic
-                </span>
+                <span className="text-xs text-muted-foreground">Add photo</span>
                 <input
                   ref={profilePhotoInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleProfilePhotoUpload}
                   className="hidden"
-                  aria-hidden
                   disabled={controlsDisabled}
                 />
                 <button
-                  onClick={() => {
-                    if (!controlsDisabled)
-                      profilePhotoInputRef.current?.click();
-                  }}
+                  onClick={() =>
+                    !controlsDisabled && profilePhotoInputRef.current?.click()
+                  }
                   disabled={controlsDisabled}
-                  aria-disabled={controlsDisabled}
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20 transition-colors ${controlsDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
-                  aria-label="Upload profile photo"
+                  className={`h-7 w-7 flex items-center justify-center rounded-lg bg-muted text-muted-foreground hover:bg-accent hover:text-foreground transition-colors ${
+                    controlsDisabled
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
                 >
-                  <Upload size={16} />
+                  <Upload size={14} />
                 </button>
               </div>
             )}
 
             {/* Color Theme Selector */}
-            <div
-              className="flex items-center gap-1.5"
-              role="group"
-              aria-label="Color themes"
-            >
+            <div className="flex items-center gap-1.5">
               {COLOR_THEMES.map((theme, index) => (
                 <button
                   key={index}
-                  onClick={() => {
-                    if (!controlsDisabled) setSelectedTheme(index);
-                  }}
+                  onClick={() => !controlsDisabled && setSelectedTheme(index)}
                   disabled={controlsDisabled}
-                  aria-disabled={controlsDisabled}
-                  className={`relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full ${controlsDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    padding: "2px",
-                  }}
-                  aria-label={theme.name}
+                  className={`relative h-5 w-5 rounded-full transition-all ${
+                    controlsDisabled
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer hover:scale-110"
+                  }`}
+                  style={{ backgroundColor: theme.primary }}
                   title={theme.name}
                 >
                   {selectedTheme === index && (
-                    <div
-                      className="absolute inset-0 rounded-full border-2 border-white"
-                      style={{
-                        boxShadow: "0 0 0 1px rgba(0,0,0,0.1)",
-                      }}
+                    <Check
+                      size={12}
+                      className="absolute inset-0 m-auto text-white"
                     />
                   )}
-                  <div
-                    className="w-full h-full rounded-full"
-                    style={{
-                      backgroundColor: theme.primary,
-                      transform:
-                        selectedTheme === index ? "scale(0.75)" : "scale(1)",
-                      transition: "transform 0.2s",
-                    }}
-                  />
                 </button>
               ))}
             </div>
           </div>
         </div>
 
+        {/* Resume Content */}
         {showResumeLoader ? (
           <ResumeSkeleton />
         ) : (
           <div
             ref={resumeRef}
-            className="resume-container max-h-[50vh] md:max-h-[calc(100vh-400px)] overflow-auto"
-            style={{
-              WebkitOverflowScrolling: "touch",
-              transform: "translateZ(0)",
-            }}
+            className="resume-container max-h-[50vh] md:max-h-[calc(100vh-420px)] overflow-auto"
+            style={{ WebkitOverflowScrolling: "touch" }}
             dangerouslySetInnerHTML={{ __html: results.tailoredResumeHtml }}
           />
         )}
       </div>
 
       {/* Action Buttons */}
-      <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-3">
-        {!isMobile ? (
-          <>
-            <button
-              onClick={handleDownload}
-              disabled={actionDisabled}
-              className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 md:py-4 text-sm font-medium text-primary-foreground transition-colors ${
-                actionDisabled
-                  ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-primary/90 cursor-pointer"
-              }`}
-            >
-              {isDownloading ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  Downloading...
-                </>
-              ) : (
-                <>
-                  <Download size={16} />
-                  Download PDF
-                </>
-              )}
-            </button>
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
+        <button
+          onClick={handleDownload}
+          disabled={actionDisabled}
+          className={`flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground transition-all ${
+            actionDisabled
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-primary/90 cursor-pointer"
+          }`}
+        >
+          {isDownloading ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              <span>Downloading...</span>
+            </>
+          ) : (
+            <>
+              <Download size={16} />
+              <span>Download PDF</span>
+            </>
+          )}
+        </button>
 
-            <button
-              onClick={handlePrint}
-              disabled={actionDisabled}
-              className={`flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 md:py-4 text-sm font-medium text-foreground transition-colors ${
-                actionDisabled
-                  ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-muted cursor-pointer"
-              }`}
-            >
-              <Printer size={16} />
-              Print Resume
-            </button>
-          </>
-        ) : (
+        {!isMobile && (
           <button
-            onClick={handleDownload}
+            onClick={handlePrint}
             disabled={actionDisabled}
-            className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors md:col-span-2 ${
+            className={`flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium text-foreground transition-all ${
               actionDisabled
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-primary/90 cursor-pointer"
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-accent hover:border-primary cursor-pointer"
             }`}
           >
-            {isDownloading ? (
-              <>
-                <Loader2 size={16} className="animate-spin" />
-                Downloading...
-              </>
-            ) : (
-              <>
-                <Download size={16} />
-                Download PDF
-              </>
-            )}
+            <Printer size={16} />
+            <span>Print</span>
           </button>
         )}
 
         <button
           onClick={reset}
           disabled={loading || !!streamingStarted}
-          className={`flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 md:py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted ${
+          className={`flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium text-foreground transition-all ${
             loading || streamingStarted
-              ? "disabled:cursor-not-allowed disabled:opacity-50"
-              : "cursor-pointer"
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-accent hover:border-primary cursor-pointer"
           }`}
         >
-          Start New Analysis
+          <RotateCcw size={16} />
+          <span>Start Over</span>
         </button>
       </div>
     </div>
