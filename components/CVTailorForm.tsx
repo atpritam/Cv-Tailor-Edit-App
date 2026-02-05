@@ -68,40 +68,6 @@ export function CVTailorForm({
     !error.includes("Please paste");
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col relative">
-      {/* Decorative elements */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <div
-          className="absolute -top-40 left-1/4 rounded-full"
-          style={{
-            width: "800px",
-            height: "800px",
-            background:
-              "radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.04) 30%, transparent 70%)",
-            filter: "blur(80px)",
-          }}
-        />
-        <div
-          className="absolute top-1/2 -right-40 rounded-full"
-          style={{
-            width: "600px",
-            height: "600px",
-            background:
-              "radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, rgba(59, 130, 246, 0.02) 40%, transparent 70%)",
-            filter: "blur(80px)",
-          }}
-        />
-        <div
-          className="absolute bottom-20 left-1/3 rounded-full"
-          style={{
-            width: "500px",
-            height: "500px",
-            background:
-              "radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 60%)",
-            filter: "blur(60px)",
-          }}
-        />
-      </div>
-
       {/* Hero Section */}
       <section className="relative z-10 py-8 px-4 md:px-6">
         <div className="relative mx-auto max-w-4xl text-center">
