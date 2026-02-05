@@ -27,14 +27,15 @@ export function CVTailorForm({
   handleSubmit,
 }: CVTailorFormProps) {
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
+    <div className="min-h-[calc(100vh-3.5rem)] flex flex-col relative">
+      {/* Decorative elements - full height */}
+      <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-chart-2/5 rounded-full blur-3xl" />
+      </div>
+
       {/* Hero Section */}
       <section className="relative py-8 px-4 md:px-6">
-        {/* Decorative elements */}
-        <div className="absolute inset-0 pointer-events-none -z-10">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-chart-2/5 rounded-full blur-3xl" />
-        </div>
 
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-primary mb-6">
@@ -58,10 +59,10 @@ export function CVTailorForm({
       <section className="flex-1 px-4 md:px-6 pb-16 md:pb-24">
         <div className="mx-auto max-w-5xl">
           {/* Steps Container */}
-          <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 lg:items-start">
 
             {/* Step 1: Resume */}
-            <div className="relative">
+            <div className="relative flex flex-col h-full">
               <div className="flex items-start gap-4 mb-4">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
                   1
@@ -72,14 +73,14 @@ export function CVTailorForm({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="rounded-2xl border border-border bg-card overflow-hidden flex-1 flex flex-col">
                 {/* Textarea */}
-                <div className="p-4 border-b border-border">
+                <div className="p-4 border-b border-border flex-1">
                   <textarea
                     value={resumeText}
                     onChange={(e) => setResumeText(e.target.value)}
                     placeholder="Paste your current resume text here..."
-                    className="min-h-[280px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none"
+                    className="h-full min-h-[280px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none"
                   />
                 </div>
 
@@ -152,7 +153,7 @@ export function CVTailorForm({
             </div>
 
             {/* Step 2: Job Description */}
-            <div>
+            <div className="flex flex-col h-full">
               <div className="flex items-start gap-4 mb-4">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
                   2
@@ -163,13 +164,13 @@ export function CVTailorForm({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-border bg-card overflow-hidden h-[calc(100%-52px)]">
-                <div className="p-4 h-full">
+              <div className="rounded-2xl border border-border bg-card overflow-hidden flex-1 flex flex-col">
+                <div className="p-4 flex-1">
                   <textarea
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
                     placeholder="Paste the complete job description here including requirements, responsibilities, and qualifications..."
-                    className="min-h-[340px] h-full w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none"
+                    className="h-full min-h-[340px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none"
                   />
                 </div>
               </div>
