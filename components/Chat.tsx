@@ -59,11 +59,15 @@ export function Chat({
     }
   }, [chatHistory]);
 
-  const suggestions = [
+  const allSuggestions = [
     "Make the summary more concise",
     "Add more technical keywords",
     "Emphasize leadership experience",
   ];
+  
+  // Show 2 suggestions on mobile, 3 on desktop
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const suggestions = isMobile ? allSuggestions.slice(0, 2) : allSuggestions;
 
   const showSuggestions = !userHasInteracted && chatHistory.length > 0;
   const isDisabled = isLoading || isTailoring;
@@ -112,7 +116,7 @@ export function Chat({
       {/* Messages */}
       <div
         ref={chatContainerRef}
-        className="h-64 md:h-80 overflow-y-auto p-4 pb-0 space-y-3"
+        className="h-64 md:h-80 overflow-y-auto p-4 space-y-3"
       >
         {isTailoring && chatHistory.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
@@ -180,33 +184,33 @@ export function Chat({
                 </div>
               </div>
             )}
-
-            {/* Suggestions in chat space - shown when AI has responded but user hasn't interacted */}
-            {showSuggestions && (
-              <div className="flex justify-center py-4">
-                <div className="flex flex-wrap justify-center gap-2 max-w-md">
-                  {suggestions.map((s, i) => (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        setMessage(s);
-                        setUserHasInteracted(true);
-                      }}
-                      disabled={isDisabled}
-                      className="px-3 py-1.5 text-xs rounded-full border border-border bg-muted/50 text-muted-foreground hover:bg-accent hover:text-foreground hover:border-primary/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>
 
+      {/* Suggestions above input - shown when AI has responded but user hasn't interacted */}
+      {showSuggestions && (
+        <div className="border-t border-border px-4 py-3">
+          <div className="flex flex-wrap justify-center gap-2">
+            {suggestions.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  setMessage(s);
+                  setUserHasInteracted(true);
+                }}
+                disabled={isDisabled}
+                className="px-3 py-1.5 text-xs rounded-full border border-border bg-muted/50 text-muted-foreground hover:bg-accent hover:text-foreground hover:border-primary/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Input */}
-      <div className="border-t border-border p-4 flex gap-2">
+      <div className={`${showSuggestions ? '' : 'border-t border-border'} p-4 flex gap-2`}>
         <Input
           placeholder="Type a message..."
           value={message}
@@ -218,12 +222,16 @@ export function Chat({
         <button
           onClick={handleSend}
           disabled={isDisabled}
-          className={`shrink-0 h-10 w-10 rounded-xl flex items-center justify-center bg-primary text-primary-foreground transition-all ${
+          style={{ 
+            backgroundColor: isDisabled ? undefined : '#f59e0b',
+            color: '#0c0c0f'
+          }}
+          className={`shrink-0 h-10 w-10 rounded-xl flex items-center justify-center transition-all ${
             isDisabled 
-              ? "opacity-50 cursor-not-allowed" 
+              ? "bg-muted opacity-50 cursor-not-allowed" 
               : !message.trim()
               ? "opacity-70 cursor-default"
-              : "hover:bg-primary/90 cursor-pointer"
+              : "hover:opacity-90 cursor-pointer"
           }`}
         >
           <Send size={16} />
