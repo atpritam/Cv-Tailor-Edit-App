@@ -55,10 +55,13 @@ export async function POST(request: NextRequest) {
             "",
           );
 
-          // 2. Attempt to fix missing commas between properties
-          candidate = candidate.replace(/(?<=")\s*\n\s*"/g, '",\n"');
+          // 2. Attempt to fix missing commas between properties in objects
+          candidate = candidate.replace(/(?<=")\s*\n\s*(?=")/g, ",");
 
-          // 3. Remove trailing commas
+          // 3. Attempt to fix missing commas between objects in an array
+          candidate = candidate.replace(/(?<=[}])\s*\n\s*(?=[{])/g, ",");
+
+          // 4. Remove trailing commas
           candidate = candidate.replace(/,\s*([}\]])/g, "$1");
 
           return candidate;
