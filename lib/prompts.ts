@@ -46,7 +46,7 @@ export const HTML_TEMPLATE = `
         <p class="project-tech" data-field="tech" data-index="1">[Technologies/Prominent skills]</p>
         <div class="project-link" data-field="link" data-index="1"></div>
           <!-- Repeat this block with • separator inbetween them. MAX 2 Links per project -->
-          <a href="[URL]" target="_blank" rel="noopener noreferrer" data-field="project-link-[Live/Demo/GitHub]" data-index="1">[Live/Demo/GitHub]</a>
+          <a href="[URL]" target="_blank" rel="noopener noreferrer">[Live/Demo/GitHub]</a>
         </div>
       </div>
     </div>

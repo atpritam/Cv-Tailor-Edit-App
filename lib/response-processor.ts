@@ -43,9 +43,20 @@ export const processHtmlResponse = async (html: string): Promise<string> => {
         .replace(/(\s{2,}|\n{2,})/g, " ")
         .replace(/>\s*<\s*/g, "><");
     }
+
+    // Parse HTML once and perform all DOM manipulations
+    const trimmed = (processedHtml || "").trim();
+    const needsWrapper =
+      !/<!doctype\s+/i.test(trimmed) &&
+      !/<html[\s>]/i.test(trimmed) &&
+      !/<body[\s>]/i.test(trimmed);
+    const input = needsWrapper
+      ? `<!doctype html><html><body>${processedHtml}</body></html>`
+      : processedHtml;
+
     try {
-      const { document } = parseHTML(processedHtml);
-      const skipTags = new Set(["CODE", "PRE", "A", "SCRIPT", "STYLE"]);
+      const { document } = parseHTML(input);
+      const skipTags = new Set(["CODE", "PRE", "SCRIPT", "STYLE"]);
 
       // Step 1: Convert inline markdown-like syntax in text nodes to HTML
       const convertTextNodes = (root: Element) => {
