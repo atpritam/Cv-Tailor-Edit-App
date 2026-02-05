@@ -46,6 +46,7 @@ export default function CVTailorApp() {
   } = useFileParser({
     setText: setResumeText,
     setError,
+    cacheType: 'resume',
   });
 
   const {
@@ -56,6 +57,7 @@ export default function CVTailorApp() {
   } = useFileParser({
     setText: setJobDescription,
     setError,
+    cacheType: 'jd',
   });
 
   useEffect(() => {

@@ -7,21 +7,26 @@ import { PersistentLRUCache } from "@/lib/persistent-lru-cache";
 type FileParserProps = {
   setText: (text: string) => void;
   setError: (error: string) => void;
+  cacheType: 'resume' | 'jd';
 };
 
-// Shared, persistent cache for all instances of the hook
-const imageCache = new PersistentLRUCache<string, string>(
-  "image-parse-cache",
-  5,
-);
+const resumeImageCache = new PersistentLRUCache<string, string>('resume-image-cache', 6);
+const jdImageCache = new PersistentLRUCache<string, string>('jd-image-cache', 4);
+
+const caches = {
+  resume: resumeImageCache,
+  jd: jdImageCache,
+};
 
 function generateFileKey(file: File): string {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
-export function useFileParser({ setText, setError }: FileParserProps) {
+export function useFileParser({ setText, setError, cacheType }: FileParserProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isParsing, setIsParsing] = useState(false);
+  
+  const imageCache = caches[cacheType];
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
