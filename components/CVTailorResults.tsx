@@ -36,22 +36,22 @@ export function CVTailorResults({
     <div>
       {/* Recommendation Banner */}
       <div
-        className={`mb-8 rounded-lg p-6 ${
+        className={`mb-8 rounded-xl p-6 border ${
           results.recommendation === "apply_as_is"
-            ? "bg-green-50 border border-green-200"
+            ? "bg-[#34d399]/5 border-[#34d399]/20"
             : results.recommendation === "needs_resume"
-              ? "bg-amber-50 border border-amber-200"
-              : "bg-blue-50 border border-blue-200"
+              ? "bg-[#fbbf24]/5 border-[#fbbf24]/20"
+              : "bg-primary/5 border-primary/20"
         }`}
       >
         <div className="flex items-start gap-4">
           <div
-            className={`rounded-full p-2 ${
+            className={`rounded-xl p-3 ${
               results.recommendation === "apply_as_is"
-                ? "bg-gradient-to-br from-green-400 to-green-700 text-white shadow-sm"
+                ? "bg-[#34d399]/10 text-[#34d399]"
                 : results.recommendation === "needs_resume"
-                  ? "bg-gradient-to-br from-amber-400 to-amber-700 text-white shadow-sm"
-                  : "bg-gradient-to-br from-blue-400 to-blue-700 text-white shadow-sm"
+                  ? "bg-[#fbbf24]/10 text-[#fbbf24]"
+                  : "bg-primary/10 text-primary"
             }`}
           >
             {results.recommendation === "apply_as_is" ? (
@@ -64,10 +64,10 @@ export function CVTailorResults({
             <h2
               className={`text-lg font-semibold ${
                 results.recommendation === "apply_as_is"
-                  ? "text-green-800"
+                  ? "text-[#34d399]"
                   : results.recommendation === "needs_resume"
-                    ? "text-amber-800"
-                    : "text-blue-800"
+                    ? "text-[#fbbf24]"
+                    : "text-primary"
               }`}
             >
               {results.recommendation === "apply_as_is"
@@ -76,15 +76,7 @@ export function CVTailorResults({
                   ? "Resume Needed for Personalization"
                   : "Tailored Resume Generated"}
             </h2>
-            <p
-              className={`mt-1 text-sm ${
-                results.recommendation === "apply_as_is"
-                  ? "text-green-700"
-                  : results.recommendation === "needs_resume"
-                    ? "text-amber-700"
-                    : "text-blue-700"
-              }`}
-            >
+            <p className="mt-1 text-sm text-muted-foreground">
               {results.recommendationReason}
             </p>
           </div>
@@ -92,29 +84,29 @@ export function CVTailorResults({
       </div>
 
       {/* ATS Score */}
-      <div className="mb-8 rounded-lg border border-border bg-card p-8 text-center">
+      <div className="mb-8 rounded-xl border border-border bg-card p-8 text-center">
         <div
           className={`text-6xl font-bold leading-none md:text-7xl ${
             results.analysis.atsScore >= 85
-              ? "bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-700"
+              ? "text-[#34d399]"
               : results.analysis.atsScore > 65
-                ? "bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-700"
-                : "bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-red-700"
+                ? "text-[#fbbf24]"
+                : "text-[#f87171]"
           }`}
         >
           {results.analysis.atsScore}
         </div>
-        <div className="mt-2 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+        <div className="mt-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
           Job Compatibility Score
         </div>
         <div className="mx-auto mt-4 h-2 w-full max-w-xs overflow-hidden rounded-full bg-muted">
           <div
-            className={`h-full transition-all ${
+            className={`h-full transition-all duration-700 ${
               results.analysis.atsScore >= 85
-                ? "bg-gradient-to-r from-green-400 to-green-700"
+                ? "bg-[#34d399]"
                 : results.analysis.atsScore > 65
-                  ? "bg-gradient-to-r from-amber-400 to-amber-700"
-                  : "bg-gradient-to-r from-red-400 to-red-700"
+                  ? "bg-[#fbbf24]"
+                  : "bg-[#f87171]"
             }`}
             style={{ width: `${results.analysis.atsScore}%` }}
           />
@@ -128,7 +120,7 @@ export function CVTailorResults({
         }`}
       >
         {/* Key Skills */}
-        <div className="rounded-lg border border-border bg-card p-6">
+        <div className="rounded-xl border border-border bg-card p-6">
           <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Key Skills Required
           </h3>
@@ -136,7 +128,7 @@ export function CVTailorResults({
             {results.analysis.keySkills.map((skill, i) => (
               <span
                 key={i}
-                className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary"
+                className="rounded-full bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-medium text-primary"
               >
                 {skill}
               </span>
@@ -145,15 +137,17 @@ export function CVTailorResults({
         </div>
 
         {/* Improvements */}
-        <div className="rounded-lg border border-border bg-card p-6">
+        <div className="rounded-xl border border-border bg-card p-6">
           <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Optimizations Applied
           </h3>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2.5">
             {results.analysis.improvements.map((improvement, i) => (
-              <div key={i} className="flex gap-2 text-sm">
-                <Check size={16} className="mt-0.5 shrink-0 text-green-600" />
-                <span>{improvement}</span>
+              <div key={i} className="flex gap-2.5 text-sm">
+                <div className="h-5 w-5 rounded-full bg-[#34d399]/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check size={12} className="text-[#34d399]" />
+                </div>
+                <span className="text-muted-foreground">{improvement}</span>
               </div>
             ))}
           </div>
@@ -165,18 +159,17 @@ export function CVTailorResults({
         results.analysis.matchingStrengths.length > 0 && (
           <div className="mb-8 grid gap-6 md:grid-cols-2">
             {/* Strengths */}
-            <div className="rounded-lg border border-border bg-card p-6">
+            <div className="rounded-xl border border-border bg-card p-6">
               <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Your Strengths
               </h3>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2.5">
                 {results.analysis.matchingStrengths.map((strength, i) => (
-                  <div key={i} className="flex gap-2 text-sm">
-                    <Check
-                      size={16}
-                      className="mt-0.5 shrink-0 text-green-600"
-                    />
-                    <span>{strength}</span>
+                  <div key={i} className="flex gap-2.5 text-sm">
+                    <div className="h-5 w-5 rounded-full bg-[#34d399]/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Check size={12} className="text-[#34d399]" />
+                    </div>
+                    <span className="text-muted-foreground">{strength}</span>
                   </div>
                 ))}
               </div>
@@ -184,15 +177,15 @@ export function CVTailorResults({
 
             {/* Gaps */}
             {results.analysis.gaps.length > 0 && (
-              <div className="rounded-lg border border-border bg-card p-6">
+              <div className="rounded-xl border border-border bg-card p-6">
                 <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Areas to Enhance
                 </h3>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2.5">
                   {results.analysis.gaps.map((gap, i) => (
-                    <div key={i} className="flex gap-2 text-sm">
-                      <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gradient-to-br from-amber-400 to-amber-700 shadow-sm" />
-                      <span>{gap}</span>
+                    <div key={i} className="flex gap-2.5 text-sm">
+                      <div className="h-2 w-2 rounded-full bg-[#fbbf24] shrink-0 mt-2" />
+                      <span className="text-muted-foreground">{gap}</span>
                     </div>
                   ))}
                 </div>
@@ -202,10 +195,12 @@ export function CVTailorResults({
         )}
 
       {/* Tailored Resume Preview */}
-      <div className="mb-6 overflow-hidden rounded-lg border border-border">
-        <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-6 py-4">
-          <FileText size={16} />
-          <h3 className="text-xs font-semibold uppercase tracking-wider">
+      <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card">
+        <div className="flex items-center gap-3 border-b border-border bg-muted/30 px-5 py-4">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <FileText size={16} className="text-primary" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground">
             {results.recommendation === "apply_as_is"
               ? "Optimized Resume"
               : "Tailored Resume"}
@@ -213,7 +208,7 @@ export function CVTailorResults({
         </div>
         <div
           ref={resumeRef}
-          className="resume-container max-h-150 overflow-auto"
+          className="resume-container max-h-[400px] overflow-auto"
           dangerouslySetInnerHTML={{ __html: results.tailoredResumeHtml }}
         />
       </div>
@@ -233,8 +228,10 @@ export function CVTailorResults({
             }
           }}
           disabled={isDownloading || loading || !!streamingStarted}
-          className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 ${
-            isDownloading ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+          className={`flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground transition-all ${
+            isDownloading
+              ? "cursor-not-allowed opacity-50"
+              : "hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 cursor-pointer"
           }`}
         >
           {isDownloading ? (
@@ -245,7 +242,7 @@ export function CVTailorResults({
           ) : (
             <>
               <Download size={16} />
-              Download / Print PDF
+              Download PDF
             </>
           )}
         </button>
@@ -253,11 +250,11 @@ export function CVTailorResults({
         <button
           onClick={regenerate}
           disabled={loading || !!streamingStarted}
-          className="flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+          className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:border-primary/30 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
         >
           {loading ? (
             <>
-              <Loader2 size={16} className="animate-spin" />
+              <Loader2 size={16} className="animate-spin text-primary" />
               Regenerating...
             </>
           ) : (
@@ -271,9 +268,9 @@ export function CVTailorResults({
         <button
           onClick={reset}
           disabled={loading || !!streamingStarted}
-          className={`flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted ${
+          className={`flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:border-primary/30 ${
             loading || streamingStarted
-              ? "disabled:cursor-not-allowed disabled:opacity-50"
+              ? "cursor-not-allowed opacity-50"
               : "cursor-pointer"
           }`}
         >

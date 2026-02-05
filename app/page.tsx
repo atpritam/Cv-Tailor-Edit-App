@@ -63,49 +63,51 @@ export default function CVTailorApp() {
   const shouldShowResults = streamingStarted || results;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground bg-pattern">
       {/* Header */}
-      <header className="border-b border-border px-4 py-4 md:px-6 md:py-5 sticky top-0 bg-background z-100">
+      <header className="border-b border-border/50 px-4 py-4 md:px-6 md:py-5 sticky top-0 bg-background/95 backdrop-blur-sm z-100">
         <div className="mx-auto max-w-7xl flex items-center justify-between">
           <div
             onClick={() => window.location.reload()}
-            className="cursor-pointer"
+            className="cursor-pointer group"
           >
-            <h1 className="text-xl font-semibold tracking-tight md:text-2xl lg:text-3xl flex items-center gap-2 md:gap-3">
-              <svg
-                aria-hidden="true"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-6 w-6 md:h-7 md:w-7 text-primary"
-                role="img"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <path d="M14 2v6h6" />
-                <path d="M9.5 13.5l1.8 1.8 3.7-4" />
-              </svg>
-              CV Tailor
+            <h1 className="text-xl font-semibold tracking-tight md:text-2xl flex items-center gap-2 md:gap-3">
+              <div className="flex items-center justify-center h-8 w-8 md:h-9 md:w-9 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <svg
+                  aria-hidden="true"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5 md:h-5 md:w-5 text-primary"
+                  role="img"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <path d="M14 2v6h6" />
+                  <path d="M9.5 13.5l1.8 1.8 3.7-4" />
+                </svg>
+              </div>
+              <span className="text-foreground">CV Tailor</span>
             </h1>
-            <p className="mt-1 text-xs md:text-sm text-muted-foreground">
-              AI-powered Resume Optimization & Editing
+            <p className="mt-1 text-xs md:text-sm text-muted-foreground ml-11 md:ml-12">
+              AI-powered Resume Optimization
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <a
               href="https://github.com/atpritam"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-primary transition-colors"
             >
               <svg
-                className="h-5 w-5 md:h-6 md:w-6"
+                className="h-5 w-5"
                 viewBox="0 0 24 24"
                 fill="currentColor"
                 aria-hidden="true"
@@ -119,10 +121,10 @@ export default function CVTailorApp() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-primary transition-colors"
             >
               <svg
-                className="h-5 w-5 md:h-6 md:w-6"
+                className="h-5 w-5"
                 viewBox="0 0 24 24"
                 fill="currentColor"
                 aria-hidden="true"
@@ -149,7 +151,8 @@ export default function CVTailorApp() {
           />
         ) : (
           <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 w-full">
-            <div className="w-full lg:col-span-4 order-2 lg:order-1">
+            {/* Analysis Sidebar */}
+            <aside className="w-full lg:col-span-4 order-2 lg:order-1 lg:sticky lg:top-24 lg:self-start">
               <Analysis
                 results={results!}
                 regenerate={handleRegenerate}
@@ -159,7 +162,8 @@ export default function CVTailorApp() {
                 analysisComplete={analysisComplete}
                 analysisRetrying={analysisRetrying}
               />
-            </div>
+            </aside>
+            {/* Main Content */}
             <div className="w-full lg:col-span-8 order-1 lg:order-2 min-w-0">
               <ResumePreview
                 results={results!}
@@ -183,8 +187,10 @@ export default function CVTailorApp() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border px-4 py-4 md:px-6 md:py-6 text-center text-xs text-muted-foreground">
-        <p>Powered by Google Gemini AI</p>
+      <footer className="border-t border-border/50 px-4 py-6 md:px-6 md:py-8 text-center">
+        <p className="text-sm text-muted-foreground">
+          Powered by <span className="text-primary font-medium">Google Gemini AI</span>
+        </p>
       </footer>
     </div>
   );

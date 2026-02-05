@@ -5,9 +5,9 @@ import {
   Download,
   FileText,
   Loader2,
-  RefreshCw,
   Printer,
   Upload,
+  RotateCcw,
 } from "lucide-react";
 import type { TailorResult, ChatMessage } from "@/lib/types";
 import { Chat } from "./Chat";
@@ -117,12 +117,11 @@ export function ResumePreview({
 }: ResumePreviewProps) {
   const resumeRef = useRef<HTMLDivElement>(null);
   const profilePhotoInputRef = useRef<HTMLInputElement>(null);
-  const [selectedTheme, setSelectedTheme] = useState(0); // Default to Classic Blue
+  const [selectedTheme, setSelectedTheme] = useState(0);
   const [showProfilePhoto, setShowProfilePhoto] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Detect mobile
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -132,20 +131,17 @@ export function ResumePreview({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Apply theme colors to resume
   useEffect(() => {
     if (resumeRef.current) {
       const theme = COLOR_THEMES[selectedTheme];
       const container = resumeRef.current;
 
-      // Apply colors using CSS variables
       container.style.setProperty("--resume-primary", theme.primary);
       container.style.setProperty("--resume-h2", theme.h2);
       container.style.setProperty("--resume-border", theme.border);
       container.style.setProperty("--resume-link", theme.link);
       container.style.setProperty("--resume-tech", theme.tech);
 
-      // Apply to elements
       const h1 = container.querySelector("h1");
       if (h1) {
         const h1El = h1 as HTMLElement;
@@ -186,7 +182,6 @@ export function ResumePreview({
     profilePhotoDataUrl,
   ]);
 
-  // Inject profile photo whenever resume HTML or photo changes
   useEffect(() => {
     if (resumeRef.current) {
       const profileContainer =
@@ -199,7 +194,6 @@ export function ResumePreview({
           existingImg.remove();
         }
 
-        // Add photo if available and enabled
         if (profilePhotoDataUrl && showProfilePhoto) {
           const img = document.createElement("img");
           img.src = profilePhotoDataUrl;
@@ -251,7 +245,6 @@ export function ResumePreview({
 
   const actionDisabled = isDownloading || loading || !!streamingStarted;
   const controlsDisabled = isDownloading || loading || !!streamingStarted;
-
   const showResumeLoader = !htmlComplete && (loading || streamingStarted);
 
   return (
@@ -267,24 +260,25 @@ export function ResumePreview({
         onRedo={onRedo}
       />
 
-      {/* Tailored Resume Preview */}
-      <div className="mb-4 md:mb-6 overflow-hidden rounded-lg border border-border">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-2 border-b border-border bg-muted/50 px-4 py-3 md:px-6 md:py-4">
-          <div className="flex items-center gap-2">
-            <FileText size={16} className="shrink-0" />
-            <h3 className="text-xs font-semibold uppercase tracking-wider">
+      {/* Resume Preview Card */}
+      <div className="mb-4 md:mb-6 overflow-hidden rounded-xl border border-border bg-card">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-2 border-b border-border bg-muted/30 px-4 py-3 md:px-5 md:py-4">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <FileText size={16} className="text-primary" />
+            </div>
+            <h3 className="text-sm font-semibold text-foreground">
               {results.recommendation === "apply_as_is"
                 ? "Optimized Resume"
                 : "Tailored Resume"}
             </h3>
           </div>
 
-          <div className="flex items-center gap-3 md:gap-4 flex-wrap md:flex-nowrap">
+          <div className="flex items-center gap-4 flex-wrap md:flex-nowrap">
             {profilePhotoDataUrl ? (
-              // Existing Profile Photo Toggle
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium whitespace-nowrap">
-                  Profile Pic
+                <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                  Photo
                 </span>
                 <button
                   onClick={() => {
@@ -292,24 +286,22 @@ export function ResumePreview({
                       setShowProfilePhoto(!showProfilePhoto);
                   }}
                   disabled={controlsDisabled}
-                  aria-disabled={controlsDisabled}
                   className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                     showProfilePhoto ? "bg-primary" : "bg-muted-foreground/30"
-                  } ${controlsDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+                  } ${controlsDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                   aria-label="Toggle profile photo"
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
                       showProfilePhoto ? "translate-x-5" : "translate-x-0.5"
                     }`}
                   />
                 </button>
               </div>
             ) : (
-              // New Profile Photo Upload Button
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium whitespace-nowrap cursor-pointer">
-                  Add Profile Pic
+                <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                  Add Photo
                 </span>
                 <input
                   ref={profilePhotoInputRef}
@@ -317,7 +309,6 @@ export function ResumePreview({
                   accept="image/*"
                   onChange={handleProfilePhotoUpload}
                   className="hidden"
-                  aria-hidden
                   disabled={controlsDisabled}
                 />
                 <button
@@ -326,21 +317,18 @@ export function ResumePreview({
                       profilePhotoInputRef.current?.click();
                   }}
                   disabled={controlsDisabled}
-                  aria-disabled={controlsDisabled}
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20 transition-colors ${controlsDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+                  className={`inline-flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors ${
+                    controlsDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                  }`}
                   aria-label="Upload profile photo"
                 >
-                  <Upload size={16} />
+                  <Upload size={14} />
                 </button>
               </div>
             )}
 
             {/* Color Theme Selector */}
-            <div
-              className="flex items-center gap-1.5"
-              role="group"
-              aria-label="Color themes"
-            >
+            <div className="flex items-center gap-1.5" role="group" aria-label="Color themes">
               {COLOR_THEMES.map((theme, index) => (
                 <button
                   key={index}
@@ -348,11 +336,12 @@ export function ResumePreview({
                     if (!controlsDisabled) setSelectedTheme(index);
                   }}
                   disabled={controlsDisabled}
-                  aria-disabled={controlsDisabled}
-                  className={`relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full ${controlsDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+                  className={`relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-card rounded-full ${
+                    controlsDisabled ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                   style={{
-                    width: "20px",
-                    height: "20px",
+                    width: "18px",
+                    height: "18px",
                     padding: "2px",
                   }}
                   aria-label={theme.name}
@@ -360,19 +349,17 @@ export function ResumePreview({
                 >
                   {selectedTheme === index && (
                     <div
-                      className="absolute inset-0 rounded-full border-2 border-white"
+                      className="absolute inset-0 rounded-full border-2 border-foreground/20"
                       style={{
-                        boxShadow: "0 0 0 1px rgba(0,0,0,0.1)",
+                        boxShadow: "0 0 0 1px rgba(255,255,255,0.1)",
                       }}
                     />
                   )}
                   <div
-                    className="w-full h-full rounded-full"
+                    className="w-full h-full rounded-full transition-transform"
                     style={{
                       backgroundColor: theme.primary,
-                      transform:
-                        selectedTheme === index ? "scale(0.75)" : "scale(1)",
-                      transition: "transform 0.2s",
+                      transform: selectedTheme === index ? "scale(0.7)" : "scale(1)",
                     }}
                   />
                 </button>
@@ -403,10 +390,10 @@ export function ResumePreview({
             <button
               onClick={handleDownload}
               disabled={actionDisabled}
-              className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 md:py-4 text-sm font-medium text-primary-foreground transition-colors ${
+              className={`flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground transition-all ${
                 actionDisabled
                   ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-primary/90 cursor-pointer"
+                  : "hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 cursor-pointer"
               }`}
             >
               {isDownloading ? (
@@ -425,10 +412,10 @@ export function ResumePreview({
             <button
               onClick={handlePrint}
               disabled={actionDisabled}
-              className={`flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 md:py-4 text-sm font-medium text-foreground transition-colors ${
+              className={`flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium text-foreground transition-all ${
                 actionDisabled
                   ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-muted cursor-pointer"
+                  : "hover:bg-muted hover:border-primary/30 cursor-pointer"
               }`}
             >
               <Printer size={16} />
@@ -439,7 +426,7 @@ export function ResumePreview({
           <button
             onClick={handleDownload}
             disabled={actionDisabled}
-            className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors md:col-span-2 ${
+            className={`flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground transition-all ${
               actionDisabled
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-primary/90 cursor-pointer"
@@ -462,12 +449,13 @@ export function ResumePreview({
         <button
           onClick={reset}
           disabled={loading || !!streamingStarted}
-          className={`flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 md:py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted ${
+          className={`flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:border-primary/30 ${
             loading || streamingStarted
-              ? "disabled:cursor-not-allowed disabled:opacity-50"
+              ? "cursor-not-allowed opacity-50"
               : "cursor-pointer"
           }`}
         >
+          <RotateCcw size={16} />
           Start New Analysis
         </button>
       </div>
