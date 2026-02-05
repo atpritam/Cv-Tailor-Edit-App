@@ -22,6 +22,7 @@ type AnalysisProps = {
   refining?: boolean;
   analysisComplete?: boolean;
   analysisRetrying?: boolean;
+  htmlComplete?: boolean;
 };
 
 export function Analysis({
@@ -32,6 +33,7 @@ export function Analysis({
   refining = false,
   analysisComplete = false,
   analysisRetrying = false,
+  htmlComplete = false,
 }: AnalysisProps) {
   const [showDetails, setShowDetails] = useState(false);
   const scoreRef = useRef<SVGCircleElement>(null);
@@ -69,6 +71,9 @@ export function Analysis({
     (!analysisComplete || analysisRetrying) &&
     !refining &&
     (loading || streamingStarted || analysisRetrying);
+
+  const isLoadingOptimizations =
+    !htmlComplete && !refining && (loading || streamingStarted);
 
   const score = results.analysis?.atsScore ?? 0;
 
@@ -227,7 +232,7 @@ export function Analysis({
         {loading ? (
           <>
             <Loader2 size={14} className="animate-spin text-primary" />
-            <span>Regenerating...</span>
+            <span>Generating</span>
           </>
         ) : (
           <>
@@ -274,7 +279,7 @@ export function Analysis({
             Optimizations Made
           </h3>
         </div>
-        {isLoadingScore ? (
+        {isLoadingOptimizations ? (
           <div className="space-y-2">
             <Skeleton className="h-4 w-full rounded" shimmer />
             <Skeleton className="h-4 w-5/6 rounded" shimmer />
@@ -298,7 +303,21 @@ export function Analysis({
       </div>
 
       {/* Strengths */}
-      {results.originalProvided &&
+      {isLoadingScore && results.originalProvided ? (
+        <div className="hidden xl:block rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp size={14} className="text-chart-5" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Your Strengths
+            </h3>
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full rounded" shimmer />
+            <Skeleton className="h-4 w-5/6 rounded" shimmer />
+          </div>
+        </div>
+      ) : (
+        results.originalProvided &&
         results.analysis.matchingStrengths.length > 0 && (
           <div className="rounded-2xl border border-border bg-card p-5">
             <div className="flex items-center gap-2 mb-3">
@@ -322,10 +341,25 @@ export function Analysis({
               ))}
             </ul>
           </div>
-        )}
+        )
+      )}
 
       {/* Gaps */}
-      {results.analysis.gaps.length > 0 &&
+      {isLoadingScore ? (
+        <div className="hidden xl:block rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertCircle size={14} className="text-primary" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Areas to Strengthen
+            </h3>
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full rounded" shimmer />
+            <Skeleton className="h-4 w-5/6 rounded" shimmer />
+          </div>
+        </div>
+      ) : (
+        results.analysis.gaps.length > 0 &&
         results.analysis.gaps[0] !== "Resume required" && (
           <div className="rounded-2xl border border-border bg-card p-5">
             <div className="flex items-center gap-2 mb-3">
@@ -347,7 +381,8 @@ export function Analysis({
               ))}
             </ul>
           </div>
-        )}
+        )
+      )}
     </div>
   );
 }

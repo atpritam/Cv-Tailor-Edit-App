@@ -44,9 +44,13 @@ export const HTML_TEMPLATE = `
       </div>
       <div class="project-sub" data-block="project-sub" data-index="1">
         <p class="project-tech" data-field="tech" data-index="1">[Technologies/Prominent skills]</p>
+        <div class="project-link" data-field="link" data-index="1"></div>
+          <!-- Repeat this block with • separator inbetween them. MAX 2 Links per project -->
+          <a href="[URL]" target="_blank" rel="noopener noreferrer" data-field="project-link-[Live/Demo/GitHub]" data-index="1">[Live/Demo/GitHub]</a>
+        </div>
       </div>
     </div>
-    <p class="project-description" data-field="description" data-index="1">[42–50 words per project, max 150 words total. If 3 projects, one must be under 40 words, (use <strong> intelligently to highlight achievements/optimizations done or any specific important info relevent to job skills)]</p>
+    <p class="project-description" data-field="description" data-index="1">[42–50 words per project, MAX 150 (STRICT) words total. If 3 projects, one must be under 40 words, (use <strong> intelligently to highlight achievements/optimizations done or any specific important info relevent to job skills)]</p>
   </div>
   <!-- Max 3 experiences / Never Invent Experience -->
 </section>
@@ -78,7 +82,7 @@ export const RULES = `RULES:
 7. Do not try to push hard on a profile that doesn't fit the job description. Just be factual and objective
 8. Ignore separators like | , • used in template when not needed`;
 
-export const SCORING_CRITERIA = `SCORING CRITERIA (0-100 each):
+export const SCORING_CRITERIA = `Ground your job compatibility evidence based on the SCORING CRITERIA (0-100 each) below:
 SkillMatch (${SCORING_WEIGHTS.SkillMatch}%): Technical Skills (more points for exact Match with Job than just related skills)
 ExperienceMatch (${SCORING_WEIGHTS.ExperienceMatch}%): Role/project relevance | Give higher points for commercial roles than projects (2+ years commercial = 70+ baseline)
 TitleMatch (${SCORING_WEIGHTS.TitleMatch}%): Title/level/domain similarity  

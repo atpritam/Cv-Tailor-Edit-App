@@ -46,7 +46,7 @@ export default function CVTailorApp() {
   } = useFileParser({
     setText: setResumeText,
     setError,
-    cacheType: 'resume',
+    cacheType: "resume",
   });
 
   const {
@@ -57,7 +57,7 @@ export default function CVTailorApp() {
   } = useFileParser({
     setText: setJobDescription,
     setError,
-    cacheType: 'jd',
+    cacheType: "jd",
   });
 
   useEffect(() => {
@@ -173,6 +173,7 @@ export default function CVTailorApp() {
                     streamingStarted={streamingStarted}
                     analysisComplete={analysisComplete}
                     analysisRetrying={analysisRetrying}
+                    htmlComplete={htmlComplete}
                   />
                 </div>
               </aside>

@@ -66,7 +66,16 @@ export function useFileParser({
             const pageText = textContent.items
               .map((item: any) => ("str" in item ? item.str : ""))
               .join(" ");
-            fullText += pageText + "\n\n";
+            const annotations = await page.getAnnotations();
+            const linkAnnotations = annotations.filter(
+              (annotation: any) => annotation.subtype === "Link" && annotation.url,
+            );
+            let linksText = "";
+            if (linkAnnotations.length > 0) {
+              const urls = linkAnnotations.map((link: any) => link.url);
+              linksText = "\n\nLinks on this page:\n- " + urls.join("\n- ");
+            }
+            fullText += pageText + linksText + "\n\n";
           }
 
           const trimmed = fullText.trim();
