@@ -171,7 +171,7 @@ export function ResumePreview({
   const showResumeLoader = !htmlComplete && (loading || streamingStarted);
 
   return (
-    <div className="w-full min-w-0 flex flex-col h-full">
+    <div className="w-full min-w-0 flex flex-col">
       {/* Chat */}
       <Chat
         chatHistory={chatHistory}
@@ -184,8 +184,8 @@ export function ResumePreview({
         isTailoring={!htmlComplete && (loading || !!streamingStarted) && chatHistory.length === 0}
       />
 
-      {/* Resume Preview Card */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6 flex flex-col flex-1 min-h-0">
+      {/* Resume Preview Card - constrained height with scrollable content */}
+      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6 flex flex-col" style={{ maxHeight: 'calc(100vh - 420px)', minHeight: '400px' }}>
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-5 bg-muted/30 shrink-0">
           <div className="flex items-center gap-3">
@@ -263,13 +263,13 @@ export function ResumePreview({
 
         {/* Resume Content */}
         {showResumeLoader ? (
-          <div className="overflow-auto flex-1 min-h-0">
+          <div className="overflow-y-auto flex-1">
             <ResumeSkeleton />
           </div>
         ) : (
           <div
             ref={resumeRef}
-            className="resume-container overflow-auto flex-1 min-h-0"
+            className="resume-container overflow-y-auto flex-1"
             style={{ WebkitOverflowScrolling: "touch" }}
             dangerouslySetInnerHTML={{ __html: results.tailoredResumeHtml }}
           />

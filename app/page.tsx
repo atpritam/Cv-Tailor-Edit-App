@@ -132,24 +132,22 @@ export default function CVTailorApp() {
           />
         ) : (
           <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
-            <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
+            <div className="flex flex-col xl:grid xl:grid-cols-[384px_1fr] gap-6 xl:gap-8">
               {/* Left Panel - Analysis */}
-              <aside className="w-full xl:w-96 shrink-0 order-2 xl:order-1 flex">
-                <div className="flex-1">
-                  <Analysis
-                    results={results!}
-                    regenerate={handleRegenerate}
-                    loading={loading}
-                    refining={refining}
-                    streamingStarted={streamingStarted}
-                    analysisComplete={analysisComplete}
-                    analysisRetrying={analysisRetrying}
-                  />
-                </div>
+              <aside className="w-full order-2 xl:order-1 xl:h-fit">
+                <Analysis
+                  results={results!}
+                  regenerate={handleRegenerate}
+                  loading={loading}
+                  refining={refining}
+                  streamingStarted={streamingStarted}
+                  analysisComplete={analysisComplete}
+                  analysisRetrying={analysisRetrying}
+                />
               </aside>
 
               {/* Right Panel - Preview & Chat */}
-              <div className="flex-1 min-w-0 order-1 xl:order-2 flex flex-col">
+              <div className="min-w-0 order-1 xl:order-2">
                 <ResumePreview
                   results={results!}
                   loading={loading}
