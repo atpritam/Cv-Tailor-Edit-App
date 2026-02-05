@@ -132,9 +132,9 @@ export default function CVTailorApp() {
           />
         ) : (
           <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
-            <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
+            <div className="flex flex-col xl:flex-row gap-6 xl:gap-8 xl:items-start">
               {/* Left Panel - Analysis */}
-              <aside className="w-full xl:w-80 shrink-0 order-2 xl:order-1">
+              <aside className="w-full xl:w-96 shrink-0 order-2 xl:order-1">
                 <div className="xl:sticky xl:top-24">
                   <Analysis
                     results={results!}

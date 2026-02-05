@@ -116,7 +116,7 @@ export function Chat({
       {/* Messages */}
       <div
         ref={chatContainerRef}
-        className="h-64 md:h-80 overflow-y-auto p-4 space-y-3"
+        className="h-64 md:h-80 overflow-y-auto p-4 pb-2 space-y-3 flex flex-col"
       >
         {isTailoring && chatHistory.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
@@ -150,44 +150,46 @@ export function Chat({
           </div>
         ) : (
           <>
-            {chatHistory.map((entry, index) => (
-              <div
-                key={index}
-                className={`flex ${entry.role === "user" ? "justify-end" : "justify-start"}`}
-              >
+            <div className="flex-1 space-y-3">
+              {chatHistory.map((entry, index) => (
                 <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
-                    entry.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-md"
-                      : "bg-muted text-foreground rounded-bl-md"
-                  }`}
+                  key={index}
+                  className={`flex ${entry.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                    <BoldableText
-                      text={entry.parts
-                        .map((part: { text: string }) => part.text)
-                        .join("")}
-                    />
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
-                  <div className="flex gap-1">
-                    <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
+                      entry.role === "user"
+                        ? "bg-primary text-primary-foreground rounded-br-md"
+                        : "bg-muted text-foreground rounded-bl-md"
+                    }`}
+                  >
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                      <BoldableText
+                        text={entry.parts
+                          .map((part: { text: string }) => part.text)
+                          .join("")}
+                      />
+                    </p>
                   </div>
                 </div>
-              </div>
-            )}
+              ))}
 
-            {/* Suggestions in chat area - shown when AI has responded but user hasn't interacted */}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+                    <div className="flex gap-1">
+                      <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Suggestions above separator - shown when AI has responded but user hasn't interacted */}
             {showSuggestions && (
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center pt-3 pb-1">
                 <div className="flex flex-wrap justify-center gap-2">
                   {suggestions.map((s, i) => (
                     <button
