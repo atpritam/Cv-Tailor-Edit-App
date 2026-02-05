@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Upload, X, Loader2, ArrowRight, FileText, Briefcase, Sparkles, Target, Zap } from "lucide-react";
+import React, { useState } from "react";
+import { Upload, X, Loader2, ArrowRight, FileText, Briefcase, Sparkles, Target, Zap, AlertCircle } from "lucide-react";
 
 type CVTailorFormProps = {
   resumeText: string;
@@ -26,6 +26,37 @@ export function CVTailorForm({
   loading,
   handleSubmit,
 }: CVTailorFormProps) {
+  const [resumeError, setResumeError] = useState("");
+  const [jobDescError, setJobDescError] = useState("");
+
+  const handleFormSubmit = () => {
+    // Clear previous inline errors
+    setResumeError("");
+    setJobDescError("");
+
+    // Validation
+    let hasError = false;
+    
+    if (!resumeText.trim() && !resumeFile) {
+      setResumeError("Please paste resume text or upload a file");
+      hasError = true;
+    }
+    
+    if (!jobDescription.trim()) {
+      setJobDescError("Please paste the job description");
+      hasError = true;
+    }
+
+    if (!hasError) {
+      handleSubmit();
+    }
+  };
+
+  // Check if error is a backend/fatal error (not a validation error)
+  const isFatalError = error && 
+    !error.includes("Please enter") && 
+    !error.includes("Please provide") &&
+    !error.includes("Please paste");
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col relative">
       {/* Decorative elements - full height */}
@@ -98,16 +129,25 @@ export function CVTailorForm({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-border bg-card overflow-hidden flex-1 flex flex-col">
+              <div className={`rounded-2xl border ${resumeError ? 'border-destructive' : 'border-border'} bg-card overflow-hidden flex-1 flex flex-col`}>
                 {/* Textarea */}
                 <div className="p-4 border-b border-border flex-1">
                   <textarea
                     value={resumeText}
-                    onChange={(e) => setResumeText(e.target.value)}
+                    onChange={(e) => {
+                      setResumeText(e.target.value);
+                      if (resumeError) setResumeError("");
+                    }}
                     placeholder="Paste your current resume text here..."
                     className="h-full min-h-[280px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none"
                   />
                 </div>
+                {resumeError && (
+                  <div className="px-4 py-2 bg-destructive/5 border-t border-destructive/20 flex items-center gap-2 text-xs text-destructive">
+                    <AlertCircle size={14} className="shrink-0" />
+                    <span>{resumeError}</span>
+                  </div>
+                )}
 
                 {/* File Upload */}
                 <div
@@ -189,23 +229,32 @@ export function CVTailorForm({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-border bg-card overflow-hidden flex-1 flex flex-col">
+              <div className={`rounded-2xl border ${jobDescError ? 'border-destructive' : 'border-border'} bg-card overflow-hidden flex-1 flex flex-col`}>
                 <div className="p-4 flex-1">
                   <textarea
                     value={jobDescription}
-                    onChange={(e) => setJobDescription(e.target.value)}
+                    onChange={(e) => {
+                      setJobDescription(e.target.value);
+                      if (jobDescError) setJobDescError("");
+                    }}
                     placeholder="Paste the complete job description here including requirements, responsibilities, and qualifications..."
                     className="h-full min-h-[340px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none"
                   />
                 </div>
+                {jobDescError && (
+                  <div className="px-4 py-2 bg-destructive/5 border-t border-destructive/20 flex items-center gap-2 text-xs text-destructive">
+                    <AlertCircle size={14} className="shrink-0" />
+                    <span>{jobDescError}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Error Message */}
-          {error && (
+          {/* Error Message - Only show for fatal/backend errors */}
+          {isFatalError && (
             <div className="mt-6 flex items-center gap-3 rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
-              <X size={18} className="shrink-0" />
+              <AlertCircle size={18} className="shrink-0" />
               <span>{error}</span>
             </div>
           )}
@@ -213,7 +262,7 @@ export function CVTailorForm({
           {/* Submit Button */}
           <div className="mt-8">
             <button
-              onClick={handleSubmit}
+              onClick={handleFormSubmit}
               disabled={loading}
               className="group relative w-full flex items-center justify-center gap-3 rounded-xl bg-primary px-6 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer overflow-hidden"
             >
