@@ -7,11 +7,17 @@ import { PersistentLRUCache } from "@/lib/persistent-lru-cache";
 type FileParserProps = {
   setText: (text: string) => void;
   setError: (error: string) => void;
-  cacheType: 'resume' | 'jd';
+  cacheType: "resume" | "jd";
 };
 
-const resumeImageCache = new PersistentLRUCache<string, string>('resume-image-cache', 6);
-const jdImageCache = new PersistentLRUCache<string, string>('jd-image-cache', 4);
+const resumeImageCache = new PersistentLRUCache<string, string>(
+  "resume-image-cache",
+  6,
+);
+const jdImageCache = new PersistentLRUCache<string, string>(
+  "jd-image-cache",
+  4,
+);
 
 const caches = {
   resume: resumeImageCache,
@@ -22,10 +28,14 @@ function generateFileKey(file: File): string {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
-export function useFileParser({ setText, setError, cacheType }: FileParserProps) {
+export function useFileParser({
+  setText,
+  setError,
+  cacheType,
+}: FileParserProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isParsing, setIsParsing] = useState(false);
-  
+
   const imageCache = caches[cacheType];
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,9 +79,27 @@ export function useFileParser({ setText, setError, cacheType }: FileParserProps)
       } else if (file.type.startsWith("image/")) {
         const fileKey = generateFileKey(file);
 
-        if (imageCache.has(fileKey)) {
+        const primaryCache = caches[cacheType];
+        const secondaryCache =
+          cacheType === "resume" ? caches.jd : caches.resume;
+
+        // 1. Check primary cache
+        if (primaryCache.has(fileKey)) {
           setText(`[Image: ${file.name}] - Text restored from cache.`);
-          const cachedText = imageCache.get(fileKey)!;
+          const cachedText = primaryCache.get(fileKey)!;
+          setText(cachedText);
+          setIsParsing(false);
+          return;
+        }
+
+        // 2. Check secondary cache
+        if (secondaryCache.has(fileKey)) {
+          setText(`[Image: ${file.name}] - Text restored from other cache.`);
+          const cachedText = secondaryCache.get(fileKey)!;
+
+          // Promote to primary cache
+          primaryCache.set(fileKey, cachedText);
+
           setText(cachedText);
           setIsParsing(false);
           return;
@@ -108,7 +136,7 @@ export function useFileParser({ setText, setError, cacheType }: FileParserProps)
           const result = await response.json();
 
           if (result.text) {
-            imageCache.set(fileKey, result.text); // Cache the new result
+            primaryCache.set(fileKey, result.text);
             setText(result.text);
           } else {
             throw new Error("No text found in image.");

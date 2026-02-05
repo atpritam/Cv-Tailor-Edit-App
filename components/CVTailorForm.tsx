@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Upload,
   Loader2,
@@ -43,6 +43,18 @@ export function CVTailorForm({
 }: CVTailorFormProps) {
   const [resumeError, setResumeError] = useState("");
   const [jobDescError, setJobDescError] = useState("");
+
+  useEffect(() => {
+    if (resumeText.trim() !== "" && resumeError) {
+      setResumeError("");
+    }
+  }, [resumeText, resumeError]);
+
+  useEffect(() => {
+    if (jobDescription.trim() !== "" && jobDescError) {
+      setJobDescError("");
+    }
+  }, [jobDescription, jobDescError]);
 
   const handleFormSubmit = () => {
     setResumeError("");
@@ -112,11 +124,49 @@ export function CVTailorForm({
               </div>
 
               <div
-                className={`rounded-2xl border ${
+                className={`relative rounded-2xl border ${
                   resumeError ? "border-destructive" : "border-border"
-                } bg-card overflow-hidden flex-1 flex flex-col`}
+                } bg-card overflow-hidden flex-1 flex flex-col transition-colors cursor-pointer`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.add(
+                    "bg-primary/5",
+                    "border-primary/30",
+                  );
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove(
+                    "bg-primary/5",
+                    "border-primary/30",
+                  );
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove(
+                    "bg-primary/5",
+                    "border-primary/30",
+                  );
+                  const file = e.dataTransfer.files[0];
+                  if (file) {
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    input.files = dataTransfer.files;
+                    handleResumeUpload({
+                      target: input,
+                    } as unknown as React.ChangeEvent<HTMLInputElement>);
+                  }
+                }}
               >
-                <div className="p-4 border-b border-border flex-1 relative">
+                <input
+                  type="file"
+                  accept=".pdf,.txt,.png,.jpg,.jpeg"
+                  onChange={handleResumeUpload}
+                  className="absolute inset-0 z-20 cursor-pointer opacity-0"
+                />
+                <div className="p-4 border-b border-border flex-1 relative z-30">
                   {resumeError && (
                     <div className="absolute inset-0 p-4 flex items-start gap-2 text-sm text-destructive pointer-events-none">
                       <AlertCircle size={16} className="shrink-0 mt-0.5" />
@@ -139,38 +189,10 @@ export function CVTailorForm({
                 </div>
 
                 <div
-                  className={`relative cursor-pointer p-6 transition-all ${
-                    resumeFile ? "bg-primary/5" : "hover:bg-accent/50"
+                  className={`relative p-6 transition-all ${
+                    resumeFile ? "bg-primary/5" : ""
                   }`}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.currentTarget.classList.add("bg-primary/5");
-                  }}
-                  onDragLeave={(e) => {
-                    e.currentTarget.classList.remove("bg-primary/5");
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    e.currentTarget.classList.remove("bg-primary/5");
-                    const file = e.dataTransfer.files[0];
-                    if (file) {
-                      const input = document.createElement("input");
-                      input.type = "file";
-                      const dataTransfer = new DataTransfer();
-                      dataTransfer.items.add(file);
-                      input.files = dataTransfer.files;
-                      handleResumeUpload({
-                        target: input,
-                      } as unknown as React.ChangeEvent<HTMLInputElement>);
-                    }
-                  }}
                 >
-                  <input
-                    type="file"
-                    accept=".pdf,.txt,.png,.jpg,.jpeg"
-                    onChange={handleResumeUpload}
-                    className="absolute inset-0 cursor-pointer opacity-0"
-                  />
                   {resumeFile ? (
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -221,11 +243,49 @@ export function CVTailorForm({
               </div>
 
               <div
-                className={`rounded-2xl border ${
+                className={`relative rounded-2xl border ${
                   jobDescError ? "border-destructive" : "border-border"
-                } bg-card overflow-hidden flex-1 flex flex-col`}
+                } bg-card overflow-hidden flex-1 flex flex-col transition-colors cursor-pointer`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.add(
+                    "bg-primary/5",
+                    "border-primary/30",
+                  );
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove(
+                    "bg-primary/5",
+                    "border-primary/30",
+                  );
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove(
+                    "bg-primary/5",
+                    "border-primary/30",
+                  );
+                  const file = e.dataTransfer.files[0];
+                  if (file) {
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    input.files = dataTransfer.files;
+                    handleJdUpload({
+                      target: input,
+                    } as unknown as React.ChangeEvent<HTMLInputElement>);
+                  }
+                }}
               >
-                <div className="p-4 flex-1 relative border-b border-border">
+                <input
+                  type="file"
+                  accept=".pdf,.txt,.png,.jpg,.jpeg"
+                  onChange={handleJdUpload}
+                  className="absolute inset-0 z-20 cursor-pointer opacity-0"
+                />
+                <div className="p-4 flex-1 relative border-b border-border z-30">
                   {jobDescError && (
                     <div className="absolute inset-0 p-4 flex items-start gap-2 text-sm text-destructive pointer-events-none">
                       <AlertCircle size={16} className="shrink-0 mt-0.5" />
@@ -248,38 +308,10 @@ export function CVTailorForm({
                 </div>
                 {/* JD File Upload */}
                 <div
-                  className={`relative cursor-pointer p-6 transition-all ${
-                    jdFile ? "bg-primary/5" : "hover:bg-accent/50"
+                  className={`relative p-6 transition-all ${
+                    jdFile ? "bg-primary/5" : ""
                   }`}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.currentTarget.classList.add("bg-primary/5");
-                  }}
-                  onDragLeave={(e) => {
-                    e.currentTarget.classList.remove("bg-primary/5");
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    e.currentTarget.classList.remove("bg-primary/5");
-                    const file = e.dataTransfer.files[0];
-                    if (file) {
-                      const input = document.createElement("input");
-                      input.type = "file";
-                      const dataTransfer = new DataTransfer();
-                      dataTransfer.items.add(file);
-                      input.files = dataTransfer.files;
-                      handleJdUpload({
-                        target: input,
-                      } as unknown as React.ChangeEvent<HTMLInputElement>);
-                    }
-                  }}
                 >
-                  <input
-                    type="file"
-                    accept=".pdf,.txt,.png,.jpg,.jpeg"
-                    onChange={handleJdUpload}
-                    className="absolute inset-0 cursor-pointer opacity-0"
-                  />
                   {jdFile ? (
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -337,7 +369,7 @@ export function CVTailorForm({
               ) : isParsing ? (
                 <>
                   <Loader2 size={20} className="animate-spin" />
-                  <span>Processing file...</span>
+                  <span>Processing file</span>
                 </>
               ) : (
                 <>
