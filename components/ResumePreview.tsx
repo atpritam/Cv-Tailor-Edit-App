@@ -171,7 +171,7 @@ export function ResumePreview({
   const showResumeLoader = !htmlComplete && (loading || streamingStarted);
 
   return (
-    <div className="w-full min-w-0 flex flex-col max-h-[calc(100vh-8rem)]">
+    <div className="w-full min-w-0 flex flex-col">
       {/* Chat */}
       <Chat
         chatHistory={chatHistory}
@@ -185,7 +185,7 @@ export function ResumePreview({
       />
 
       {/* Resume Preview Card */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-5 bg-muted/30">
           <div className="flex items-center gap-3">
@@ -263,11 +263,13 @@ export function ResumePreview({
 
         {/* Resume Content */}
         {showResumeLoader ? (
-          <ResumeSkeleton />
+          <div className="flex-1">
+            <ResumeSkeleton />
+          </div>
         ) : (
           <div
             ref={resumeRef}
-            className="resume-container max-h-[50vh] md:max-h-[calc(100vh-420px)] overflow-auto"
+            className="resume-container flex-1 overflow-auto"
             style={{ WebkitOverflowScrolling: "touch" }}
             dangerouslySetInnerHTML={{ __html: results.tailoredResumeHtml }}
           />

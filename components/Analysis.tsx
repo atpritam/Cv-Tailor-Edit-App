@@ -91,9 +91,9 @@ export function Analysis({
   const strokeDashoffset = circumference - (animatedScore / 100) * circumference;
 
   return (
-    <div className="space-y-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+    <div className="space-y-4 flex flex-col overflow-y-auto">
       {/* Score Card */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden shrink-0">
         <div className="p-6">
           {isLoadingScore ? (
             <div className="flex flex-col items-center py-4">
@@ -210,7 +210,7 @@ export function Analysis({
       <button
         onClick={regenerate}
         disabled={loading || !!streamingStarted}
-        className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 text-sm font-medium text-foreground hover:bg-accent hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all"
+        className="shrink-0 w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 text-sm font-medium text-foreground hover:bg-accent hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all"
       >
         {loading ? (
           <>
@@ -226,7 +226,7 @@ export function Analysis({
       </button>
 
       {/* Key Skills */}
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="shrink-0 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-center gap-2 mb-3">
           <Target size={14} className="text-primary" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -255,7 +255,7 @@ export function Analysis({
       </div>
 
       {/* Improvements Applied */}
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="shrink-0 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-center gap-2 mb-3">
           <Check size={14} className="text-chart-5" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -287,7 +287,7 @@ export function Analysis({
 
       {/* Strengths */}
       {results.originalProvided && results.analysis.matchingStrengths.length > 0 && (
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="shrink-0 rounded-2xl border border-border bg-card p-5">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp size={14} className="text-chart-5" />
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -313,7 +313,7 @@ export function Analysis({
 
       {/* Gaps */}
       {results.analysis.gaps.length > 0 && results.analysis.gaps[0] !== "Resume required" && (
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="shrink-0 rounded-2xl border border-border bg-card p-5">
           <div className="flex items-center gap-2 mb-3">
             <AlertCircle size={14} className="text-primary" />
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
