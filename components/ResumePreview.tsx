@@ -185,7 +185,7 @@ export function ResumePreview({
       />
 
       {/* Resume Preview Card */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6 flex-1 flex flex-col">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6 flex flex-col" style={{ height: 'calc(100% - 4.5rem)' }}>
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-5 bg-muted/30">
           <div className="flex items-center gap-3">
