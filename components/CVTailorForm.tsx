@@ -131,23 +131,23 @@ export function CVTailorForm({
 
               <div className={`rounded-2xl border ${resumeError ? 'border-destructive' : 'border-border'} bg-card overflow-hidden flex-1 flex flex-col`}>
                 {/* Textarea */}
-                <div className="p-4 border-b border-border flex-1">
+                <div className="p-4 border-b border-border flex-1 relative">
+                  {resumeError && (
+                    <div className="absolute inset-0 p-4 flex items-start gap-2 text-sm text-destructive pointer-events-none">
+                      <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                      <span>{resumeError}</span>
+                    </div>
+                  )}
                   <textarea
                     value={resumeText}
                     onChange={(e) => {
                       setResumeText(e.target.value);
                       if (resumeError) setResumeError("");
                     }}
-                    placeholder="Paste your current resume text here..."
-                    className="h-full min-h-[280px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none"
+                    placeholder={resumeError ? "" : "Paste your current resume text here..."}
+                    className="h-full min-h-[280px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none relative z-10"
                   />
                 </div>
-                {resumeError && (
-                  <div className="px-4 py-2 bg-destructive/5 border-t border-destructive/20 flex items-center gap-2 text-xs text-destructive">
-                    <AlertCircle size={14} className="shrink-0" />
-                    <span>{resumeError}</span>
-                  </div>
-                )}
 
                 {/* File Upload */}
                 <div
@@ -230,23 +230,23 @@ export function CVTailorForm({
               </div>
 
               <div className={`rounded-2xl border ${jobDescError ? 'border-destructive' : 'border-border'} bg-card overflow-hidden flex-1 flex flex-col`}>
-                <div className="p-4 flex-1">
+                <div className="p-4 flex-1 relative">
+                  {jobDescError && (
+                    <div className="absolute inset-0 p-4 flex items-start gap-2 text-sm text-destructive pointer-events-none">
+                      <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                      <span>{jobDescError}</span>
+                    </div>
+                  )}
                   <textarea
                     value={jobDescription}
                     onChange={(e) => {
                       setJobDescription(e.target.value);
                       if (jobDescError) setJobDescError("");
                     }}
-                    placeholder="Paste the complete job description here including requirements, responsibilities, and qualifications..."
-                    className="h-full min-h-[340px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none"
+                    placeholder={jobDescError ? "" : "Paste the complete job description here including requirements, responsibilities, and qualifications..."}
+                    className="h-full min-h-[340px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none relative z-10"
                   />
                 </div>
-                {jobDescError && (
-                  <div className="px-4 py-2 bg-destructive/5 border-t border-destructive/20 flex items-center gap-2 text-xs text-destructive">
-                    <AlertCircle size={14} className="shrink-0" />
-                    <span>{jobDescError}</span>
-                  </div>
-                )}
               </div>
             </div>
           </div>
