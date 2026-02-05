@@ -29,45 +29,28 @@ export function CVTailorForm({
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 lg:py-32 px-4 md:px-6 overflow-hidden">
+      <section className="relative py-8 px-4 md:px-6">
         {/* Decorative elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none -z-10">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-chart-2/5 rounded-full blur-3xl" />
         </div>
-        
+
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-primary mb-6">
-            <Sparkles className="h-3.5 w-3.5" />
             AI-Powered Resume Optimization
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-balance mb-6">
             <span className="gradient-text">Land more interviews</span>
             <br />
             <span className="text-foreground">with a tailored resume</span>
           </h1>
-          
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty mb-12">
-            Paste your resume and job description. Our AI analyzes the match, identifies gaps, 
-            and generates an optimized version in seconds.
-          </p>
 
-          {/* Trust indicators */}
-          <div className="flex flex-wrap justify-center gap-6 md:gap-10 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-score-high" />
-              <span>ATS-Optimized</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-primary" />
-              <span>Keyword Matching</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-chart-2" />
-              <span>Instant Results</span>
-            </div>
-          </div>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty mb-12">
+            Our AI Agent analyzes the match, identifies gaps,
+            and generates an ATS optimized version in seconds.
+          </p>
         </div>
       </section>
 
@@ -76,7 +59,7 @@ export function CVTailorForm({
         <div className="mx-auto max-w-5xl">
           {/* Steps Container */}
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
-            
+
             {/* Step 1: Resume */}
             <div className="relative">
               <div className="flex items-start gap-4 mb-4">
@@ -88,7 +71,7 @@ export function CVTailorForm({
                   <p className="text-sm text-muted-foreground">Paste text or upload a file</p>
                 </div>
               </div>
-              
+
               <div className="rounded-2xl border border-border bg-card overflow-hidden">
                 {/* Textarea */}
                 <div className="p-4 border-b border-border">
@@ -99,14 +82,13 @@ export function CVTailorForm({
                     className="min-h-[280px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none"
                   />
                 </div>
-                
+
                 {/* File Upload */}
                 <div
-                  className={`relative cursor-pointer p-6 transition-all ${
-                    resumeFile
-                      ? "bg-primary/5"
-                      : "hover:bg-accent/50"
-                  }`}
+                  className={`relative cursor-pointer p-6 transition-all ${resumeFile
+                    ? "bg-primary/5"
+                    : "hover:bg-accent/50"
+                    }`}
                   onDragOver={(e) => {
                     e.preventDefault();
                     e.currentTarget.classList.add("bg-primary/5");
@@ -180,7 +162,7 @@ export function CVTailorForm({
                   <p className="text-sm text-muted-foreground">Paste the full job posting</p>
                 </div>
               </div>
-              
+
               <div className="rounded-2xl border border-border bg-card overflow-hidden h-[calc(100%-52px)]">
                 <div className="p-4 h-full">
                   <textarea
@@ -210,12 +192,12 @@ export function CVTailorForm({
               className="group relative w-full flex items-center justify-center gap-3 rounded-xl bg-primary px-6 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer overflow-hidden"
             >
               {/* Shimmer effect */}
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-              
+              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-linear-to-r from-transparent via-white/10 to-transparent" />
+
               {loading ? (
                 <>
                   <Loader2 size={20} className="animate-spin" />
-                  <span>Analyzing your resume...</span>
+                  <span>Analyzing your resume</span>
                 </>
               ) : (
                 <>
@@ -228,7 +210,7 @@ export function CVTailorForm({
 
           {/* Features Grid */}
           <div className="mt-12 grid sm:grid-cols-3 gap-4">
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border card-hover">
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border cursor-pointer">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-chart-5/10">
                 <Target className="h-4 w-4 text-chart-5" />
               </div>
@@ -239,8 +221,8 @@ export function CVTailorForm({
                 </p>
               </div>
             </div>
-            
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border card-hover">
+
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border cursor-pointer">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                 <Zap className="h-4 w-4 text-primary" />
               </div>
@@ -251,8 +233,8 @@ export function CVTailorForm({
                 </p>
               </div>
             </div>
-            
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border card-hover">
+
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border cursor-pointer">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-chart-2/10">
                 <Briefcase className="h-4 w-4 text-chart-2" />
               </div>

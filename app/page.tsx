@@ -65,7 +65,7 @@ export default function CVTailorApp() {
   return (
     <div className="min-h-screen bg-ambient noise-overlay">
       {/* Minimal Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-ambient">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="flex h-14 md:h-16 items-center justify-between">
             <button
@@ -147,7 +147,7 @@ export default function CVTailorApp() {
                   />
                 </div>
               </aside>
-              
+
               {/* Right Panel - Preview & Chat */}
               <div className="flex-1 min-w-0 order-1 xl:order-2">
                 <ResumePreview

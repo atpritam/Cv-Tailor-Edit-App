@@ -224,11 +224,7 @@
   background: #3f3f46;
 }
 
-/* Focus states */
-textarea:focus,
-input:focus {
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
-}
+/* Focus states - removed for cleaner UI */
 
 /* Step indicator line */
 .step-line {
