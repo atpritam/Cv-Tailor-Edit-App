@@ -29,13 +29,13 @@ export function CVTailorForm({
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col relative">
       {/* Decorative elements - full height */}
-      <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-chart-2/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-20 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-chart-2/8 rounded-full blur-3xl" />
       </div>
 
       {/* Hero Section */}
-      <section className="relative py-8 px-4 md:px-6">
+      <section className="relative z-10 py-8 px-4 md:px-6">
 
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-primary mb-6">
@@ -56,7 +56,7 @@ export function CVTailorForm({
       </section>
 
       {/* Form Section */}
-      <section className="flex-1 px-4 md:px-6 pb-16 md:pb-24">
+      <section className="relative z-10 flex-1 px-4 md:px-6 pb-16 md:pb-24">
         <div className="mx-auto max-w-5xl">
           {/* Steps Container */}
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 lg:items-start">
