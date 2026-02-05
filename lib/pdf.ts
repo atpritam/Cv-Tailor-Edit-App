@@ -56,24 +56,33 @@ export const printPDF = (
   const htmlContent = element.innerHTML;
 
   const printHtml = generatePrintHtml(htmlContent, profilePhotoDataUrl, theme, {
-    includePrintScript: true,
+    includePrintScript: false,
     title: "Tailored Resume",
   });
 
-  const blob = new Blob([printHtml], {
-    type: "text/html; charset=utf-8",
-  });
-  const url = URL.createObjectURL(blob);
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "none";
+  iframe.style.opacity = "0";
+  iframe.style.pointerEvents = "none";
+  document.body.appendChild(iframe);
 
-  const printTab = window.open(url, "_blank");
-
-  if (!printTab) {
-    alert("Please allow popups to print the PDF");
-    URL.revokeObjectURL(url);
+  const doc = iframe.contentWindow?.document;
+  if (!doc) {
+    console.error("Could not access iframe document");
+    document.body.removeChild(iframe);
     return;
   }
 
+  doc.open();
+  doc.write(printHtml);
+  doc.close();
+
+  iframe.contentWindow?.focus();
+  iframe.contentWindow?.print();
   setTimeout(() => {
-    URL.revokeObjectURL(url);
-  }, 1000);
+    document.body.removeChild(iframe);
+  }, 500);
 };
