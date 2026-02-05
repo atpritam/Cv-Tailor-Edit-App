@@ -34,6 +34,7 @@ export function Analysis({
   analysisRetrying = false,
 }: AnalysisProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const [hasAnimated, setHasAnimated] = useState(false);
   const scoreRef = useRef<SVGCircleElement>(null);
 
   const hasDetailedScoring =
@@ -78,6 +79,13 @@ export function Analysis({
       return () => clearTimeout(timer);
     }
   }, [isLoadingScore, score]);
+
+  // Reset animation flag when new analysis comes in (not refining)
+  useEffect(() => {
+    if (!refining && analysisComplete) {
+      setHasAnimated(false);
+    }
+  }, [refining, analysisComplete, results]);
 
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset = circumference - (animatedScore / 100) * circumference;
@@ -150,7 +158,12 @@ export function Analysis({
         {hasDetailedScoring && !isLoadingScore && (
           <>
             <button
-              onClick={() => setShowDetails(!showDetails)}
+              onClick={() => {
+                setShowDetails(!showDetails);
+                if (!showDetails && !hasAnimated) {
+                  setHasAnimated(true);
+                }
+              }}
               className="w-full flex items-center justify-center gap-2 py-3 border-t border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors cursor-pointer"
             >
               <span>{showDetails ? "Hide" : "Show"} breakdown</span>
@@ -164,7 +177,7 @@ export function Analysis({
               }`}
             >
               <div className="px-6 py-4 space-y-4 border-t border-border bg-muted/30">
-                {metrics.map((m) => {
+                {metrics.map((m, index) => {
                   const value = (results.analysis as Record<string, unknown>)[m.key] as number;
                   return (
                     <div key={m.key} className="space-y-1.5">
@@ -174,10 +187,13 @@ export function Analysis({
                       </div>
                       <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all duration-500"
+                          className="h-full rounded-full"
                           style={{
-                            width: `${value}%`,
+                            width: showDetails && hasAnimated ? `${value}%` : '0%',
                             backgroundColor: getScoreColor(value),
+                            transition: showDetails && hasAnimated 
+                              ? `width 800ms ease-out ${index * 100}ms` 
+                              : 'none'
                           }}
                         />
                       </div>
@@ -194,7 +210,7 @@ export function Analysis({
       <button
         onClick={regenerate}
         disabled={loading || !!streamingStarted}
-        className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 text-sm font-medium text-foreground hover:bg-accent/50 hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all"
+        className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 text-sm font-medium text-foreground hover:bg-accent hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all"
       >
         {loading ? (
           <>

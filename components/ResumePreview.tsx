@@ -304,7 +304,7 @@ export function ResumePreview({
             className={`flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium text-foreground transition-all ${
               actionDisabled
                 ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-accent/50 hover:border-primary/30 cursor-pointer"
+                : "hover:bg-accent hover:border-primary cursor-pointer"
             }`}
           >
             <Printer size={16} />
@@ -318,7 +318,7 @@ export function ResumePreview({
           className={`flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium text-foreground transition-all ${
             loading || streamingStarted
               ? "opacity-50 cursor-not-allowed"
-              : "hover:bg-accent/50 hover:border-primary/30 cursor-pointer"
+              : "hover:bg-accent hover:border-primary cursor-pointer"
           }`}
         >
           <RotateCcw size={16} />
