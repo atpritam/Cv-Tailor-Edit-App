@@ -7,7 +7,6 @@ import { CVTailorForm } from "@/components/CVTailorForm";
 import { Analysis } from "@/components/Analysis";
 import { ResumePreview } from "@/components/ResumePreview";
 import { FileCheck } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
 
 export default function CVTailorApp() {
   const {
@@ -133,22 +132,24 @@ export default function CVTailorApp() {
           />
         ) : (
           <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
-            <div className="flex flex-col xl:grid xl:grid-cols-[384px_1fr] gap-6 xl:gap-8 xl:h-[calc(100vh-7rem)]">
+            <div className="flex flex-col xl:flex-row gap-6 xl:gap-8 xl:items-start">
               {/* Left Panel - Analysis */}
-              <aside className="w-full order-2 xl:order-1 xl:overflow-hidden xl:flex xl:flex-col">
-                <Analysis
-                  results={results!}
-                  regenerate={handleRegenerate}
-                  loading={loading}
-                  refining={refining}
-                  streamingStarted={streamingStarted}
-                  analysisComplete={analysisComplete}
-                  analysisRetrying={analysisRetrying}
-                />
+              <aside className="w-full xl:w-96 shrink-0 order-2 xl:order-1">
+                <div className="xl:sticky xl:top-24">
+                  <Analysis
+                    results={results!}
+                    regenerate={handleRegenerate}
+                    loading={loading}
+                    refining={refining}
+                    streamingStarted={streamingStarted}
+                    analysisComplete={analysisComplete}
+                    analysisRetrying={analysisRetrying}
+                  />
+                </div>
               </aside>
 
               {/* Right Panel - Preview & Chat */}
-              <div className="min-w-0 order-1 xl:order-2 xl:overflow-hidden xl:flex xl:flex-col">
+              <div className="flex-1 min-w-0 order-1 xl:order-2">
                 <ResumePreview
                   results={results!}
                   loading={loading}
