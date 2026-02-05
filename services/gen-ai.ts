@@ -45,6 +45,51 @@ const mapToGoogleHistory = (history: ChatMessage[]): Content[] => {
   });
 };
 
+export async function generateTextFromImage(
+  prompt: string,
+  image: { mimeType: string; data: string },
+): Promise<string> {
+  const imagePart: Part = {
+    inlineData: {
+      mimeType: image.mimeType,
+      data: image.data,
+    },
+  };
+
+  const textPart: Part = {
+    text: prompt,
+  };
+
+  const imageConfig: GenerateContentConfig = {
+    temperature: 0.2,
+    topK: 32,
+    topP: 1,
+    maxOutputTokens: 4096,
+    responseMimeType: "text/plain",
+  };
+
+  try {
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Image processing timeout")), 30000),
+    );
+
+    const result = await Promise.race([
+      ai.models.generateContent({
+        model: MODELS.primary, // gemini-2.5-flash
+        contents: [{ role: "user", parts: [textPart, imagePart] }],
+        config: imageConfig,
+      }),
+      timeoutPromise,
+    ]);
+
+    const res: any = result as any;
+    return res?.text || "";
+  } catch (err) {
+    console.error("Image generation failed:", err);
+    throw new Error("Failed to extract text from image.");
+  }
+}
+
 /**
  * Standard generation with retry
  */
@@ -92,7 +137,8 @@ export async function generateContentWithRetry(
           ]);
         }
 
-        return result.text || "";
+        const res: any = result as any;
+        return res?.text || "";
       } catch (err: unknown) {
         lastError = err;
         const isRateLimit = /429|quota|exhausted|Too Many Requests/i.test(

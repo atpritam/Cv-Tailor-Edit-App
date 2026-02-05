@@ -39,6 +39,7 @@ export default function CVTailorApp() {
 
   const {
     resumeFile,
+    isParsing,
     handleFileUpload,
     reset: resetParser,
   } = useResumeParser({
@@ -127,6 +128,7 @@ export default function CVTailorApp() {
             setJobDescription={setJobDescription}
             error={error}
             loading={loading}
+            isParsing={isParsing}
             handleSubmit={handleFormSubmit}
           />
         ) : (

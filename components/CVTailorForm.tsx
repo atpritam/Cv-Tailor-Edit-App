@@ -23,6 +23,7 @@ type CVTailorFormProps = {
   setJobDescription: (text: string) => void;
   error: string;
   loading: boolean;
+  isParsing: boolean;
   handleSubmit: () => void;
 };
 
@@ -35,6 +36,7 @@ export function CVTailorForm({
   setJobDescription,
   error,
   loading,
+  isParsing,
   handleSubmit,
 }: CVTailorFormProps) {
   const [resumeError, setResumeError] = useState("");
@@ -258,7 +260,7 @@ export function CVTailorForm({
           <div className="mt-8">
             <button
               onClick={handleFormSubmit}
-              disabled={loading}
+              disabled={loading || isParsing}
               className="group relative w-full flex items-center justify-center gap-3 rounded-xl bg-primary px-6 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer overflow-hidden"
             >
               {/* Shimmer effect */}
@@ -268,6 +270,11 @@ export function CVTailorForm({
                 <>
                   <Loader2 size={20} className="animate-spin" />
                   <span>Analyzing your resume</span>
+                </>
+              ) : isParsing ? (
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  <span>Processing file</span>
                 </>
               ) : (
                 <>
