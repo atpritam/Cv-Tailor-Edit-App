@@ -109,7 +109,7 @@ JSON format:
   "TitleMatch": <0-100>,
   "SoftSkillMatch": <0-100>,
   "evidence": {"skillMatches":[{"token":"","count":0}],"experienceMatches":[{"phrase":"","count":0}],"titleMatches":[{"phrase":"","count":0}],"softSkillMatches":[{"phrase":"","count":0}]},
-  "keySkills": [<6-10 from job>],
+  "keySkills": [<6-10 items, 1-2 words each, only directly required skills taken verbatim from the job description; exclude resume-only or generic skills>],
   "matchingStrengths": [<4-6, around 10 words each - hyper focused>],
   "gaps": [<3-5, around 10 words each - hyper focused>],
 }`;
@@ -125,9 +125,13 @@ Task:
 - Customize content based on the JOB description.
 - Preserve all class names, structures and data-* attributes exactly as provided in the TEMPLATE.
 - Improve clarity, relevance, and impact without fabricating experience.
+- Include the improvements you made in "improvements" array in the JSON output.
 
 RULES:
 ${RULES}
+ - Do not mention rules, templates, word limits, or prompt instructions in the "improvements":
+   - Valid: "Rewrote About section to emphasize AI-driven product discovery and impact."
+   - Invalid: "Shortened summary to 50 words as per template guidelines."
 
 TEMPLATE:
 ${HTML_TEMPLATE}

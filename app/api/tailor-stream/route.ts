@@ -3,7 +3,10 @@ import {
   generateContentStreaming,
   generateContentWithRetry,
 } from "@/services/gen-ai";
-import { processHtmlResponse } from "@/lib/response-processor";
+import {
+  processHtmlResponse,
+  sanitizeImprovements,
+} from "@/lib/response-processor";
 import { createAnalysisPrompt, createHtmlPrompt } from "@/lib/prompts";
 
 export async function POST(request: NextRequest) {
@@ -192,7 +195,7 @@ export async function POST(request: NextRequest) {
                   data: {
                     tailoredResumeHtml:
                       processedHtml || parsed.tailoredResumeHtml,
-                    improvements: parsed.improvements,
+                    improvements: sanitizeImprovements(parsed.improvements),
                   },
                 })}\n\n`,
               );
@@ -206,7 +209,7 @@ export async function POST(request: NextRequest) {
                   type: "html_complete",
                   data: {
                     tailoredResumeHtml: parsed.tailoredResumeHtml,
-                    improvements: parsed.improvements,
+                    improvements: sanitizeImprovements(parsed.improvements),
                   },
                 })}\n\n`,
               );

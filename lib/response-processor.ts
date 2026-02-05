@@ -157,3 +157,24 @@ export const processHtmlResponse = async (html: string): Promise<string> => {
     return html;
   }
 };
+
+export const sanitizeImprovements = (improvements: any): string[] => {
+  if (!Array.isArray(improvements)) return [];
+  const bannedPhrase =
+    /\b(as per|per the template|per template|as per the template|as per instructions|follow(ed)? (the )?(instructions|guidelines|template)|template guidelines|word count requirements|word count limit|word limit|word count)\b/i;
+
+  const cleaned = improvements
+    .filter(Boolean)
+    .map((imp) => String(imp).trim())
+    .filter((imp) => !bannedPhrase.test(imp))
+    .map((imp) =>
+      imp
+        .replace(/['"`]+/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim(),
+    )
+    .filter((v, i, a) => v && a.indexOf(v) === i)
+    .slice(0, 6);
+
+  return cleaned;
+};
