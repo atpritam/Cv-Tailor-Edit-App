@@ -185,7 +185,7 @@ TASK
 RULES
 - CRITICAL: The "newHtml" value is a JSON string. All double quotes (") inside the HTML code itself MUST be escaped with a backslash (\\").
 - Edit the SMALLEST possible uniquely identifiable block
-- Return ONLY modified blocks. ALWAYS return the smallest uniquely identifiable block
+- Return ONLY modified blocks. ALWAYS return the smallest uniquely identifiable (by data-* attributes) block
 - Each block must be COMPLETE (opening tag → closing tag)
 - Preserve all class names, and data-* attributes exactly as provided
 - For entire div/block removal requests, return the nearest parent block with the target content removed
