@@ -181,6 +181,7 @@ export function ResumePreview({
         canRedo={canRedo}
         onUndo={onUndo}
         onRedo={onRedo}
+        isTailoring={!htmlComplete && (loading || !!streamingStarted) && chatHistory.length === 0}
       />
 
       {/* Resume Preview Card */}

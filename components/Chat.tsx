@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, Undo2, Redo2, Send } from "lucide-react";
+import { MessageSquare, Undo2, Redo2, Send, Sparkles } from "lucide-react";
 import type { ChatMessage } from "@/lib/types";
 
 type ChatProps = {
@@ -12,6 +12,7 @@ type ChatProps = {
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
+  isTailoring?: boolean;
 };
 
 const BoldableText = ({ text }: { text: string }) => {
@@ -37,14 +38,17 @@ export function Chat({
   canRedo,
   onUndo,
   onRedo,
+  isTailoring = false,
 }: ChatProps) {
   const [message, setMessage] = useState("");
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const handleSend = () => {
-    if (message.trim()) {
+    if (message.trim() && !isLoading) {
       sendChatMessage(message);
       setMessage("");
+      setUserHasInteracted(true);
     }
   };
 
@@ -60,6 +64,9 @@ export function Chat({
     "Add more technical keywords",
     "Emphasize leadership experience",
   ];
+
+  const showSuggestions = !userHasInteracted && chatHistory.length > 0;
+  const isDisabled = isLoading || isTailoring;
 
   return (
     <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6">
@@ -83,7 +90,7 @@ export function Chat({
             variant="ghost"
             size="sm"
             onClick={onUndo}
-            disabled={!canUndo || isLoading}
+            disabled={!canUndo || isDisabled}
             className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-30"
             title="Undo"
           >
@@ -93,7 +100,7 @@ export function Chat({
             variant="ghost"
             size="sm"
             onClick={onRedo}
-            disabled={!canRedo || isLoading}
+            disabled={!canRedo || isDisabled}
             className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-30"
             title="Redo"
           >
@@ -107,7 +114,19 @@ export function Chat({
         ref={chatContainerRef}
         className="h-64 md:h-80 overflow-y-auto p-4 space-y-3"
       >
-        {chatHistory.length === 0 ? (
+        {isTailoring && chatHistory.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-center px-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
+              <Sparkles size={24} className="text-primary animate-pulse" />
+            </div>
+            <p className="text-sm font-medium text-foreground mb-1">
+              Tailoring your resume
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Analyzing your experience and optimizing for the job requirements
+            </p>
+          </div>
+        ) : chatHistory.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
             <div className="text-muted-foreground mb-4">
               <p className="text-sm mb-1">Tell the AI what to change</p>
@@ -165,20 +184,47 @@ export function Chat({
         )}
       </div>
 
+      {/* Suggestions above input - shown when AI has responded but user hasn't interacted */}
+      {showSuggestions && (
+        <div className="border-t border-border px-4 py-3 bg-muted/20">
+          <div className="flex flex-wrap gap-2">
+            {suggestions.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  setMessage(s);
+                  setUserHasInteracted(true);
+                }}
+                disabled={isDisabled}
+                className="px-3 py-1.5 text-xs rounded-full border border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground hover:border-primary/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Input */}
       <div className="border-t border-border p-4 flex gap-2">
         <Input
           placeholder="Type a message..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && !isLoading && handleSend()}
-          disabled={isLoading}
+          onKeyDown={(e) => e.key === "Enter" && !isDisabled && handleSend()}
+          disabled={isDisabled}
           className="flex-1 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/50"
         />
         <Button
           onClick={handleSend}
-          disabled={isLoading || !message.trim()}
-          className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+          disabled={isDisabled}
+          className={`shrink-0 bg-primary text-primary-foreground transition-all ${
+            isDisabled 
+              ? "opacity-50 cursor-not-allowed" 
+              : !message.trim()
+              ? "opacity-70 cursor-default"
+              : "hover:bg-primary/90 cursor-pointer"
+          }`}
         >
           <Send size={16} />
         </Button>
