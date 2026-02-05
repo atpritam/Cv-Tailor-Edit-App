@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, Undo2, Redo2, Send, Sparkles } from "lucide-react";
+import { MessageSquare, Undo2, Redo2, Send, Loader2 } from "lucide-react";
 import type { ChatMessage } from "@/lib/types";
 
 type ChatProps = {
@@ -112,12 +112,12 @@ export function Chat({
       {/* Messages */}
       <div
         ref={chatContainerRef}
-        className="h-64 md:h-80 overflow-y-auto p-4 space-y-3"
+        className="h-64 md:h-80 overflow-y-auto p-4 pb-0 space-y-3"
       >
         {isTailoring && chatHistory.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
-              <Sparkles size={24} className="text-primary animate-pulse" />
+              <Loader2 size={24} className="text-primary animate-spin" />
             </div>
             <p className="text-sm font-medium text-foreground mb-1">
               Tailoring your resume
@@ -180,30 +180,30 @@ export function Chat({
                 </div>
               </div>
             )}
+
+            {/* Suggestions in chat space - shown when AI has responded but user hasn't interacted */}
+            {showSuggestions && (
+              <div className="flex justify-center py-4">
+                <div className="flex flex-wrap justify-center gap-2 max-w-md">
+                  {suggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setMessage(s);
+                        setUserHasInteracted(true);
+                      }}
+                      disabled={isDisabled}
+                      className="px-3 py-1.5 text-xs rounded-full border border-border bg-muted/50 text-muted-foreground hover:bg-accent hover:text-foreground hover:border-primary/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
-
-      {/* Suggestions above input - shown when AI has responded but user hasn't interacted */}
-      {showSuggestions && (
-        <div className="border-t border-border px-4 py-3 bg-muted/20">
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((s, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  setMessage(s);
-                  setUserHasInteracted(true);
-                }}
-                disabled={isDisabled}
-                className="px-3 py-1.5 text-xs rounded-full border border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground hover:border-primary/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Input */}
       <div className="border-t border-border p-4 flex gap-2">
@@ -215,10 +215,10 @@ export function Chat({
           disabled={isDisabled}
           className="flex-1 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/50"
         />
-        <Button
+        <button
           onClick={handleSend}
           disabled={isDisabled}
-          className={`shrink-0 bg-primary text-primary-foreground transition-all ${
+          className={`shrink-0 h-10 w-10 rounded-xl flex items-center justify-center bg-primary text-primary-foreground transition-all ${
             isDisabled 
               ? "opacity-50 cursor-not-allowed" 
               : !message.trim()
@@ -227,7 +227,7 @@ export function Chat({
           }`}
         >
           <Send size={16} />
-        </Button>
+        </button>
       </div>
     </div>
   );
