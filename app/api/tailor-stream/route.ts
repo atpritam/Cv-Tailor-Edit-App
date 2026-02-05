@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
     if (!text) return null;
     text = text.replace(/```\w*\n?|```/g, "");
 
-    // find first JSON start char (object or array)
     const firstBrace = text.indexOf("{");
     const firstBracket = text.indexOf("[");
     let start = -1;
@@ -49,8 +48,19 @@ export async function POST(request: NextRequest) {
         depth--;
         if (depth === 0) {
           let candidate = text.substring(start, i + 1);
-          // sanitize common non-json extras: remove trailing commas before ] or }
+
+          // 1. Remove JS-style comments
+          candidate = candidate.replace(
+            /\/\*[\s\S]*?\*\/|(?<=[^:])\/\/.*$/gm,
+            "",
+          );
+
+          // 2. Attempt to fix missing commas between properties
+          candidate = candidate.replace(/(?<=")\s*\n\s*"/g, '",\n"');
+
+          // 3. Remove trailing commas
           candidate = candidate.replace(/,\s*([}\]])/g, "$1");
+
           return candidate;
         }
       }
@@ -181,45 +191,69 @@ export async function POST(request: NextRequest) {
         const [, htmlText] = await Promise.all([streamAnalysis, generateHtml]);
 
         try {
+          // First attempt
           const jsonStr = extractFirstJson(htmlText);
-          if (jsonStr) {
-            const parsed = JSON.parse(jsonStr);
-            try {
-              const processedHtml = await processHtmlResponse(
-                parsed.tailoredResumeHtml,
-              );
+          if (!jsonStr) {
+            throw new Error(
+              "Initial HTML generation failed to produce valid JSON.",
+            );
+          }
+          const parsed = JSON.parse(jsonStr);
+          const processedHtml = await processHtmlResponse(
+            parsed.tailoredResumeHtml,
+          );
+          safeEnqueue(
+            `data: ${JSON.stringify({
+              type: "html_complete",
+              data: {
+                tailoredResumeHtml: processedHtml || parsed.tailoredResumeHtml,
+                improvements: sanitizeImprovements(parsed.improvements),
+              },
+            })}\n\n`,
+          );
+        } catch (err: any) {
+          console.error(
+            "Initial HTML parse error, retrying:",
+            err?.message || String(err),
+          );
+          safeEnqueue(`data: ${JSON.stringify({ type: "html_retrying" })}\n\n`);
 
-              safeEnqueue(
-                `data: ${JSON.stringify({
-                  type: "html_complete",
-                  data: {
-                    tailoredResumeHtml:
-                      processedHtml || parsed.tailoredResumeHtml,
-                    improvements: sanitizeImprovements(parsed.improvements),
-                  },
-                })}\n\n`,
-              );
-            } catch (procErr) {
-              console.error(
-                "HTML processing failed, sending raw HTML:",
-                procErr,
-              );
-              safeEnqueue(
-                `data: ${JSON.stringify({
-                  type: "html_complete",
-                  data: {
-                    tailoredResumeHtml: parsed.tailoredResumeHtml,
-                    improvements: sanitizeImprovements(parsed.improvements),
-                  },
-                })}\n\n`,
+          // Retry attempt
+          try {
+            const retryHtmlText = await generateContentWithRetry(
+              createHtmlPrompt(jobDescription, resumeText),
+              [],
+              2,
+            );
+            const retryJsonStr = extractFirstJson(retryHtmlText);
+            if (!retryJsonStr) {
+              throw new Error(
+                "Retry HTML generation also failed to produce valid JSON.",
               );
             }
+            const retryParsed = JSON.parse(retryJsonStr);
+            const retryProcessedHtml = await processHtmlResponse(
+              retryParsed.tailoredResumeHtml,
+            );
+            safeEnqueue(
+              `data: ${JSON.stringify({
+                type: "html_complete",
+                data: {
+                  tailoredResumeHtml:
+                    retryProcessedHtml || retryParsed.tailoredResumeHtml,
+                  improvements: sanitizeImprovements(retryParsed.improvements),
+                },
+              })}\n\n`,
+            );
+          } catch (retryErr: any) {
+            console.error(
+              "HTML parse retry failed:",
+              retryErr?.message || String(retryErr),
+            );
+            safeEnqueue(
+              `data: ${JSON.stringify({ type: "error", error: "Failed to generate resume HTML after retry" })}\n\n`,
+            );
           }
-        } catch (err: any) {
-          console.error("HTML parse error:", err?.message || String(err));
-          safeEnqueue(
-            `data: ${JSON.stringify({ type: "error", error: "Failed to generate resume HTML" })}\n\n`,
-          );
         }
 
         // Send final completion signal
