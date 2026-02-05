@@ -30,7 +30,6 @@ type ResumePreviewProps = {
   onRedo: () => void;
   streamingStarted?: boolean;
   htmlComplete?: boolean;
-  constrainedHeight?: number | null;
 };
 
 const COLOR_THEMES = [
@@ -59,7 +58,6 @@ export function ResumePreview({
   onRedo,
   streamingStarted,
   htmlComplete = false,
-  constrainedHeight,
 }: ResumePreviewProps) {
   const resumeRef = useRef<HTMLDivElement>(null);
   const profilePhotoInputRef = useRef<HTMLInputElement>(null);
@@ -186,13 +184,8 @@ export function ResumePreview({
         isTailoring={!htmlComplete && (loading || !!streamingStarted) && chatHistory.length === 0}
       />
 
-      {/* Resume Preview Card - constrained height with scrollable content */}
-      <div 
-        className="rounded-2xl border border-border bg-card overflow-hidden mb-6 flex flex-col"
-        style={constrainedHeight ? { 
-          maxHeight: `${constrainedHeight - 420}px`, // Subtract chat (336px) + action buttons (72px) + margins (12px)
-        } : undefined}
-      >
+      {/* Resume Preview Card - fixed max-height with scrollable content */}
+      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6 flex flex-col max-h-[calc(100vh-480px)] min-h-[300px]">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-5 bg-muted/30 shrink-0">
           <div className="flex items-center gap-3">
