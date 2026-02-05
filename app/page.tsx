@@ -7,6 +7,7 @@ import { CVTailorForm } from "@/components/CVTailorForm";
 import { Analysis } from "@/components/Analysis";
 import { ResumePreview } from "@/components/ResumePreview";
 import { FileCheck } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
 
 export default function CVTailorApp() {
   const {
@@ -45,6 +46,34 @@ export default function CVTailorApp() {
     setResumeText,
     setError,
   });
+
+  // Height matching between columns
+  const analysisRef = useRef<HTMLDivElement>(null);
+  const [analysisHeight, setAnalysisHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (analysisRef.current && window.innerWidth >= 1280) {
+        setAnalysisHeight(analysisRef.current.offsetHeight);
+      } else {
+        setAnalysisHeight(null);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    
+    // Update height when content changes
+    const observer = new ResizeObserver(updateHeight);
+    if (analysisRef.current) {
+      observer.observe(analysisRef.current);
+    }
+
+    return () => {
+      window.removeEventListener("resize", updateHeight);
+      observer.disconnect();
+    };
+  }, [results, analysisComplete]);
 
   const handleFullReset = () => {
     resetTailor();
@@ -134,7 +163,7 @@ export default function CVTailorApp() {
           <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
             <div className="flex flex-col xl:grid xl:grid-cols-[384px_1fr] gap-6 xl:gap-8">
               {/* Left Panel - Analysis */}
-              <aside className="w-full order-2 xl:order-1 xl:h-fit">
+              <aside ref={analysisRef} className="w-full order-2 xl:order-1">
                 <Analysis
                   results={results!}
                   regenerate={handleRegenerate}
@@ -149,6 +178,7 @@ export default function CVTailorApp() {
               {/* Right Panel - Preview & Chat */}
               <div className="min-w-0 order-1 xl:order-2">
                 <ResumePreview
+                  constrainedHeight={analysisHeight}
                   results={results!}
                   loading={loading}
                   regenerate={handleRegenerate}
