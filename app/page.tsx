@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { useCVTailor } from "@/hooks/useCVTailor";
-import { useResumeParser } from "@/hooks/useResumeParser";
+import { useFileParser } from "@/hooks/useFileParser";
 import { useProfilePhoto } from "@/hooks/useProfilePhoto";
 import { CVTailorForm } from "@/components/CVTailorForm";
 import { Analysis } from "@/components/Analysis";
@@ -38,18 +39,41 @@ export default function CVTailorApp() {
     useProfilePhoto();
 
   const {
-    resumeFile,
-    isParsing,
-    handleFileUpload,
-    reset: resetParser,
-  } = useResumeParser({
-    setResumeText,
+    file: resumeFile,
+    isParsing: isResumeParsing,
+    handleFileUpload: handleResumeUpload,
+    reset: resetResumeParser,
+  } = useFileParser({
+    setText: setResumeText,
     setError,
   });
 
+  const {
+    file: jdFile,
+    isParsing: isJdParsing,
+    handleFileUpload: handleJdUpload,
+    reset: resetJdParser,
+  } = useFileParser({
+    setText: setJobDescription,
+    setError,
+  });
+
+  useEffect(() => {
+    if (resumeText.trim() === "" && resumeFile) {
+      resetResumeParser();
+    }
+  }, [resumeText, resumeFile, resetResumeParser]);
+
+  useEffect(() => {
+    if (jobDescription.trim() === "" && jdFile) {
+      resetJdParser();
+    }
+  }, [jobDescription, jdFile, resetJdParser]);
+
   const handleFullReset = () => {
     resetTailor();
-    resetParser();
+    resetResumeParser();
+    resetJdParser();
     resetProfilePhoto();
   };
 
@@ -123,12 +147,14 @@ export default function CVTailorApp() {
             resumeText={resumeText}
             setResumeText={setResumeText}
             resumeFile={resumeFile}
-            handleFileUpload={handleFileUpload}
+            handleResumeUpload={handleResumeUpload}
             jobDescription={jobDescription}
             setJobDescription={setJobDescription}
+            jdFile={jdFile}
+            handleJdUpload={handleJdUpload}
             error={error}
             loading={loading}
-            isParsing={isParsing}
+            isParsing={isResumeParsing || isJdParsing}
             handleSubmit={handleFormSubmit}
           />
         ) : (

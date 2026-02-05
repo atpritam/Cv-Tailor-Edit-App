@@ -1,36 +1,44 @@
 "use client";
 
 import { useState } from "react";
+import { resizeImage } from "@/lib/image";
+import { PersistentLRUCache } from "@/lib/persistent-lru-cache";
 
-type ResumeParserProps = {
-  setResumeText: (text: string) => void;
+type FileParserProps = {
+  setText: (text: string) => void;
   setError: (error: string) => void;
 };
 
-import { resizeImage } from "@/lib/image";
+// Shared, persistent cache for all instances of the hook
+const imageCache = new PersistentLRUCache<string, string>(
+  "image-parse-cache",
+  5,
+);
 
-export function useResumeParser({
-  setResumeText,
-  setError,
-}: ResumeParserProps) {
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
+function generateFileKey(file: File): string {
+  return `${file.name}-${file.size}-${file.lastModified}`;
+}
+
+export function useFileParser({ setText, setError }: FileParserProps) {
+  const [file, setFile] = useState<File | null>(null);
   const [isParsing, setIsParsing] = useState(false);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = "";
 
-    setResumeFile(file);
+    setFile(file);
     setError("");
     setIsParsing(true);
 
     try {
       if (file.type === "text/plain") {
         const text = await file.text();
-        setResumeText(text);
+        setText(text);
       } else if (file.type === "application/pdf") {
         try {
-          setResumeText(`[PDF: ${file.name}] - Parsing, please wait...`);
+          setText(`[PDF: ${file.name}] - Parsing, please wait...`);
           const arrayBuffer = await file.arrayBuffer();
           const pdfjsLib = await import("pdfjs-dist/webpack");
 
@@ -47,16 +55,24 @@ export function useResumeParser({
           }
 
           const trimmed = fullText.trim();
-          setResumeText(trimmed);
+          setText(trimmed);
         } catch (pdfError) {
           console.error("[v0] PDF parsing error:", pdfError);
-          setError(
-            "Failed to parse PDF. Please try pasting your resume text instead.",
-          );
-          setResumeText("");
+          setError("Failed to parse PDF. Please try pasting the text instead.");
+          setText("");
         }
       } else if (file.type.startsWith("image/")) {
-        setResumeText(`[Image: ${file.name}] - Extracting Image Text...`);
+        const fileKey = generateFileKey(file);
+
+        if (imageCache.has(fileKey)) {
+          setText(`[Image: ${file.name}] - Text restored from cache.`);
+          const cachedText = imageCache.get(fileKey)!;
+          setText(cachedText);
+          setIsParsing(false);
+          return;
+        }
+
+        setText(`[Image: ${file.name}] - Extracting text...`);
 
         try {
           const resizedDataUrl = await resizeImage(file);
@@ -87,16 +103,17 @@ export function useResumeParser({
           const result = await response.json();
 
           if (result.text) {
-            setResumeText(result.text);
+            imageCache.set(fileKey, result.text); // Cache the new result
+            setText(result.text);
           } else {
             throw new Error("No text found in image.");
           }
         } catch (imgError) {
           console.error("Image processing error:", imgError);
           setError(
-            "Failed to process image. Please try pasting your resume text instead.",
+            "Failed to process image. Please try pasting the text instead.",
           );
-          setResumeText("");
+          setText("");
         }
       }
     } finally {
@@ -105,12 +122,12 @@ export function useResumeParser({
   };
 
   const reset = () => {
-    setResumeFile(null);
+    setFile(null);
     setIsParsing(false);
   };
 
   return {
-    resumeFile,
+    file,
     isParsing,
     handleFileUpload,
     reset,
