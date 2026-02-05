@@ -171,7 +171,7 @@ export function ResumePreview({
   const showResumeLoader = !htmlComplete && (loading || streamingStarted);
 
   return (
-    <div className="w-full min-w-0 flex flex-col">
+    <div className="w-full min-w-0 flex flex-col xl:h-full xl:flex-1">
       {/* Chat */}
       <Chat
         chatHistory={chatHistory}
@@ -184,8 +184,8 @@ export function ResumePreview({
         isTailoring={!htmlComplete && (loading || !!streamingStarted) && chatHistory.length === 0}
       />
 
-      {/* Resume Preview Card - fixed max-height with scrollable content */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6 flex flex-col max-h-[calc(100vh-480px)] min-h-[300px]">
+      {/* Resume Preview Card - fills remaining space with scrollable content */}
+      <div className="rounded-2xl border border-border bg-card overflow-hidden mb-6 flex flex-col xl:flex-1 xl:min-h-0 min-h-[300px]">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-5 bg-muted/30 shrink-0">
           <div className="flex items-center gap-3">
@@ -277,7 +277,7 @@ export function ResumePreview({
       </div>
 
       {/* Action Buttons */}
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-3 shrink-0">
         <button
           onClick={handleDownload}
           disabled={actionDisabled}
