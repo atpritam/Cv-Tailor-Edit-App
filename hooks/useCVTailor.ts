@@ -23,6 +23,8 @@ export function useCVTailor() {
 
   const [originalTailoredHtml, setOriginalTailoredHtml] = useState<string>("");
   const [storedJobDescription, setStoredJobDescription] = useState<string>("");
+  const jobTitleRef = useRef<string>("");
+  const jobDescriptionSummaryRef = useRef<string>("");
 
   const eventSourceRef = useRef<EventSource | null>(null);
 
@@ -76,17 +78,17 @@ export function useCVTailor() {
 
     // initial empty result (will be populated by stream)
     setResults({
-      recommendation: "tailor_resume",
-      recommendationReason: "Analyzing...",
       analysis: {
         atsScore: 0,
-        keySkills: [],
-        matchingStrengths: [],
         gaps: [],
         improvements: [],
+        keySkills: [],
+        matchingStrengths: [],
       },
-      tailoredResumeHtml: "",
       originalProvided: true,
+      recommendation: "tailor_resume",
+      recommendationReason: "Analyzing...",
+      tailoredResumeHtml: "",
     });
 
     try {
@@ -155,6 +157,9 @@ export function useCVTailor() {
 
                 if (data.type === "analysis_complete") {
                   setAnalysisComplete(true);
+                  jobTitleRef.current = data.data.jobTitle;
+                  jobDescriptionSummaryRef.current =
+                    data.data.jobDescriptionSummary;
                 }
 
                 setResults((prev) => {
@@ -167,12 +172,12 @@ export function useCVTailor() {
                       data.data.recommendationReason ||
                       prev.recommendationReason,
                     analysis: {
+                      ...prev.analysis,
                       atsScore: data.data.atsScore ?? prev.analysis.atsScore,
                       SkillMatch: data.data.SkillMatch,
                       ExperienceMatch: data.data.ExperienceMatch,
                       TitleMatch: data.data.TitleMatch,
                       SoftSkillMatch: data.data.SoftSkillMatch,
-                      evidence: data.data.evidence,
                       keySkills: data.data.keySkills || prev.analysis.keySkills,
                       matchingStrengths:
                         data.data.matchingStrengths ||
@@ -223,7 +228,7 @@ export function useCVTailor() {
                     role: "assistant",
                     parts: [
                       {
-                        text: "I've created your tailored resume. You can refine it further by asking me to make specific changes!",
+                        text: `I've created your tailored resume for the ${jobTitleRef.current} role. You can refine it further by asking me to make specific changes!`,
                       },
                     ],
                   },
@@ -307,7 +312,7 @@ export function useCVTailor() {
           chatHistory: newHistory,
           currentResumeHtml: currentHtml,
           originalTailoredHtml: originalTailoredHtml,
-          jobDescription: storedJobDescription,
+          jobDescription: jobDescriptionSummaryRef.current,
         }),
       });
 
@@ -413,6 +418,8 @@ export function useCVTailor() {
     setChatHistory([]);
     setOriginalTailoredHtml("");
     setStoredJobDescription("");
+    jobTitleRef.current = "";
+    jobDescriptionSummaryRef.current = "";
     setVersionHistory([]);
     setCurrentVersionIndex(-1);
     setStreamingStarted(false);

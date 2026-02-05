@@ -8,12 +8,8 @@ export interface AnalysisResult {
   ExperienceMatch?: number;
   TitleMatch?: number;
   SoftSkillMatch?: number;
-  evidence?: {
-    skillMatches?: string[];
-    experienceMatches?: string[];
-    titleMatches?: string[];
-    softSkillMatches?: string[];
-  };
+  jobTitle?: string;
+  jobDescriptionSummary?: string;
 }
 
 export interface TailorResult {

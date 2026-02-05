@@ -2,15 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Upload,
   Loader2,
   ArrowRight,
-  FileText,
   Briefcase,
   Target,
   Zap,
   AlertCircle,
 } from "lucide-react";
+import { FileUploadInput } from "@/components/FileUploadInput";
 
 type CVTailorFormProps = {
   resumeText: string;
@@ -184,45 +183,15 @@ export function CVTailorForm({
                         ? ""
                         : "Paste your current resume text here..."
                     }
-                    className="h-full min-h-[280px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none relative z-10"
+                    className="h-full min-h-[280px] w-full resize-none bg-transparent text-base leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none relative z-10"
                   />
                 </div>
-
-                <div
-                  className={`relative p-6 transition-all ${
-                    resumeFile ? "bg-primary/5" : ""
-                  }`}
-                >
-                  {resumeFile ? (
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <FileText className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {resumeFile.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          File uploaded successfully
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                        <Upload className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          Drop a file or click to upload
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          PDF, TXT, or image files
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <FileUploadInput
+                  file={resumeFile}
+                  error={resumeError}
+                  placeholderText="Drop a file or click to upload"
+                  fileTypeDescription="PDF, TXT, or image files"
+                />
               </div>
             </div>
 
@@ -285,7 +254,7 @@ export function CVTailorForm({
                   onChange={handleJdUpload}
                   className="absolute inset-0 z-20 cursor-pointer opacity-0"
                 />
-                <div className="p-4 flex-1 relative border-b border-border z-30">
+                <div className="p-4 border-b border-border flex-1 relative z-30">
                   {jobDescError && (
                     <div className="absolute inset-0 p-4 flex items-start gap-2 text-sm text-destructive pointer-events-none">
                       <AlertCircle size={16} className="shrink-0 mt-0.5" />
@@ -303,45 +272,15 @@ export function CVTailorForm({
                         ? ""
                         : "Paste the complete job description here including requirements, responsibilities, and qualifications..."
                     }
-                    className="h-full min-h-[280px] w-full resize-none bg-transparent text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none relative z-10"
+                    className="h-full min-h-[280px] w-full resize-none bg-transparent text-base leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none relative z-10"
                   />
                 </div>
-                {/* JD File Upload */}
-                <div
-                  className={`relative p-6 transition-all ${
-                    jdFile ? "bg-primary/5" : ""
-                  }`}
-                >
-                  {jdFile ? (
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <FileText className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {jdFile.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          File uploaded successfully
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                        <Upload className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          Drop a file or click to upload
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          PDF, TXT, or image files
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <FileUploadInput
+                  file={jdFile}
+                  error={jobDescError}
+                  placeholderText="Drop a file or click to upload"
+                  fileTypeDescription="PDF, TXT, or image files"
+                />
               </div>
             </div>
           </div>

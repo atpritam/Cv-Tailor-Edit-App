@@ -78,13 +78,13 @@ export const RULES = `RULES:
 7. Do not try to push hard on a profile that doesn't fit the job description. Just be factual and objective
 8. Ignore separators like | , • used in template when not needed`;
 
-export const SCORING_CRITERIA = `SCORING (0-100 each, include evidence):
+export const SCORING_CRITERIA = `SCORING CRITERIA (0-100 each):
 SkillMatch (${SCORING_WEIGHTS.SkillMatch}%): Technical Skills (more points for exact Match with Job than just related skills)
 ExperienceMatch (${SCORING_WEIGHTS.ExperienceMatch}%): Role/project relevance | Give higher points for commercial roles than projects (2+ years commercial = 70+ baseline)
 TitleMatch (${SCORING_WEIGHTS.TitleMatch}%): Title/level/domain similarity  
 SoftSkillMatch (${SCORING_WEIGHTS.SoftSkillMatch}%): soft skill fit
 
-ATS = round(Σ(weight × score)) + production_bonus (8-15 points for deployment signals)
+ATS = round(Σ(weight × score))
 Cap at 97.`;
 
 export const createAnalysisPrompt = (
@@ -108,10 +108,11 @@ JSON format:
   "ExperienceMatch": <0-100>,
   "TitleMatch": <0-100>,
   "SoftSkillMatch": <0-100>,
-  "evidence": {"skillMatches":[{"token":"","count":0}],"experienceMatches":[{"phrase":"","count":0}],"titleMatches":[{"phrase":"","count":0}],"softSkillMatches":[{"phrase":"","count":0}]},
   "keySkills": [<6-10 items, 1-2 words each, only directly required skills taken verbatim from the job description; exclude resume-only or generic skills>],
   "matchingStrengths": [<4-6, around 10 words each - hyper focused>],
   "gaps": [<3-5, around 10 words each - hyper focused>],
+  "jobTitle": "<short job title based on JD (not resume)>",
+  "jobDescriptionSummary": "<concise summary of job description, max 50 words>"
 }`;
 
 export const createHtmlPrompt = (
