@@ -141,7 +141,7 @@ RESUME:
 ${resumeText}
 
 JSON output:
-{"tailoredResumeHtml":"<html>","improvements":["<4-5 substantive changes, ~10 words each>"]}`;
+{"tailoredResumeHtml":"<html>","improvements":["<4-5 substantive changes, around 10 words each not longer>"]}`;
 
 type RefinePromptData = {
   userMessage: string;
