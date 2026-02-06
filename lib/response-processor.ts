@@ -67,9 +67,14 @@ export const processHtmlResponse = async (
           for (let child = node.firstChild; child; ) {
             const next = child.nextSibling;
 
-            if (child.nodeType === Node.TEXT_NODE) {
+            if (child.nodeType === 3) {
+              // TEXT_NODE
               let text = child.nodeValue || "";
-              if (!/\n|\*/.test(text)) {
+              if (/^\s*$/.test(text)) {
+                child = next;
+                continue;
+              }
+              if (!/\*/.test(text)) {
                 child = next;
                 continue;
               }
@@ -80,8 +85,7 @@ export const processHtmlResponse = async (
                 .replace(/>/g, "&gt;");
               const html = text
                 .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-                .replace(/\*(.+?)\*/g, "<em>$1</em>")
-                .replace(/\n/g, "<br>");
+                .replace(/\*(.+?)\*/g, "<em>$1</em>");
 
               const temp = document.createElement("div");
               temp.innerHTML = html;
@@ -89,7 +93,8 @@ export const processHtmlResponse = async (
               while (temp.firstChild) node.insertBefore(temp.firstChild, child);
 
               node.removeChild(child);
-            } else if (child.nodeType === Node.ELEMENT_NODE) {
+            } else if (child.nodeType === 1) {
+              // ELEMENT_NODE
               const el = child as Element;
               if (!skipTags.has(el.tagName)) walk(child);
             }
@@ -108,7 +113,8 @@ export const processHtmlResponse = async (
       for (const el of allElements) {
         let last = el.lastChild;
         while (last) {
-          if (last.nodeType === Node.TEXT_NODE) {
+          if (last.nodeType === 3) {
+            // TEXT_NODE
             const value = last.nodeValue || "";
             // Is it just whitespace?
             if (/^\s*$/.test(value)) {
@@ -131,7 +137,8 @@ export const processHtmlResponse = async (
                 continue;
               }
             }
-          } else if (last.nodeType === Node.ELEMENT_NODE) {
+          } else if (last.nodeType === 1) {
+            // ELEMENT_NODE
             const text = (last as Element).textContent?.trim();
             if (text === "•" || text === "|" || text === "·") {
               const prev = last.previousSibling;

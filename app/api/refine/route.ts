@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         parsed.blocks || [],
       );
 
-      const processedHtml = await processHtmlResponse(updatedHtml, false);
+      const processedHtml = await processHtmlResponse(updatedHtml);
 
       return NextResponse.json({
         updatedHtml: processedHtml,
