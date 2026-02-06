@@ -324,10 +324,12 @@ export function useCVTailor() {
       }
 
       if (data.blocks && data.blocks.length > 0) {
-        setResults((prev) =>
-          prev ? { ...prev, tailoredResumeHtml: data.updatedHtml } : null,
-        );
-        addVersion(data.updatedHtml, message.substring(0, 50));
+        if (data.updatedHtml !== currentHtml) {
+          setResults((prev) =>
+            prev ? { ...prev, tailoredResumeHtml: data.updatedHtml } : null,
+          );
+          addVersion(data.updatedHtml, message.substring(0, 50));
+        }
       }
 
       setChatHistory((prev) => [
