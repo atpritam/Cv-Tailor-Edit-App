@@ -1,6 +1,6 @@
 # CV Tailor App
 
-The CV Tailor App is an AI-powered application designed to help users efficiently tailor their CVs to specific job descriptions. Leveraging advanced generative AI models and **parallel streaming processes** for lighning speed responses, the application parses resumes, analyzes job requirements, and provides intelligent, real-time suggestions to optimize a CV for a higher chance of success, ensuring a faster and more dynamic user experience.
+The CV Tailor App is an AI-powered application designed to help users efficiently tailor their CVs to specific job descriptions. Leveraging advanced generative AI multi-modal models, the application parses resumes, analyzes job requirements, and provides intelligent, real-time suggestions to optimize a CV for a higher chance of success, ensuring a faster and more dynamic user experience.
 
 [![Tailor View](Screenshots/Tailor-View.png)](https://cv-tailor-edit-app.vercel.app)
 
@@ -9,7 +9,8 @@ Deployed: [cv-tailor-edit-app.vercel.app](https://cv-tailor-edit-app.vercel.app/
 ## Features
 
 - **AI-Powered CV Tailoring:** Utilize Google's Generative AI to analyze job descriptions and provide targeted CV adjustments.
-- **Parallel AI Streaming:** Leverages concurrent AI model calls to simultaneously generate CV analysis and tailored HTML, resulting in faster and more efficient processing.
+- **Parallel AI Streaming:** Leverages concurrent AI model calls to simultaneously generate CV analysis and tailored Resume, resulting in faster and efficient processing.
+- **Multi-Modal Document Parsing:** Supports image formats, with intelligent text extraction using Gemini Vision API.
 - **Interactive AI Refinement:** Engage in a chat-based experience with the AI to continuously refine your CV, with the ability to undo and redo changes.
 - **Job Compatibility Analysis:** Input job descriptions for comprehensive analysis and scoring against your CV.
 - **Intelligent Suggestions:** Receive AI-driven recommendations for improving your CV content.
@@ -92,8 +93,8 @@ pnpm start
 
 ## Usage
 
-1.  **Upload your resume:** Begin by uploading your existing CV in PDF format.
-2.  **Provide a job description:** Paste the job description you're targeting.
+1.  **Upload your resume:** Begin by uploading your existing CV in PDF or image format (PNG, JPG, JPEG).
+2.  **Provide a job description:** Paste the job description you're targeting, or upload it as a file (TXT, PDF, or image).
 3.  **Receive tailored suggestions:** The AI will process your resume and the job description, then generate an optimized CV and produce a compatibility score.
 4.  **Refine with chat (optional):** Use the interactive chat with the AI, requesting further changes to your tailored CV. Utilize the undo/redo functionality to manage revisions.
 5.  **Customize appearance:** Choose from various color themes and upload a profile photo to personalize your resume's look.
