@@ -366,18 +366,6 @@ export function useCVTailor() {
           ...results,
           tailoredResumeHtml: previousVersion.html,
         });
-
-        setChatHistory((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            parts: [
-              {
-                text: `Reverted to previous version: ${previousVersion.changeDescription}`,
-              },
-            ],
-          },
-        ]);
       }
     }
   };
@@ -394,15 +382,7 @@ export function useCVTailor() {
           tailoredResumeHtml: nextVersion.html,
         });
 
-        setChatHistory((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            parts: [
-              { text: `Restored version: ${nextVersion.changeDescription}` },
-            ],
-          },
-        ]);
+        // Don't add chat messages for undo/redo - they're not actual content changes
       }
     }
   };
