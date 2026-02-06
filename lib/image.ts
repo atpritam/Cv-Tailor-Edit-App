@@ -3,7 +3,7 @@
 */
 
 export const resizeImage = (file: File): Promise<string> => {
-  const MAX_DIMENSION = 2048;
+  const MAX_DIMENSION = 1536;
   const reader = new FileReader();
 
   return new Promise((resolve, reject) => {
@@ -41,7 +41,7 @@ export const resizeImage = (file: File): Promise<string> => {
         }
 
         ctx.drawImage(img, 0, 0, width, height);
-        const resizedDataUrl = canvas.toDataURL("image/jpeg", 0.9);
+        const resizedDataUrl = canvas.toDataURL("image/jpeg", 0.75);
         resolve(resizedDataUrl);
       };
       img.onerror = reject;

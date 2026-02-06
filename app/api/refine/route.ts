@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateRefineDiffPrompt } from "@/lib/prompts";
 import { generateContentWithRetry } from "@/services/gen-ai";
 import { applyHtmlDiff } from "@/lib/html-diff-processor";
+import { processHtmlResponse } from "@/lib/response-processor";
 import { ChatMessage } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
@@ -73,8 +74,10 @@ export async function POST(request: NextRequest) {
         parsed.blocks || [],
       );
 
+      const processedHtml = await processHtmlResponse(updatedHtml, false);
+
       return NextResponse.json({
-        updatedHtml,
+        updatedHtml: processedHtml,
         chatResponse: parsed.chatResponse || "Changes applied successfully.",
         blocks: parsed.blocks || [],
       });

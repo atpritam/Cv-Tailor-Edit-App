@@ -73,14 +73,12 @@ export const HTML_TEMPLATE = `
 `;
 
 export const RULES = `RULES:
-1. Extract details from resume only
-2. Never invent data - omit if absent
-3. When Rewriting wording, preserve facts/metrics
-4. Links must be <a href>, omit if no URL (like Github/Live/Demo etc.)
-5. For Projects, mentioning "(Project)" is mandatory, follow the Format
-6. Don't use "N/A" anywhere, just leave blank
-7. Do not try to push hard on a profile that doesn't fit the job description. Just be factual and objective
-8. Ignore separators like | , • used in template when not needed`;
+1. Extract from resume only - never invent, omit if absent
+2. Preserve facts/metrics when rewriting
+3. Links as <a href>, omit if no URL
+4. Projects: "(Project)" mandatory; Title ≤8 words
+5. No "N/A" - leave blank
+6. Be factual, don't oversell poor fits`;
 
 export const SCORING_CRITERIA = `Ground your job compatibility evidence based on the SCORING CRITERIA (0-100 each) below:
 SkillMatch (${SCORING_WEIGHTS.SkillMatch}%): Technical Skills (more points for exact Match with Job than just related skills)
@@ -122,36 +120,28 @@ JSON format:
 export const createHtmlPrompt = (
   jobDescription: string,
   resumeText: string,
-) => `
-You are an expert resume writer and ATS optimization specialist.
+) => `Expert resume writer. Generate tailored HTML resume.
 
-Task:
-- Generate a tailored resume in valid HTML using the provided TEMPLATE.
-- Customize content based on the JOB description.
-- Preserve all class names, structures and data-* attributes exactly as provided in the TEMPLATE.
-- Improve clarity, relevance, and impact without fabricating experience.
-- Include the improvements you made in "improvements" array in the JSON output.
-
-RULES:
 ${RULES}
- - Do not mention rules, templates, word limits, or prompt instructions in the "improvements":
+7. Work: [Role] | [Company]; Projects: [Predicted Role] | [Short Name] (Project)
+8. Max 3 skills categories (9 words each), 3 experiences (150 words total STRICT), 2 RECENT education, If 2 education - Experience section to have 130 words
+9. data-index="N" = sequential 1,2,3 per section. Preserve all class/data-* attributes
+
+- Do not mention rules, templates, word limits, or prompt instructions in the "improvements":
    - Valid: "Rewrote About section to emphasize AI-driven product discovery and impact."
    - Invalid: "Shortened summary to 50 words as per template guidelines."
 
 TEMPLATE:
 ${HTML_TEMPLATE}
 
-JOB DESCRIPTION:
+JOB:
 ${jobDescription}
 
-ORIGINAL RESUME:
+RESUME:
 ${resumeText}
 
-Return JSON:
-{
-"tailoredResumeHtml": "<complete HTML>",
-"improvements": [<4-5 changes, around 10 words each - hyper focused>]
-}`;
+JSON output:
+{"tailoredResumeHtml":"<html>","improvements":["<4-5 substantive changes, ~10 words each>"]}`;
 
 type RefinePromptData = {
   userMessage: string;
@@ -176,11 +166,8 @@ export const generateRefineDiffPrompt = (data: RefinePromptData): string => {
     .filter(Boolean)
     .join("\n\n");
 
-  return `You are an expert resume editor. You tailored this resume yourself. You're to further refine it based on the USER REQUEST.
-
-TASK
-- Apply the user’s requested change to the resume. And return ONLY the modified HTML blocks in valid JSON format.
-- OR Respond to the user questions in a short friendly conversational manner.
+  return `Resume editor. Apply user's change, return modified HTML blocks as JSON or chat response.
+  You have full chat history context. Use it to understand references.
 
 RULES
 - CRITICAL: The "newHtml" value is a JSON string. All double quotes (") inside the HTML code itself MUST be escaped with a backslash (\\").
@@ -192,31 +179,22 @@ RULES
 - You can insert tags and inline styles if specific style changes are requested
 
 EXAMPLES OF VALID CHANGES: 
-
 User: "Make the summary shorter"
 Return: <p class="summary" data-field="summary">Concise new summary text here</p>
-
 User: "make this text red: Integrated Stripe subscriptions"
 Return: <p class="project-description" data-field="description" data-index="3">Made... <span style=\"color: red;\">Integrated Stripe subscriptions</span> ...experimental.</p>
-
 User: "Remove the second skill category"
 Return: The immediate entire outer block with removal changes; <div class="skills" data-block="skills-list">...</div>
 
-OUTPUT (STRICT)
-Return ONLY valid JSON:
-{
-  "blocks": [
-    { "newHtml": "<complete unique HTML block with escaped quotes>" }
-  ],
-  "chatResponse": "short friendly reply to user"
-}
+OUTPUT JSON:
+{"blocks":[{"newHtml":"<escaped html>"}],"chatResponse":"reply"}
 
-CURRENT_RESUME_HTML:
+CURRENT:
 ${currentResumeHtml}
 
 ${ctx}
 
-USER_REQUEST:
+REQUEST:
 "${userMessage}"
 `;
 };

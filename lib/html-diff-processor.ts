@@ -86,47 +86,6 @@ async function replaceHtmlBlock(
     if (child) newEl = child as Element;
   }
 
-  try {
-    const convertTextNodes = (root: Element, doc: Document) => {
-      const walk = (node: Node) => {
-        for (let child = node.firstChild; child; ) {
-          const next = child.nextSibling;
-
-          if (child.nodeType === Node.TEXT_NODE) {
-            let text = child.nodeValue || "";
-            if (!/[\n*]/.test(text)) {
-              child = next;
-              continue;
-            }
-
-            text = text
-              .replace(/&/g, "&amp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
-            const html = text
-              .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-              .replace(/\*(.+?)\*/g, "<em>$1</em>")
-              .replace(/\n/g, "<br>");
-
-            const temp = doc.createElement("div");
-            temp.innerHTML = html;
-            node.insertBefore(temp, child);
-            while (temp.firstChild) node.insertBefore(temp.firstChild, child);
-
-            node.removeChild(child);
-          } else if (child.nodeType === Node.ELEMENT_NODE) {
-            walk(child);
-          }
-          child = next;
-        }
-      };
-      walk(root);
-    };
-    convertTextNodes(newEl, newDoc);
-  } catch (e: any) {
-    console.debug("Inline markdown conversion skipped", e?.message || e);
-  }
-
   const selector = buildSelector(newEl);
 
   if (!selector) {

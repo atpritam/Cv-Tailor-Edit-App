@@ -1,6 +1,9 @@
 import { parseHTML } from "linkedom";
 
-export const processHtmlResponse = async (html: string): Promise<string> => {
+export const processHtmlResponse = async (
+  html: string,
+  fixDataIndex: boolean = true,
+): Promise<string> => {
   try {
     let processedHtml = html;
 
@@ -116,9 +119,9 @@ export const processHtmlResponse = async (html: string): Promise<string> => {
             }
 
             // Does it end with a separator?
-            const trimmedValue = value.trimEnd();
-            if (/[•|·]$/.test(trimmedValue)) {
-              const newValue = trimmedValue.slice(0, -1).trimEnd();
+            const trimmedValue = value.trim();
+            if (/[•|·]\s*$/.test(trimmedValue)) {
+              const newValue = trimmedValue.replace(/[•|·]\s*$/, "").trim();
               last.nodeValue = newValue; // update node value
               if (/^\s*$/.test(newValue)) {
                 // if it becomes empty
@@ -142,44 +145,49 @@ export const processHtmlResponse = async (html: string): Promise<string> => {
       }
 
       // Step 3: Fix data-index attributes
-      const listItemsCorrectIndex = new Map<Element, string>();
-      const lists = new Map<Element, Map<string, Element[]>>();
+      if (fixDataIndex) {
+        const listItemsCorrectIndex = new Map<Element, string>();
+        const lists = new Map<Element, Map<string, Element[]>>();
 
-      document.querySelectorAll("[data-block][data-index]").forEach((el) => {
-        const parent = el.parentElement;
-        const blockType = el.getAttribute("data-block");
-        if (!parent || !blockType) return;
-        if (!lists.has(parent)) lists.set(parent, new Map());
-        const parentMap = lists.get(parent)!;
-        if (!parentMap.has(blockType)) parentMap.set(blockType, []);
-        parentMap.get(blockType)!.push(el);
-      });
+        document.querySelectorAll("[data-block][data-index]").forEach((el) => {
+          const parent = el.parentElement;
+          const blockType = el.getAttribute("data-block");
+          if (!parent || !blockType) return;
+          if (!lists.has(parent)) lists.set(parent, new Map());
+          const parentMap = lists.get(parent)!;
+          if (!parentMap.has(blockType)) parentMap.set(blockType, []);
+          parentMap.get(blockType)!.push(el);
+        });
 
-      for (const parentMap of lists.values()) {
-        for (const list of parentMap.values()) {
-          list.forEach((item, index) => {
-            listItemsCorrectIndex.set(item, (index + 1).toString());
-          });
-        }
-      }
-
-      const stack: { node: Element; inheritedIndex: string | null }[] = [
-        { node: document.body, inheritedIndex: null },
-      ];
-
-      while (stack.length > 0) {
-        const { node, inheritedIndex } = stack.pop()!;
-
-        let currentIndex = inheritedIndex;
-        if (inheritedIndex === null && listItemsCorrectIndex.has(node)) {
-          currentIndex = listItemsCorrectIndex.get(node)!;
+        for (const parentMap of lists.values()) {
+          for (const list of parentMap.values()) {
+            list.forEach((item, index) => {
+              listItemsCorrectIndex.set(item, (index + 1).toString());
+            });
+          }
         }
 
-        if (node.hasAttribute("data-index") && currentIndex !== null) {
-          node.setAttribute("data-index", currentIndex);
-        }
-        for (let i = node.children.length - 1; i >= 0; i--) {
-          stack.push({ node: node.children[i], inheritedIndex: currentIndex });
+        const stack: { node: Element; inheritedIndex: string | null }[] = [
+          { node: document.body, inheritedIndex: null },
+        ];
+
+        while (stack.length > 0) {
+          const { node, inheritedIndex } = stack.pop()!;
+
+          let currentIndex = inheritedIndex;
+          if (inheritedIndex === null && listItemsCorrectIndex.has(node)) {
+            currentIndex = listItemsCorrectIndex.get(node)!;
+          }
+
+          if (node.hasAttribute("data-index") && currentIndex !== null) {
+            node.setAttribute("data-index", currentIndex);
+          }
+          for (let i = node.children.length - 1; i >= 0; i--) {
+            stack.push({
+              node: node.children[i],
+              inheritedIndex: currentIndex,
+            });
+          }
         }
       }
 

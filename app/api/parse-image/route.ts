@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     const prompt =
-      "Extract all text from this resume image. Preserve the formatting as much as possible, including spacing and line breaks. The output should be only the text from the image.";
+      "Extract all text from this image, preserving formatting and line breaks.";
 
     const text = await generateTextFromImage(prompt, {
       mimeType,

@@ -75,7 +75,7 @@ export async function generateTextFromImage(
 
     const result = await Promise.race([
       ai.models.generateContent({
-        model: MODELS.primary, // gemini-2.5-flash
+        model: MODELS.refine, // gemini-2.5-flash-lite
         contents: [{ role: "user", parts: [textPart, imagePart] }],
         config: imageConfig,
       }),

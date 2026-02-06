@@ -112,6 +112,13 @@ export async function POST(request: NextRequest) {
         safeEnqueue(
           `data: ${JSON.stringify({ type: "started", message: "Analysis started" })}\n\n`,
         );
+        const generateHtml = generateContentWithRetry(
+          createHtmlPrompt(jobDescription, resumeText),
+          [],
+          2,
+        );
+
+        await new Promise((resolve) => setTimeout(resolve, 260));
 
         let lastAnalysisSent = 0;
 
@@ -180,15 +187,6 @@ export async function POST(request: NextRequest) {
               }
             }
           },
-        );
-
-        // Small delay before starting HTML generation
-        await new Promise((resolve) => setTimeout(resolve, 1010));
-
-        const generateHtml = generateContentWithRetry(
-          createHtmlPrompt(jobDescription, resumeText),
-          [],
-          2,
         );
 
         const [, htmlText] = await Promise.all([streamAnalysis, generateHtml]);
