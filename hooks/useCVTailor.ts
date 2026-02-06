@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import type { TailorResult, ResumeVersion, ChatMessage } from "@/lib/types";
+import { toast } from "@/hooks/use-toast";
 
 const MAX_HISTORY_VERSIONS = 5;
 
@@ -366,6 +367,11 @@ export function useCVTailor() {
           ...results,
           tailoredResumeHtml: previousVersion.html,
         });
+
+        toast({
+          description: `↶ ${previousVersion.changeDescription}`,
+          duration: 2000,
+        });
       }
     }
   };
@@ -382,7 +388,10 @@ export function useCVTailor() {
           tailoredResumeHtml: nextVersion.html,
         });
 
-        // Don't add chat messages for undo/redo - they're not actual content changes
+        toast({
+          description: `↷ ${nextVersion.changeDescription}`,
+          duration: 2000,
+        });
       }
     }
   };

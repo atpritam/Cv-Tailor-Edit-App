@@ -188,7 +188,6 @@ export function CVTailorForm({
                 </div>
                 <FileUploadInput
                   file={resumeFile}
-                  error={resumeError}
                   placeholderText="Drop a file or click to upload"
                   fileTypeDescription="PDF, TXT, or image files"
                 />
@@ -277,7 +276,6 @@ export function CVTailorForm({
                 </div>
                 <FileUploadInput
                   file={jdFile}
-                  error={jobDescError}
                   placeholderText="Drop a file or click to upload"
                   fileTypeDescription="PDF, TXT, or image files"
                 />
